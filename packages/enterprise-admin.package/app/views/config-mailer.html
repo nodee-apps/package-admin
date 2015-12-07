@@ -1,0 +1,87 @@
+<div class="row">
+    <div ng-repeat="(id,mailer) in item.config">
+        <form class="form-horizontal form-condensed">
+            <fieldset>
+                <h4>{{mailer.id}}</h4>
+                <div class="row">
+                    <div class="col-xs-12 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{::'Host'|translate}} ({{::'required'|translate}})</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control input-sm" ng-model="mailer.host" placeholder="{{::'smtp.yourserver.com'|translate}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{::'Port'|translate}} ({{::'required'|translate}})</label>
+                            <div class="col-sm-9">
+                                <input type="number" class="form-control input-sm" ng-model="mailer.port" placeholder="465">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{::'From Email'|translate}} ({{::'required'|translate}})</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control input-sm" ng-model="mailer.from" placeholder="{{::'from@email.com'|translate}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{::'From Name'|translate}}</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control input-sm" ng-model="mailer.name" placeholder="{{::'company name'|translate}}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{::'Secure'|translate}}</label>
+                            <div class="col-sm-9">
+                                <label class="checkbox checkbox-primary">
+                                    <input type="checkbox" ng-model="mailer.secure">
+                                    <i class="checkbox-icon"></i> SSL
+                                </label>
+                                &nbsp; / &nbsp;
+                                <label class="checkbox checkbox-primary">
+                                    <input type="checkbox" ng-model="mailer.useTLS" ng-change="mailer.useTLS ? mailer.tls={ciphers:'SSLv3'} : mailer.tls = null">
+                                    <i class="checkbox-icon"></i> TLS (SSLv3)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{::'User'|translate}}</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control input-sm" ng-model="mailer.user" placeholder="{{::'user'|translate}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{::'Password'|translate}}</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control input-sm" ng-model="mailer.password" placeholder="{{::'password'|translate}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{{::'Timeout in ms'|translate}}</label>
+                            <div class="col-sm-9">
+                                <input type="number" class="form-control input-sm" ng-model="mailer.timeout" placeholder="10000">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-xs-12 right">
+                                <button class="btn btn-danger btn-xs" style="margin-top:4px;" ng-click="deleteKey(mailer.id, item.config);">
+                                    <i class="fa fa-fw fa-trash-o"></i> {{::'Remove'|translate}}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+    <div class="input-group" style="width:300px;">
+        <input type="text" class="form-control input-sm" ng-model="item.newId" placeholder="{{::'unique mailer ID'|translate}}">
+        <span class="input-group-btn">
+	    <button class="btn btn-default btn-sm" ng-disabled="item.config[item.newId] || !item.newId" ng-click="item.config[item.newId]={id:item.newId+''}">
+            <i class="fa fa-fw fa-plus"></i> {{::'Add Mailer'|translate}}
+	    </button>
+	</span>
+    </div>
+</div>

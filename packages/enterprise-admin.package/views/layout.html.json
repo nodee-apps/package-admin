@@ -1,0 +1,28 @@
+{
+    "title":{
+        "html":"title"
+    },
+    
+    "script[ne-admin-libs]":{
+        "repeat":"libs",
+        "attrs":{ "src":"this" }
+    },
+    
+    "script[ne-admin-scripts]":{
+        "repeat":"scripts",
+        "attrs":{ "src":"this" }
+    },
+    
+    "link[ne-admin-styles]":{
+        "repeat":"styles",
+        "attrs":{ "href":"this" }
+    },
+    
+    "#app-script":{
+        "html":"appScript"
+    },
+    
+    "[data-languages]":{
+        "html":"JSON(usedLanguages)"
+    }
+}

@@ -1,0 +1,15 @@
+<div>
+    <form>
+        <label>{{::'New Password'|translate}}</label>
+        <input type="password" class="form-control" ng-model="modal.user.password" placeholder="{{::'password'|translate}}" ng-minlength="5" required><br/>
+        <label>{{::'Repeat New Password'|translate}}</label>
+        <input type="password" class="form-control" ng-model="modal.user.passRetype" placeholder="{{::'repeat new password'|translate}}" ng-minlength="5" required><br />
+    </form>
+    <hr/>
+    <div class="pull-right">
+        <button class="btn btn-default" ng-click="modal.hide()">{{::'Close'|translate}}</button>
+        <button class="btn btn-primary" ng-disabled="!(modal.user.password && modal.user.passRetype && (modal.user.password===modal.user.passRetype))"
+                ng-click="modal.resetPass(modal.user)">{{::'Reset'|translate}}</button>
+    </div>
+    <div class="clearfix"></div>
+</div>

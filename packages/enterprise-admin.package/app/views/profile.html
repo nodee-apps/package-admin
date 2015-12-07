@@ -1,0 +1,18 @@
+
+<div class="row">
+    <div class="col-xs-12 col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-fw fa-user"></i> {{::'Your User Profile'|translate}}
+            </div>
+            <div class="panel-body">
+                <div ng-init="user.profile=user.profile||{}" 
+                     ne-copy="user.profile" 
+                     ne-user-profile="$copy" 
+                     ne-user-profile-update="$commit();updateProfile()" 
+                     ne-user-profile-rollback="$rollback()">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

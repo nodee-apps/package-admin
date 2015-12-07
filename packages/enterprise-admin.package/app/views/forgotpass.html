@@ -1,0 +1,14 @@
+<div>
+    <form>
+        <label>{{::'Your Registered Email'|translate}}</label>
+        <input type="email" class="form-control" ng-model="modal.email" placeholder="{{::'your@email.com'|translate}}" required><br/>
+    </form>
+    <hr/>
+    <div class="pull-right">
+        <button class="btn btn-default" ng-click="modal.hide()">{{::'Close'|translate}}</button>
+        <button class="btn btn-primary" 
+                ng-disabled="!modal.email" 
+                ng-click="modal.sendPass(modal.email)">{{::'Send Password'|translate}}</button>
+    </div>
+    <div class="clearfix"></div>
+</div>

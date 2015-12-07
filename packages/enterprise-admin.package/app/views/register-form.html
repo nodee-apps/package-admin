@@ -1,0 +1,50 @@
+<form name="regForm" class="login" accept-charset="UTF-8">
+    <div ng-if="registerSuccess">
+        <h4>{{::'Registration Successful'|translate}}</h4>
+        {{::'Now, contact your administrator to setup account access permissions, please.'|translate}}
+    </div>
+    <fieldset ng-if="!registerSuccess">
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-fw fa-user"></i></span>
+                <input class="form-control"
+                       placeholder="{{::'your@email.com'|translate}}"
+                       name="email"
+                       type="email"
+                       ng-model="reg.email"
+                       ng-blur="checkEmailDuplicity(reg.email)"
+                       required />
+            </div>
+            <span class="valid-warning" ng-if="dupliciteEmail">*{{::'This email is used by another user, please enter different'|translate}}</span>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-fw fa-lock"></i></span>
+                <input class="form-control"
+                       placeholder="{{::'password (min. 5 letters)'|translate}}"
+                       name="password"
+                       type="password"
+                       ng-model="reg.pass"
+                       ng-minlength="5"
+                       required />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-fw fa-lock"></i></span>
+                <input class="form-control"
+                       placeholder="{{::'repeat new password (min. 5 letters)'|translate}}"
+                       name="password2"
+                       type="password"
+                       ng-model="reg.pass2"
+                       ng-minlength="5"
+                       required />
+            </div>
+        </div>
+        <button class="btn btn-lg btn-block btn-register"
+                ng-click="register(reg.email, reg.pass)"
+                ng-disabled="!regForm.$valid || dupliciteEmail || reg.pass!==reg.pass2">
+            {{::'Register'|translate}}
+        </button>
+    </fieldset>
+</form>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org" id="ng-app" ng-app="neApp">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NodeJS Enterprise - Admin Area">
+    <meta name="author" content="N.I.S., s.r.o.">
+    <title>Admin</title>
+    <link id="favicon" rel="shortcut icon" type="image/ico" href="images/favicon.ico" />
+    
+    <!-- admin and 3rd-party styles -->
+    <link ne-admin-styles href="" rel="stylesheet">
+</head>
+
+<body>
+    <div ne-notifications-container></div>
+    
+    <render-body></render-body>
+    
+    <!-- modals container -->
+    <div ne-modals-container></div>
+    
+    <!-- 3rd-party tools & libs (include angularjs) -->
+    <script ne-admin-libs src=""></script>
+    
+    <!-- admin angular modules -->
+    <script ne-admin-scripts src=""></script>
+    
+    <!-- admin application init script -->
+    <script id="app-script"></script>
+    
+    <!-- localisations -->
+    <ne-init-data style="display:none;" data-languages ne-init-as="languages" ne-init-done="fillLanguages()"></ne-init-data>
+</body>
+</html>

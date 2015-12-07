@@ -1,0 +1,40 @@
+<form name="loginForm" class="login" accept-charset="UTF-8" novalidate>
+    <fieldset>
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-fw fa-user"></i></span>
+                <input class="form-control"
+                       placeholder="{{::'your@email.com'|translate}}"
+                       name="email"
+                       type="email"
+                       ng-model="reg.email"
+                       required />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-fw fa-lock"></i></span>
+                <input class="form-control"
+                       placeholder="{{::'password'|translate}}"
+                       name="password"
+                       type="password"
+                       ng-model="reg.pass"
+                       ng-minlength="5"
+                       required />
+            </div>
+        </div>
+        <div ng-if="loginFailed">
+            <span>*{{::'Wrong Email or Password'|translate}}</span>
+        </div>
+        <button class="btn btn-lg btn-block btn-login"
+                ng-click="login(reg.email, reg.pass)" 
+                ng-disabled="!loginForm.$valid">
+            {{::'Log in'|translate}}
+        </button>
+        <div class="pull-right" style="padding:10px;">
+            <a ng-if="canRegister" href="register" class="pull-left">{{::'Register'|translate}}</a>
+            <span ng-if="canRegister">&nbsp;/&nbsp;</span>
+            <a href="" ng-click="forgotPassModal(reg.email)">{{::'Forgot Password'|translate}}</a>
+        </div>
+    </fieldset>
+</form>

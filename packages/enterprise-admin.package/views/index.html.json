@@ -1,0 +1,17 @@
+{
+    "[data-user]":{
+        "html":"JSON($user)"
+    },
+
+    "[data-global]":{
+        "repeat":"globalsArray",
+        "attrs":{
+            "ne-init-as":"key"
+        },
+        "html":"value"
+    },
+
+    "[data-menu]":{
+        "html":"JSON(menu.items)"
+    }
+}

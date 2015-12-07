@@ -1,0 +1,22 @@
+<div>
+    <form>
+        <label>{{::'Email'|translate}}</label>
+        <input type="email" class="form-control" ng-model="modal.newUser.email" placeholder="{{::'email@email.com'|translate}}" ng-blur="modal.checkEmailDuplicity(modal.newUser.email)" required>
+        <span class="valid-warning" ng-if="modal.newUser.$dupliciteEmail">{{::'*This email is used by another user, please enter different'|translate}}</span>
+        <br/>
+        
+        <label>{{::'New Password'|translate}}</label>
+        <input type="password" class="form-control" ng-model="modal.newUser.password" placeholder="{{::'password'|translate}}" ng-minlength="5" required><br/>
+        <label>{{::'Repeat New Password'|translate}}</label>
+        <input type="password" class="form-control" ng-model="modal.newUser.passRetype" placeholder="{{::'repeat new password'|translate}}" ng-minlength="5" required><br />
+        <label>{{::'Roles'|translate}}</label>
+        <input type="text" ng-list class="form-control" ng-model="modal.newUser.roles" placeholder="{{::'roles'|translate}}" required><br />
+    </form>
+    <hr/>
+    <div class="pull-right">
+        <button class="btn btn-default" ng-click="modal.hide()">{{::'Close'|translate}}</button>
+      <button class="btn btn-primary" ng-disabled="modal.newUser.$dupliciteEmail || !modal.newUser.email || !(modal.newUser.password && modal.newUser.passRetype && (modal.newUser.password===modal.newUser.passRetype))"
+              ng-click="modal.createUser(modal.newUser)">{{::'Create'|translate}}</button>
+    </div>
+    <div class="clearfix"></div>
+</div>

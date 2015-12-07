@@ -1,0 +1,179 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <i class="fa fa-fw fa-users"></i> {{::'User Management'|translate}}
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <button class="pull-left margin-sm btn btn-success btn-sm" ng-click="createUserModal()">
+                    <span class="fa fa-fw fa-plus"></span> {{::'Create User'|translate}}
+                </button>
+                <div class="pull-left margin-sm" 
+                     ne-query-search="query" 
+                     ne-query-search-click="grid.setQuery(query.build())">
+                </div>
+            </div>
+            <table class="table grid">
+                    <thead>
+                        <tr>
+                            <th>{{::'Email'|translate}}</th>
+                            <th>&nbsp;</th>
+                            <th>&nbsp;</th>
+                            <th class="hidden-xs">{{::'Roles'|translate}}</th>
+                            <th class="hidden-xs">&nbsp;</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat-start="item in grid.items">
+                            <td class="nowrap">
+                                {{item.email}}
+                            </td>
+                            <td class="grid-row-xs">
+                                <button class="btn btn-default btn-sm" ng-model="item.$expanded.security" ng-change="item.$expanded={security:item.$expanded.security}" ng-class="{'btn-warning':item.disabled}" uib-btn-checkbox>
+                                    <i class="fa fa-unlock-alt fa-fw"></i>
+                                    <span class="hidden-xs">{{::'Security'|translate}}</span>
+                                </button>
+                            </td>
+                            <td class="grid-row-xs">
+                                <button class="btn btn-default btn-sm" ng-model="item.$expanded.profile" ng-change="item.$expanded={profile:item.$expanded.profile}" ng-disabled="user.id===item.id" uib-btn-checkbox>
+                                    <i class="fa fa-user fa-fw"></i>
+                                    <span class="hidden-xs">{{::'Profile'|translate}}</span>
+                                </button>
+                            </td>
+                            <td class="hidden-xs">
+                                <input ne-grid-update-blur type="text" class="input-sm" ng-list ng-model="item.roles">
+                            </td>
+                            <td class="grid-row-xs hidden-xs">
+                                <button class="btn btn-default btn-sm" ng-click="grid.refreshItem(item)">
+                                    <i class="fa fa-refresh fa-fw"></i> <span class="hidden-xs hidden-sm">{{::'Reload'|translate}}</span>
+                                </button>
+                            </td>
+                            <td class="grid-row-xs">
+                                <button class="btn btn-sm btn-danger" ng-disabled="user.id===item.id" ng-click="removeModal(item)">
+                                    <i class="fa fa-trash-o fa-fw"></i> <span class="hidden-xs hidden-sm">{{::'Remove'|translate}}</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr ng-if="item.$expanded.security">
+                            <td colspan="7" class="grid-row-details">
+                                <div class="row form-condensed form-horizontal">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label">{{::'ID'|translate}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" 
+                                                       class="form-control input-sm" 
+                                                       disabled="disabled" 
+                                                       ng-model="item.id">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label">{{::'API Key'|translate}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" 
+                                                       class="form-control input-sm" 
+                                                       disabled="disabled" 
+                                                       ng-model="item.apiKey">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label">{{::'Allowed API IPs'|translate}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" 
+                                                       class="form-control input-sm" 
+                                                       ng-list 
+                                                       ng-model="item.allowedIP"
+                                                       ne-grid-update-blur>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label">{{::'Roles'|translate}}</label>
+                                            <div class="col-sm-7">
+                                                <input ne-grid-update-blur
+                                                       type="text" 
+                                                       class="form-control input-sm" 
+                                                       ng-list 
+                                                       ng-model="item.roles">
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label">{{::'Created'|translate}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" 
+                                                       class="form-control input-sm" 
+                                                       value="{{item.createdDT | date:'dd.MM.yyyy (HH:mm:ss)'}}" 
+                                                       disabled="disabled">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label">{{::'Last Modified'|translate}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" 
+                                                       class="form-control input-sm" 
+                                                       value="{{item.modifiedDT | date:'dd.MM.yyyy (HH:mm:ss)'}}" 
+                                                       disabled="disabled">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label">{{::'Last Login'|translate}}</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" 
+                                                       class="form-control input-sm" 
+                                                       value="{{item.lastLoginDT | date:'dd.MM.yyyy (HH:mm:ss)'}}" 
+                                                       disabled="disabled">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="col-sm-5 control-label">{{::'Access'|translate}}</label>
+                                            <div class="col-sm-7">
+                                                <label class="checkbox checkbox-warning input-sm">
+                                                    <input ng-disabled="user.id===item.id" 
+                                                           type="checkbox" 
+                                                           ng-model="item.disabled"
+                                                           ng-change="grid.updateItem(item)">
+                                                    <i class="checkbox-icon"></i>
+                                                    {{::'Disabled'|translate}}
+                                                </label>
+                                                <button class="btn btn-sm btn-default" ng-click="resetPassModal(item)">
+                                                    <i class="fa fa-unlock-alt fa-fw"></i>
+                                                    {{::'Reset Password'|translate}}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-repeat-end ng-if="item.$expanded.profile">
+                            <td colspan="7" class="grid-row-details">
+                                <div ng-init="item.profile=item.profile||{}" 
+                                     ne-copy="item.profile" 
+                                     ne-user-profile="$copy" 
+                                     ne-user-profile-update="$commit();grid.updateItem(item)" 
+                                     ne-user-profile-rollback="$rollback()">
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            <div class="panel-footer">
+                <div ne-grid-pagination="grid"></div>
+            </div>
+        </div>
+    </div>
+</div>

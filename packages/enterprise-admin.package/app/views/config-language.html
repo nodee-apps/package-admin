@@ -1,0 +1,15 @@
+<div class="row">
+    <form class="form-horizontal form-condensed">
+        <fieldset>
+            <div class="form-group">
+                <label class="col-sm-3 col-sm-offset-2 control-label">{{::'Default Language'|translate}}</label>
+                <div class="col-sm-3">
+                    <select class="form-control input-sm" 
+                            ng-model="item.config.defaultLanguage" 
+                            ng-options="key as key for (key, value) in languages">
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
