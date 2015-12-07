@@ -32,7 +32,7 @@ tmp
 # configs
 databases
 config
-config-debug
+#config-debug
 config-release
 
 # related packages used for dev

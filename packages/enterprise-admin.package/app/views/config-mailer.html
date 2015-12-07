@@ -64,8 +64,11 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-xs-12 right">
-                                <button class="btn btn-danger btn-xs" style="margin-top:4px;" ng-click="deleteKey(mailer.id, item.config);">
+                            <div class="col-xs-12 text-right padding-top-sm">
+                                <button class="btn btn-default btn-xs" ng-click="sendEmail(mailer, 'Test Email Subject', 'Test Email Body')">
+                                    <i class="fa fa-fw fa-envelope"></i> {{::'Send Me Test Email'|translate}}
+                                </button>
+                                <button class="btn btn-danger btn-xs" ng-click="deleteKey(mailer.id, item.config);">
                                     <i class="fa fa-fw fa-trash-o"></i> {{::'Remove'|translate}}
                                 </button>
                             </div>

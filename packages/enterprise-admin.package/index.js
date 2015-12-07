@@ -102,12 +102,34 @@ var admin = module.exports = {
                     password:{ isString:true },
                     timeout:{ isInteger:true }
                 })
-            }
+            },
+            forgotpass:{
+                name: 'Forgot Pass. Email',
+                description: 'Forgot Password Email Settings',
+                templateUrl: 'views/config-forgotpass.html',
+                icon: 'fa-envelope',
+                array: false, // will be validated as array of Models
+                keyValue: false, // will be validated as key - Model
+                defaultValue: { 
+                    emailSubject: 'Password Changed',
+                    emailTemplate: '<p>\nDear User,\n</p>\n<p>\nYour password was changed to: <strong>[[new_password]]</strong>\n</p>\n<p>\n<strong>We strongly recommend to change your password after login</strong>\n</p>\n<p>\nThank you\n</p>'
+                },
+                Model: Model.define({
+                    emailSubject:{ required:true, isString:true },
+                    emailTemplate:{ required:true, isString:true },
+                    mailer:{ isString:true }
+                })
+            },
         },
         
         // gets config item data
         get: function(id){
-            return (CONFIG.hasOwnProperty(id) || admin.config.items[id]) ? (CONFIG[id] || admin.config.items[id].defaultValue) : undefined;
+            return (CONFIG.hasOwnProperty(id) || admin.config.items[id]) ? 
+                   (CONFIG[id] || 
+                    (typeof admin.config.items[id].defaultValue === 'function' ? 
+                     admin.config.items[id].defaultValue() : 
+                     admin.config.items[id].defaultValue)
+                   ) : undefined;
         },
         
         // gets config item data
@@ -417,6 +439,7 @@ function install(){
     framework.mapping('/admin/views/config.html', '@enterprise-admin/app/views/config.html');
     framework.mapping('/admin/views/config-mailer.html', '@enterprise-admin/app/views/config-mailer.html');
     framework.mapping('/admin/views/config-language.html', '@enterprise-admin/app/views/config-language.html');
+    framework.mapping('/admin/views/config-forgotpass.html', '@enterprise-admin/app/views/config-forgotpass.html');
     
     // admin styles
     framework.mapping('/admin/theme/ne-theme.css', '@enterprise-admin/app/theme/ne-theme.css');
@@ -433,8 +456,12 @@ function install(){
         basePath: '/admin',
         loginTemplate: 'e: @enterprise-admin/views/login',
         registerTemplate: 'e: @enterprise-admin/views/register',
-        forgotPassTemplate: 'e: @enterprise-admin/views/emails/forgotpass',
-        //forgotPassLanguage: admin.languages
+        mailer: function(){ 
+            var mailerId = admin.config.get('forgotpass').mailer;
+            return mailerId ? admin.config.get('mailers')[mailerId] : undefined;
+        },
+        forgotPassSubject: function(){ return admin.config.get('forgotpass').emailSubject; },
+        forgotPassEmail: function(){ return admin.config.get('forgotpass').emailTemplate; }
     });
     
     auth.viewRegister = function(data){
@@ -530,6 +557,26 @@ function install(){
         var lang = admin.languages[langId] || {};
         var langProp = ctrl.query.property || ctrl.query.path;
         ctrl.json({ data: langProp ? lang[langProp] : lang });
+    }
+    
+    // mailer test
+    framework.route('/admin/mailers/test', testMailer, { flags:['post','json','authorize','!admin','!adminarea'], timeout: 30000 });
+    function testMailer(){
+        var ctrl = this;
+        
+        framework.sendMail({
+            to: ctrl.user.email,
+            //cc: '',
+            //bcc: '',
+            subject: ctrl.body.subject,
+            // model: doc,
+            body: ctrl.body.body,
+            config: ctrl.body.mailer
+
+        }, function(err){
+            if(err) ctrl.status = 400;
+            ctrl.json({ data: (err||{}).message });
+        });
     }
     
     // add usersPlugin

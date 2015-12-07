@@ -184,7 +184,7 @@ angular.module('neAdmin',['neDirectives',
         
         var text = '';
         for(var i=0;i<errArray.length;i++){
-            text+= (i>0 ? ',\n' : '') + local.translate(errArray[i]);
+            text+= (i>0 ? ', ' : '') + local.translate(errArray[i]);
         }
         return text;
     }
@@ -196,7 +196,7 @@ angular.module('neAdmin',['neDirectives',
                 text = '';
                 var first = true;
                 for (var key in data) {
-                    text += (first ? '' : '\n,') + '"'+local.translate(key) + '" ' + local.translate('have to be') + ': ' + translateValidations(data[key]);
+                    text += (first ? '' : '<br>') + '<strong>'+local.translate(key) + '</strong> ' + local.translate('must be') + ': ' + translateValidations(data[key]);
                     first = false;
                 }
             }
@@ -251,6 +251,16 @@ angular.module('neAdmin',['neDirectives',
             resetPass:{ 
                 method:'POST',
                 url: '/{id}/'
+            }
+        }
+    });
+    
+    admin.mailers = new RestResource({ 
+        baseUrl: 'mailers',
+        commands:{
+            test:{
+                url:'test',
+                method:'POST',
             }
         }
     });
@@ -380,6 +390,12 @@ angular.module('neAdmin',['neDirectives',
 .controller('ConfigCtrl',['$scope','neAdmin','neNotifications', function($scope, admin, notify){
     $scope.configItems = angular.copy($scope.appConfig);
     
+    $scope.getConfig = function(id, item){
+        admin.configs.one(id, function(data){
+            item[ '$'+id ] = data;
+        });
+    };
+    
     $scope.loadConfig = function(id, item){
         admin.configs.one(id, function(data){
             item.loaded = true;
@@ -396,6 +412,22 @@ angular.module('neAdmin',['neDirectives',
     
     $scope.deleteKey = function(key, obj){
         if(obj) delete obj[ key ];
+    };
+    
+    // TODO: move to another controller
+    $scope.sendEmail = function(mailer, subject, body){
+        admin.mailers.test({
+            mailer: mailer,
+            subject: subject,
+            body: body
+        }, function(data){
+            notify.success('Email Sent');
+            return true;
+        }, function(data, status){
+            if(status === 408) notify.error('Email Sending Error', 'Timeout');
+            else notify.error('Email Sending Error', data);
+            return true;
+        });
     };
 }])
 .controller('ProfileCtrl',['$scope','neAdmin','neNotifications', function($scope, admin, notify){
