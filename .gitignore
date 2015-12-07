@@ -40,9 +40,9 @@ packages/enterprise-admin-languages.package
 packages/enterprise-total.package
 
 # angular module sources
-packages/enterprise-admin.package/angular-modules/src
-packages/enterprise-admin.package/angular-modules/*.command
+packages/enterprise-admin.package/app/angular-modules/src
+packages/enterprise-admin.package/app/angular-modules/*.command
 
 # theme sources
-packages/enterprise-admin.package/theme/src
-packages/enterprise-admin.package/theme/*.command
+packages/enterprise-admin.package/app/theme/src
+packages/enterprise-admin.package/app/theme/*.command
