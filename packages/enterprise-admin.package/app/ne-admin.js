@@ -438,7 +438,7 @@ angular.module('neAdmin',['neDirectives',
         });
     };
 }])
-.directive('neUserProfile', ['$rootScope', function($rootScope){
+.directive('neUserProfile', ['$rootScope', 'neLocal', function($rootScope, local){
     return {
         scope:{
             profile:'=neUserProfile',
@@ -448,7 +448,7 @@ angular.module('neAdmin',['neDirectives',
         templateUrl:'views/profile-form.html',
         link: function(scope, elm, attrs){
             scope.languages = Object.keys($rootScope.languages);
-            scope.languages.unshift('default');
+            scope.languages.unshift(local.translate('default'));
         }
     };
 }]);

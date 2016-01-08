@@ -7,6 +7,7 @@
                     <select class="form-control input-sm" 
                             ng-model="item.config.mailer" 
                             ng-options="key as key for (key, value) in item.$mailers">
+                        <option value="">({{::'not set'|translate}})</option>
                     </select>
                 </div>
             </div>
