@@ -37,7 +37,7 @@ angular.module('neAdmin.users', [])
     }
 
     admin.state.watch($scope.grid.id, gridStateWatch);
-    $scope.$on('$destroy', function(){ admin.state.unWatch($scope.grid.id, gridStateWatch); });
+    $scope.$on('$destroy', function(){ admin.state.destroy($scope.grid.id); });
 
     $scope.createUserModal = function () {
         modals.create({

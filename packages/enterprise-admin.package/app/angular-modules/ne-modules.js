@@ -2857,8 +2857,12 @@ angular.module('neGrid',['neObject','neLocal'])
         '           <button class="btn btn-default" ng-disabled="grid.prevDisabled" ng-click="grid.setPage(\'first\')"><span class="fa fa-fast-backward"></span></button>' +
         '           <button class="btn btn-default" ng-disabled="grid.prevDisabled" ng-click="grid.setPage(\'prev\')"><span class="fa fa-backward"></span></button>' +
         '        </div>'+
-        '        <span> {{\'page\'|translate}} <input type="number" class="input-{{size}} width-sm" ng-model="grid.pagination.page" min="1" max="{{grid.pagination.pages}}" ne-keypress-enter="grid.setPage(grid.pagination.page)"> {{\'of\'|translate}} {{grid.pagesCount}} <span class="hidden-xs">({{grid.pagination.count}} {{\'items\'|translate}})</span></span>' +
-        
+        '        <span>'+
+        '           <span ng-if="grid.pagesCount"> {{\'page\'|translate}} </span>' +
+        '           <input type="number" class="input-{{size}} width-sm" ng-model="grid.pagination.page" min="1" max="{{grid.pagination.pages||\'\'}}" ne-keypress-enter="grid.setPage(grid.pagination.page)">' +
+        '           <span ng-if="grid.pagesCount"> {{\'of\'|translate}} {{grid.pagesCount}} </span>' +
+        '           <span ng-if="grid.pagesCount" class="hidden-xs">({{grid.pagination.count}} {{\'items\'|translate}})</span>'+
+        '        </span>' +
         '        <div class="btn-group btn-group-{{size}}">'+
         '           <button class="btn btn-default" ng-disabled="grid.nextDisabled" ng-click="grid.setPage(\'next\')"><span class="fa fa-forward"></span></button>' +
         '           <button class="btn btn-default" ng-disabled="grid.nextDisabled" ng-click="grid.setPage(\'last\')"><span class="fa fa-fast-forward"></span></button>' +
@@ -2983,7 +2987,7 @@ angular.module('neGrid',['neObject','neLocal'])
         this.onCreate = settings.onCreate;
         this.onRemove = settings.onRemove;
         this.resource = settings.restResource || settings.resource;
-        this.getResourceMethod = settings.getResourceMethod || settings.resourceMethod || getResourceMethod; // getResourceMethod(opType, item)
+        this.getResourceMethod = settings.getResourceMethod || settings.resourceMethod || (typeof this.resource === 'function' ? this.resource : null) || getResourceMethod; // getResourceMethod(opType, item)
         this.autoLoad = settings.autoLoad || settings.loadOnChange;
         this.multiSelect = settings.multiSelect || settings.multiselect || false;
         // if(!this.resource) throw new Error('neGrid: restResource is undefined');
@@ -3061,6 +3065,7 @@ angular.module('neGrid',['neObject','neLocal'])
     // methods definitions
     function fillItems(items, pagination){
         var grid = this;
+        pagination = pagination || {};
         grid.items = items;
         grid.pagination = pagination;
         grid.pagesCount = Math.ceil(pagination.count / grid.limit);
@@ -4108,7 +4113,7 @@ angular.module('neObject',[])
     
     var hasOwn = Object.prototype.hasOwnProperty;
     function isPlainObject(obj) {
-        if (!obj || toString.call(obj) !== '[object Object]' || obj.nodeType || obj.setInterval)
+        if (!obj || Object.prototype.toString.call(obj) !== '[object Object]' || obj.nodeType || obj.setInterval)
             return false;
 
         var has_own_constructor = hasOwnProperty.call(obj, 'constructor');
@@ -6212,8 +6217,14 @@ angular.module('neState', ['ngCookies'])
         builder: function(stateObj){
             var locationPrefix = this.prefix;
             var encryptLocation = this.encrypt;
-            var str = encodeURIComponent( JSON.stringify(stateObj) );
-
+            var str = JSON.stringify(stateObj, removeEmptyStates); //.replace(/=/,'%3D').replace(/\&/, '%26').replace(/\?/, '%3F');
+            
+            // there don't have to be empty states in url
+            function removeEmptyStates(key, value){
+                if(!stateObj[key]) return value;
+                if(Object.keys(stateObj[key]).length) return value;
+            }
+            
             if(encryptLocation) str = encryptString(str);
             return str;
         },
@@ -6710,9 +6721,9 @@ angular.module('neTree',['neObject'])
         this.onMove = settings.onMove;
         this.onUpdate = settings.onUpdate;
         this.onCreate = settings.onCreate;
-        this.getResourceMethod = settings.getResourceMethod || settings.resourceMethod || getResourceMethod; // getResourceMethod(resource, opType, item)
-        this.onRemove = settings.onRemove;
         this.resource = settings.restResource || settings.resource;
+        this.getResourceMethod = settings.getResourceMethod || settings.resourceMethod || (typeof this.resource === 'function' ? this.resource : null) || getResourceMethod; // getResourceMethod(opType, item)
+        this.onRemove = settings.onRemove;
         this.autoLoad = settings.autoLoad || settings.loadOnChange;
         this.multiSelect = settings.multiSelect || settings.multiselect || false;
         // if(!this.resource) throw new Error('settings.resource is undefined');
