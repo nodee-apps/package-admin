@@ -18,15 +18,15 @@ angular.module('neAdmin.users', [])
     });
 
     $scope.query = new Query([
-        { field: 'email', name: local.translate('email'), type: 'string' },
-        { field: 'roles', name: local.translate('roles'), type: 'string' },
-        { field: 'nickname', name: local.translate('nickname'), type: 'string' },
-        { field: 'firstname', name: local.translate('firstname'), type: 'string' },
-        { field: 'lastname', name: local.translate('lastname'), type: 'string' },
-        { field: 'disabled', name: local.translate('disabled'), type: 'boolean' },
-        { field: 'createdDT', name: local.translate('createdDT'), type: 'date' },
-        { field: 'modifiedDT', name: local.translate('modifiedDT'), type: 'date' },
-        { field: 'lastLoginDT', name: local.translate('lastLoginDT'), type: 'date' }
+        { field: 'email', type: 'string' },
+        { field: 'roles', type: 'string' },
+        { field: 'nickname', type: 'string' },
+        { field: 'firstname', type: 'string' },
+        { field: 'lastname', type: 'string' },
+        { field: 'disabled', type: 'boolean' },
+        { field: 'createdDT', type: 'date' },
+        { field: 'modifiedDT', type: 'date' },
+        { field: 'lastLoginDT', type: 'date' }
     ]);
     
     function gridStateWatch(newState, oldState, filledFromStore){

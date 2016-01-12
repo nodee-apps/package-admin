@@ -161,6 +161,9 @@ angular.module('neAdmin',['neDirectives',
         }
     };
 }])
+.run(['neAdmin', function(admin){
+    // force load neAdmin module first
+}])
 .factory('neAdmin',['NeRestResource','neNotifications','NeStateService','neModals','neLocal', function(RestResource, notify, StateService, modals, local){
     
     var admin = this;
@@ -176,19 +179,18 @@ angular.module('neAdmin',['neDirectives',
     });
     
     RestResource.defaults.queryKey = '$q'; // if there is query Key, whole query will be stringified into one query string key
-    
     RestResource.defaults.commands.remove.url = '/{id}?modifiedDT={modifiedDT}'; // allways send modifiedDT when DELETE, because of optimistic locks
-    
+
     function translateValidations(errArray){
         errArray = Array.isArray(errArray) ? errArray : [errArray];
-        
+
         var text = '';
         for(var i=0;i<errArray.length;i++){
             text+= (i>0 ? ', ' : '') + local.translate(errArray[i]);
         }
         return text;
     }
-    
+
     RestResource.defaults.responseErrors = {
         '400': function (data, status, headers) {
             var text = data;
@@ -279,11 +281,13 @@ angular.module('neAdmin',['neDirectives',
         }
     });
     
+    var loadeLangPaths = {};
     admin.resolveLanguage = function($q){
         var currentLangId = local.getLanguageId();
         var currentLangPath = local.getLanguagePath();
         
-        if(!local.languages(currentLangId)[ currentLangPath ]) {
+        if(!loadeLangPaths[ currentLangId +'_'+ currentLangPath ]) {
+            loadeLangPaths[ currentLangId +'_'+ currentLangPath ] = true;
             var langLoading = $q.defer();
             
             admin.languages.one({

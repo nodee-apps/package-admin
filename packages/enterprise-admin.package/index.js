@@ -66,6 +66,10 @@ var admin = module.exports = {
         }
     },
     
+    languageMerge: function(langId, langObj){
+        this.languages[langId] = object.extend(true, this.languages[langId] || {}, langObj);
+    },
+    
     // admin/application config
     config:{
         items:{
@@ -355,15 +359,17 @@ var admin = module.exports = {
         }
         
         admin.appScript = admin.appScript || 'angular.module("neApp",["' +admin.modules.join('","')+ '"])' +
-            '.config(["$routeProvider",function($routeProvider){' +
+            '.config(["$routeProvider", function($routeProvider){' +
             
             (function(routes){
                 var result = '';
                 for(var path in routes){
                     result = result || '$routeProvider';
                     result += '.when("' +path+ '",{';
-                    result += 'resolve:{resolveLanguage:["$q","neAdmin",function($q,admin){return admin.resolveLanguage($q);}],';
-                    if(routes[path].load) result += 'loadModule:["$ocLazyLoad",function($ocLazyLoad){return $ocLazyLoad.load(' +JSON.stringify(routes[path].load)+ ');}]';
+                    result += 'resolve:{ resolveLanguage:["$q","neAdmin",function($q,admin){return admin.resolveLanguage($q);}],';
+                    if(routes[path].load) result += 'loadModule:["$ocLazyLoad",function($ocLazyLoad){return $ocLazyLoad.load(' +JSON.stringify(routes[path].load)+ ')' + 
+                        //(routes[path].load.name ? '.inject(' +JSON.stringify(routes[path].load.name)+ ');' : ';' )+ 
+                    ' }]';
                     result+='},';
                     for(var key in routes[path]){
                         if(key!=='load' && key!=='resolve') result += key+':'+JSON.stringify(routes[path][key])+',';
