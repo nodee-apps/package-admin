@@ -348,6 +348,7 @@ var admin = module.exports = {
 
     generateAppScript: function(user){
         var admin = this;
+        var version = framework.isDebug ? new Date().getTime() : framework.config.version;
         user = user || {};
         
         var userLang = (user.profile || {}).language;
@@ -358,7 +359,30 @@ var admin = module.exports = {
             else admin.usedLanguages[lang] = false;
         }
         
+        function appendVersion(key, value){
+            if(key==='files' && value && value.length){
+                for(var i=0;i<value.length;i++){
+                    value[i] += (value[i].indexOf('?') > -1 ? '&_v='+version : '?_v='+version);
+                }
+            }
+            return value;
+        }
+        
         admin.appScript = admin.appScript || 'angular.module("neApp",["' +admin.modules.join('","')+ '"])' +
+            '.constant("version","' + version + '")' +
+            //register an http interceptor to transform template urls
+            '.config(["$httpProvider", "version", function($httpProvider, version){'+
+                '$httpProvider.interceptors.push(function(){'+
+                    'return {'+
+                        'request: function(config){'+
+                            'if(!config.cached && config.url.substring(config.url.length-5, config.url.length) === ".html"){'+
+                                'config.url += "?_v=" + version;'+
+                            '}'+
+                            'return config;'+
+                        '}'+
+                    '};'+
+                '});'+
+            '}])'+
             '.config(["$routeProvider", function($routeProvider){' +
             
             (function(routes){
@@ -367,7 +391,7 @@ var admin = module.exports = {
                     result = result || '$routeProvider';
                     result += '.when("' +path+ '",{';
                     result += 'resolve:{ resolveLanguage:["$q","neAdmin",function($q,admin){return admin.resolveLanguage($q);}],';
-                    if(routes[path].load) result += 'loadModule:["$ocLazyLoad",function($ocLazyLoad){return $ocLazyLoad.load(' +JSON.stringify(routes[path].load)+ ')' + 
+                    if(routes[path].load) result += 'loadModule:["$ocLazyLoad",function($ocLazyLoad){return $ocLazyLoad.load(' +JSON.stringify(routes[path].load, appendVersion)+ ')' + 
                         //(routes[path].load.name ? '.inject(' +JSON.stringify(routes[path].load.name)+ ');' : ';' )+ 
                     ' }]';
                     result+='},';

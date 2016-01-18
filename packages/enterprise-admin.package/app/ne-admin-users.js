@@ -26,7 +26,7 @@ angular.module('neAdmin.users', [])
         { field: 'disabled', type: 'boolean' },
         { field: 'createdDT', type: 'date' },
         { field: 'modifiedDT', type: 'date' },
-        { field: 'lastLoginDT', type: 'date' }
+        { field: 'lastLoginDT', type: 'datetime' }
     ]);
     
     function gridStateWatch(newState, oldState, filledFromStore){
