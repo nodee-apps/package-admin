@@ -14,7 +14,7 @@ module.exports.install = function(admin){
     admin.modules.push('neAdmin.users');
     
     // admin routes
-    admin.routes[ '/users' ] = { templateUrl: 'views/users.html', controller:'UsersCtrl', reloadOnSearch:false };
+    admin.routes[ '/users' ] = { templateUrl: admin.basePath + 'views/users.html', controller:'UsersCtrl', reloadOnSearch:false };
     
     // include styles
     // admin.styles.push('css/mystyle.css');
@@ -26,7 +26,7 @@ module.exports.install = function(admin){
     // admin.scripts.push('controllers/usersCtrl.js');
     
     
-    framework.rest('/admin/users', 'User', [
+    framework.rest(admin.basePath + 'users', 'User', [
         { route:'/', collection:'all', flags:[ 'get' ], count:true },
         { route:'/exists', collection:'exists', flags:['get'] },
         { route:'/{id}', collection:'one', flags:[ 'get' ] },

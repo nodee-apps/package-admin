@@ -46,6 +46,14 @@ function stringify(data){
     return str;
 }
 
+// path format to /mypath/
+function unifyPath(path){
+    if(path[0] !== '/') path = '/' + path;
+    if(path[ path.length-1 ] !== '/') path += '/';
+    return path;
+}
+
+var basePath = unifyPath( framework.config['admin-base-path'] || '/admin/' );
 
 /*
  * Admin module
@@ -55,6 +63,8 @@ var admin = module.exports = {
     // module info
     name: 'enterprise-admin',
     version: '0.7.0',
+    
+    basePath: basePath,
     
     // admin instance
     title: 'ADMIN',
@@ -76,7 +86,7 @@ var admin = module.exports = {
             language:{
                 name: 'Language',
                 description: 'Administration Area Language Settings',
-                templateUrl: 'views/config-language.html',
+                templateUrl: basePath + 'views/config-language.html',
                 icon: 'fa-language',
                 array: false, // will be validated as array of Models
                 keyValue: false, // will be validated as key - Model
@@ -88,7 +98,7 @@ var admin = module.exports = {
             mailers:{
                 name: 'Mailers',
                 description: 'Outgoing Mail Servers',
-                templateUrl: 'views/config-mailer.html',
+                templateUrl: basePath + 'views/config-mailer.html',
                 icon: 'fa-envelope-o',
                 array: false, // will be validated as array of Models
                 keyValue: true, // will be validated as key - Model
@@ -110,7 +120,7 @@ var admin = module.exports = {
             forgotpass:{
                 name: 'Forgot Pass. Email',
                 description: 'Forgot Password Email Settings',
-                templateUrl: 'views/config-forgotpass.html',
+                templateUrl: basePath + 'views/config-forgotpass.html',
                 icon: 'fa-envelope',
                 array: false, // will be validated as array of Models
                 keyValue: false, // will be validated as key - Model
@@ -187,6 +197,10 @@ var admin = module.exports = {
     
     // admin menu
     menu: {
+        logo:{
+            link:'http://nodee.io',
+            tooltip:'NODE ENTERPRISE'
+        },
         items:[
             {
                 id:'account',
@@ -302,15 +316,15 @@ var admin = module.exports = {
     // admin routes
     routes: {
         '/intro':{
-            templateUrl: 'views/intro.html'
+            templateUrl: basePath + 'views/intro.html'
         },
         '/account/changepass': {
-            templateUrl: 'views/changepass.html',
+            templateUrl: basePath + 'views/changepass.html',
             controller: 'ChangePasswordCtrl',
             // load:{ name:'admin.cms', files:[ 'cms.js' ] } - lazy load module and 3rd party libs
         },
         '/account/profile': {
-            templateUrl: 'views/profile.html',
+            templateUrl: basePath + 'views/profile.html',
             controller: 'ProfileCtrl',
             // load:{ name:'admin.cms', files:[ 'cms.js' ] } - lazy load module and 3rd party libs
         }
@@ -325,7 +339,7 @@ var admin = module.exports = {
         framework.isDebug ? '/3rd-party/font-awesome/css/font-awesome.css' : '//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css',
         
         // admin theme
-        'theme/ne-theme.css'
+        basePath + 'theme/ne-theme.css'
     ],
     
     // 3rd-party tools & libs, such as ase editor, or jquery, ...
@@ -337,7 +351,7 @@ var admin = module.exports = {
     
     // admin scripts, will be loaded
     scripts: [
-        '/ne-admin-app.js'
+        basePath + 'ne-admin-app.js'
     ],
     
     // admin globals object - helps with settings as language, user defined constants, etc...
@@ -349,6 +363,9 @@ var admin = module.exports = {
     generateAppScript: function(user){
         var admin = this;
         var version = framework.isDebug ? new Date().getTime() : framework.config.version;
+        
+        // appendVersion(key, value); ...............
+        
         user = user || {};
         
         var userLang = (user.profile || {}).language;
@@ -370,6 +387,7 @@ var admin = module.exports = {
         
         admin.appScript = admin.appScript || 'angular.module("neApp",["' +admin.modules.join('","')+ '"])' +
             '.constant("version","' + version + '")' +
+            '.constant("basePath","' + basePath + '")' +
             //register an http interceptor to transform template urls
             '.config(["$httpProvider", "version", function($httpProvider, version){'+
                 '$httpProvider.interceptors.push(function(){'+
@@ -424,7 +442,7 @@ function install(){
     framework.mapping('/3rd-party/font-awesome/','@enterprise-admin/app/3rd-party/font-awesome/');
     
     // admin javascripts
-    framework.merge('/ne-admin-app.js',
+    framework.merge(basePath + 'ne-admin-app.js',
                     '@enterprise-admin/app/ne-admin.js',
                     '@enterprise-admin/app/ne-admin-users.js',
                     '@enterprise-admin/app/angular-modules/ne-modules-all.js');
@@ -452,38 +470,38 @@ function install(){
     framework.merge('/ne-modules.js', '@enterprise-admin/app/angular-modules/ne-modules.js');
     
     // admin angular views
-    framework.mapping('/admin/views/login-form.html', '@enterprise-admin/app/views/login-form.html');
-    framework.mapping('/admin/views/login-modal.html', '@enterprise-admin/app/views/login-modal.html');
-    framework.mapping('/admin/views/register-form.html', '@enterprise-admin/app/views/register-form.html');
-    framework.mapping('/admin/views/changepass.html', '@enterprise-admin/app/views/changepass.html');
-    framework.mapping('/admin/views/forgotpass.html', '@enterprise-admin/app/views/forgotpass.html');
-    framework.mapping('/admin/views/profile.html', '@enterprise-admin/app/views/profile.html');
-    framework.mapping('/admin/views/profile-form.html', '@enterprise-admin/app/views/profile-form.html');
+    framework.mapping(basePath + 'views/login-form.html', '@enterprise-admin/app/views/login-form.html');
+    framework.mapping(basePath + 'views/login-modal.html', '@enterprise-admin/app/views/login-modal.html');
+    framework.mapping(basePath + 'views/register-form.html', '@enterprise-admin/app/views/register-form.html');
+    framework.mapping(basePath + 'views/changepass.html', '@enterprise-admin/app/views/changepass.html');
+    framework.mapping(basePath + 'views/forgotpass.html', '@enterprise-admin/app/views/forgotpass.html');
+    framework.mapping(basePath + 'views/profile.html', '@enterprise-admin/app/views/profile.html');
+    framework.mapping(basePath + 'views/profile-form.html', '@enterprise-admin/app/views/profile-form.html');
     
     // users angular views
-    framework.mapping('/admin/views/resetpass-modal.html', '@enterprise-admin/app/views/resetpass-modal.html');
-    framework.mapping('/admin/views/users.html', '@enterprise-admin/app/views/users.html');
-    framework.mapping('/admin/views/users-create-modal.html', '@enterprise-admin/app/views/users-create-modal.html');
+    framework.mapping(basePath + 'views/resetpass-modal.html', '@enterprise-admin/app/views/resetpass-modal.html');
+    framework.mapping(basePath + 'views/users.html', '@enterprise-admin/app/views/users.html');
+    framework.mapping(basePath + 'views/users-create-modal.html', '@enterprise-admin/app/views/users-create-modal.html');
     
     // config angular views
-    framework.mapping('/admin/views/config.html', '@enterprise-admin/app/views/config.html');
-    framework.mapping('/admin/views/config-mailer.html', '@enterprise-admin/app/views/config-mailer.html');
-    framework.mapping('/admin/views/config-language.html', '@enterprise-admin/app/views/config-language.html');
-    framework.mapping('/admin/views/config-forgotpass.html', '@enterprise-admin/app/views/config-forgotpass.html');
+    framework.mapping(basePath + 'views/config.html', '@enterprise-admin/app/views/config.html');
+    framework.mapping(basePath + 'views/config-mailer.html', '@enterprise-admin/app/views/config-mailer.html');
+    framework.mapping(basePath + 'views/config-language.html', '@enterprise-admin/app/views/config-language.html');
+    framework.mapping(basePath + 'views/config-forgotpass.html', '@enterprise-admin/app/views/config-forgotpass.html');
     
     // admin styles
-    framework.mapping('/admin/theme/ne-theme.css', '@enterprise-admin/app/theme/ne-theme.css');
-    framework.mapping('/admin/images/favicon.ico', '@enterprise-admin/app/images/favicon.ico');
+    framework.mapping(basePath + 'theme/ne-theme.css', '@enterprise-admin/app/theme/ne-theme.css');
+    framework.mapping(basePath + 'images/favicon.ico', '@enterprise-admin/app/images/favicon.ico');
     
     // intro
-    framework.mapping('/admin/views/intro.html', '@enterprise-admin/app/views/intro.html');
+    framework.mapping(basePath + 'views/intro.html', '@enterprise-admin/app/views/intro.html');
     
     // load "enterprise-total" module
     var enterprise = MODULE('enterprise-total');
     
     // create auth
     var auth = new enterprise.Auth({
-        basePath: '/admin',
+        basePath: basePath,
         loginTemplate: 'e: @enterprise-admin/views/login',
         registerTemplate: 'e: @enterprise-admin/views/register',
         mailer: function(){ 
@@ -518,7 +536,7 @@ function install(){
     auth.registerSuccess = function(user){
         var self = this;
         
-        if(auth.hasAdminUser) self.redirect('/admin/login');
+        if(auth.hasAdminUser) self.redirect(basePath + 'login');
         else Model('User').collection().limit(2).fields({ id:1 }).all(function(err, users){
             if(err) self.view500(err);
             else if(users.length===1){ // this is first user, give him "admin" role
@@ -528,12 +546,12 @@ function install(){
                     else {
                         auth.hasAdminUser = true;
                         if(self.xhr) self.json({ data:user });
-                        else self.redirect('/admin/login');
+                        else self.redirect(basePath + 'login');
                     }
                 });
             }
             else if(self.xhr) self.json({ data:user });
-            else self.redirect('/admin/login');
+            else self.redirect(basePath + 'login');
         });
     };
     
@@ -541,10 +559,10 @@ function install(){
     auth.generateRoutes();
     
     // admin base route
-    framework.route('/admin', index, ['authorize','!admin','!adminarea']);
+    framework.route(basePath, index, ['authorize','!admin','!adminarea']);
     
     // allow checking if email exists when registering new user, or changing user email
-    framework.route('/admin/users/exists', framework.rest.collectionAction('User', { method:'exists', filter: onlyEmail }), ['get']);
+    framework.route(basePath + 'users/exists', framework.rest.collectionAction('User', { method:'exists', filter: onlyEmail }), ['get']);
     
     // disable searching by other props than email
     function onlyEmail(ctx, next){
@@ -560,17 +578,17 @@ function install(){
     admin.globals.appConfig = admin.config.items;
     
     // admin route
-    admin.routes[ '/config' ] = { templateUrl: 'views/config.html', controller:'ConfigCtrl' };
+    admin.routes[ '/config' ] = { templateUrl: basePath + 'views/config.html', controller:'ConfigCtrl' };
     
     // get config  item settings
-    framework.route('/admin/config/{id}', getConfig, ['authorize','!admin','!adminarea']);
+    framework.route(basePath + 'config/{id}', getConfig, ['authorize','!admin','!adminarea']);
     function getConfig(id){
         var ctrl = this;
         ctrl.json({ data: admin.config.get(id) });
     }
     
     // set config item settings
-    framework.route('/admin/config/{id}', setConfig, ['put','json','authorize','!admin','!adminarea']);
+    framework.route(basePath + 'config/{id}', setConfig, ['put','json','authorize','!admin','!adminarea']);
     function setConfig(id){
         var ctrl = this;
         
@@ -581,16 +599,16 @@ function install(){
     }
     
     // get locals for screen
-    framework.route('/admin/languages/{langId}', getLanguage, ['authorize','!admin','!adminarea']);
+    framework.route(basePath + 'languages/{langId}', getLanguage, ['authorize','!admin','!adminarea']);
     function getLanguage(langId){
         var ctrl = this;
         var lang = admin.languages[langId] || {};
         var langProp = ctrl.query.property || ctrl.query.path;
-        ctrl.json({ data: langProp ? lang[langProp] : lang });
+        ctrl.json({ data: langProp ? lang[langProp] : lang });    
     }
     
     // mailer test
-    framework.route('/admin/mailers/test', testMailer, { flags:['post','json','authorize','!admin','!adminarea'], timeout: 30000 });
+    framework.route(basePath + 'mailers/test', testMailer, { flags:['post','json','authorize','!admin','!adminarea'], timeout: 30000 });
     function testMailer(){
         var ctrl = this;
         

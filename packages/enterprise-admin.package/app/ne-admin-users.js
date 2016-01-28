@@ -1,3 +1,7 @@
+// TODO:
+// email duplicity check if JSON data store
+// refresh users grid, after new user created
+
 angular.module('neAdmin.users', [])
 .controller('UsersCtrl', [ '$scope', 'NeGrid', 'NeQuery', 'neModals','neNotifications', 'NeRestResource', 'neLocal', 'neAdmin', function($scope, Grid, Query, modals, notify, Resource, local, admin){
 
@@ -9,9 +13,7 @@ angular.module('neAdmin.users', [])
         id: 'admin.users',
         resource: admin.users,
         autoLoad: false,
-        defaultSort: {},
         limit: 10,
-        defaultFilter: {},
         onQueryChange: function(query){
             admin.state.change(this.id, query);
         }
@@ -29,17 +31,15 @@ angular.module('neAdmin.users', [])
         { field: 'lastLoginDT', type: 'datetime' }
     ]);
     
-    function gridStateWatch(newState, oldState, filledFromStore){
-        if(filledFromStore) {
-            $scope.query.fill(newState);
-            $scope.grid.setQuerySilent(newState).load();
-        }
+    function gridStateWatch(newState, oldState){
+        $scope.query.fill(newState);
+        $scope.grid.setQuerySilent(newState).load();
     }
 
     admin.state.watch($scope.grid.id, gridStateWatch);
     $scope.$on('$destroy', function(){ admin.state.destroy($scope.grid.id); });
 
-    $scope.createUserModal = function () {
+    $scope.createUserModal = function(){
         modals.create({
             id: 'users.create',
             title: 'Create User',
@@ -48,7 +48,7 @@ angular.module('neAdmin.users', [])
                 admin.users.create(user, function (data) {
                     notify.success('User Created');
                     modals.get('users.create').hide();
-                    $scope.grid.loadPage('refresh');
+                    $scope.grid.setPage('first');
                 });
             },
             newUser: {
@@ -57,7 +57,7 @@ angular.module('neAdmin.users', [])
             checkEmailDuplicity: function (email) {
                 var newUser = this.newUser;
                 if (email) {
-                    admin.users.exists.get({
+                    admin.users.exists({
                         email: email
                     }, function (data) {
                         if (data === false) newUser.$dupliciteEmail = false;

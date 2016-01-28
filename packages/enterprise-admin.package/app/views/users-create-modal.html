@@ -6,9 +6,9 @@
         <br/>
         
         <label>{{::'New Password'|translate}}</label>
-        <input type="password" class="form-control" ng-model="modal.newUser.password" placeholder="{{::'password'|translate}}" ng-minlength="5" required><br/>
+        <input type="password" class="form-control" ng-model="modal.newUser.password" placeholder="{{::'password (min. 5 letters)'|translate}}" ng-minlength="5" required><br/>
         <label>{{::'Repeat New Password'|translate}}</label>
-        <input type="password" class="form-control" ng-model="modal.newUser.passRetype" placeholder="{{::'repeat new password'|translate}}" ng-minlength="5" required><br />
+        <input type="password" class="form-control" ng-model="modal.newUser.passRetype" placeholder="{{::'repeat new password (min. 5 letters)'|translate}}" ng-minlength="5" required><br />
         <label>{{::'Roles'|translate}}</label>
         <input type="text" ng-list class="form-control" ng-model="modal.newUser.roles" placeholder="{{::'roles'|translate}}" required><br />
     </form>

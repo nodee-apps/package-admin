@@ -3,6 +3,10 @@
         "html":"title"
     },
     
+    "base":{
+        "attrs":{ "href":"basePath" }
+    },
+    
     "script[ne-admin-libs]":{
         "repeat":"libs",
         "attrs":{ "src":"this" }

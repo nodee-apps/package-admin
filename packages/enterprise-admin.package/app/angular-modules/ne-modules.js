@@ -2998,7 +2998,8 @@ angular.module('neGrid',['neObject','neLocal'])
         this.pagination = { page: settings.page || this.defaultQuery.$page || 1 };
         this.page = this.pagination.page;
         this.pagesCount = 1;
-        this.query = angular.merge({}, { $page:this.page, $limit:this.limit }, this.defaultQuery);
+        this.query = angular.merge({}, settings.query || {}, { $page:this.page, $limit:this.limit }, this.defaultQuery);
+        this.sort = angular.merge({}, this.defaultSort || {}, settings.sort || {});
         this.items = [];
         this.disabled = true; // default grid state is disabled
         
@@ -3315,7 +3316,9 @@ angular.module('neGrid',['neObject','neLocal'])
  */
 
 angular.module('neLoading', [])
-.factory('neLoading',['$timeout', function($timeout) {
+.constant('neLoadingDebounce', 350) // delay of changes apply, if response will be received in lower interval than debounce, loading will not emit changes
+.constant('neLoadingEndDelay', 300) // delay of loading end, loading message hide will be delayed
+.factory('neLoading',['$timeout','neLoadingDebounce','neLoadingEndDelay', function($timeout, debounce, endDelay) {
   var service = {
     requestCount: 0,
     isLoading: function() {
@@ -3323,6 +3326,8 @@ angular.module('neLoading', [])
     },
     statusTimeout:null,
     status:0,
+    prevStatus:0,
+    lastStart: new Date().getTime(),
     statusListeners:[],
     fireStatusListeners: function(){
       for(var i=0;i<service.statusListeners.length;i++){
@@ -3335,23 +3340,34 @@ angular.module('neLoading', [])
     },
     setStatus: function(percent) {
       if(service.statusTimeout) $timeout.cancel(service.statusTimeout);
-      if(percent >= 0) service.status = percent;
+      if(percent < 0) return;
+      service.prevStatus = service.status+0;
+      service.status = percent;
+      var now = new Date().getTime();
+      if(service.prevStatus === 0 && percent > 0) service.lastStart = now;
       
+      if((now - service.lastStart) > debounce) service.fireStatusListeners();
+        
       if(service.status > 0 && service.status < 99){
-        service.statusTimeout = $timeout(function(){
-          service.setStatus(randomIncrement(service.status));  
-        }, 200, false);
+          service.statusTimeout = $timeout(function(){
+              service.setStatus(randomIncrement(service.status));
+        }, debounce, false);
       }
       else if(service.status >= 100){
-        service.statusTimeout = $timeout(function(){
-          service.setStatus(0);  
-        }, 300, false);
+        if((now - service.lastStart) > debounce){
+            service.statusTimeout = $timeout(function(){
+              service.setStatus(0);
+              service.fireStatusListeners();
+            }, endDelay, false);
+        }
+        else {
+            service.status = 0;
+            service.prevStatus = 0;
+        }
       }
-      
-      service.fireStatusListeners();
     },
     reqStarted: function(debugNotes){
-        if(service.statusTimeout) $timeout.cancel(service.statusTimeout);
+        // if(service.statusTimeout) $timeout.cancel(service.statusTimeout);
         if(service.status===0) service.setStatus(1);
         //$timeout(function(){
         service.requestCount++;
@@ -3447,22 +3463,12 @@ angular.module('neLoading', [])
     $httpProvider.interceptors.push('neLoadingInterceptor');
 }])
 .controller('NeLoadingCtrl',['$scope', 'neLoading', function($scope, loading) {
-  
+
     loading.statusListeners.push(function(status){
         $scope.status = status;
-        $scope.loading = loading.status > 0;
+        $scope.loading = status > 0;
         $scope.$digest();
     });
-  
-  //$scope.$watch(
-  //  function(){
-  //    return loading.status;
-  //  },
-  //  function(value){
-  //    console.log(value);
-  //    $scope.status = loading.status;
-  //    $scope.loading = loading.status > 0;
-  //});
 }]);
 /**
  *                                                  NE LOCAL
@@ -4319,15 +4325,78 @@ angular.module('neObject',[])
         return obj;
     }
     
+    function isRegExp(value) {
+        return Object.prototype.toString.call(value) === '[object RegExp]';
+    }
+    
+    function isWindow(obj) {
+        return obj && obj.window === obj;
+    }
+
+
+    function isScope(obj) {
+        return obj && obj.$evalAsync && obj.$watch;
+    }
+    
+    function defaultExcludeKeyFnc(key){
+        if(key[0] === '$' && key[1] === '$') return true;
+    }
+
+    // modified angular equals to support single dollar key prefixes
+    function deepEquals(o1, o2, excludeKeyFnc) {
+        excludeKeyFnc = excludeKeyFnc || defaultExcludeKeyFnc;
+        
+        if (o1 === o2) return true;
+        if (o1 === null || o2 === null) return false;
+        if (o1 !== o1 && o2 !== o2) return true; // NaN === NaN
+        var t1 = typeof o1, t2 = typeof o2, length, key, keySet;
+        if (t1 == t2 && t1 == 'object') {
+            if (angular.isArray(o1)) {
+                if (!angular.isArray(o2)) return false;
+                if ((length = o1.length) == o2.length) {
+                    for (key = 0; key < length; key++) {
+                        if (!deepEquals(o1[key], o2[key], excludeKeyFnc)) return false;
+                    }
+                    return true;
+                }
+            } else if (angular.isDate(o1)) {
+                if (!angular.isDate(o2)) return false;
+                return deepEquals(o1.getTime(), o2.getTime(), excludeKeyFnc);
+            } else if (isRegExp(o1)) {
+                if (!isRegExp(o2)) return false;
+                return o1.toString() == o2.toString();
+            } else {
+                if (isScope(o1) || isScope(o2) || isWindow(o1) || isWindow(o2) ||
+                    angular.isArray(o2) || angular.isDate(o2) || isRegExp(o2)) return false;
+                keySet = Object.create(null);
+                for (key in o1) {
+                    if (excludeKeyFnc(key) || angular.isFunction(o1[key])) continue;
+                    if (!deepEquals(o1[key], o2[key], excludeKeyFnc)) return false;
+                    keySet[key] = true;
+                }
+                for (key in o2) {
+                    if (!(key in keySet) &&
+                        !excludeKeyFnc(key) &&
+                        angular.isDefined(o2[key]) &&
+                        !angular.isFunction(o2[key])) return false;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    
     return {
-        extendReservedInstances:[File, FileList],
-        extend:extend,
+        extendReservedInstances: [File, FileList, Blob],
+        extend: extend,
         setObjValue: deepSet,
         deepSet: deepSet,
         getObjValue: deepGet,
-        deepGet:deepGet,
-        deepReplace:deepReplace,
-        deepRemove:deepRemove,
+        deepGet: deepGet,
+        deepReplace: deepReplace,
+        deepRemove: deepRemove,
+        deepEquals: deepEquals,
+        deepEqual: deepEquals,
         objectToArray: objectToArray,
         arrayToObject: arrayToObject
     };
@@ -4347,10 +4416,10 @@ angular.module('neQuery',['neLocal','neObject'])
 .config(['neLocalProvider', function(localProvider){
     localProvider.set('default', {
         $equal:'=',
-        $lt:'&lt;',
-        $lte:'&lt;=',
-        $gt:'&gt;',
-        $gte:'&gt;=',
+        $lt:'<',
+        $lte:'<=',
+        $gt:'>',
+        $gte:'>=',
         $regex_exact:'exact match',
         $regex_contains:'contains',
         $regex_begins:'begins with',
@@ -4422,8 +4491,8 @@ angular.module('neQuery',['neLocal','neObject'])
                        '                <li ng-if="!query.field.disableType" class="divider"></li>'+
                        '                <li ng-repeat="operator in query.type.operators" ng-class="{\'active\':(query.operator===operator)}">'+
                        '                    <a href="" ng-click="query.setOperator(operator)">'+
-                       '			    <span ng-bind-html="operator|translate|html"></span>'+
-                       '			</a>'+
+                       '			            <span>{{operator | translate}}</span>'+
+                       '			        </a>'+
                        '                </li>'+
                        '            </ul>'+
                        '        </div>'+
@@ -6210,7 +6279,7 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
  */
 
 angular.module('neState', ['ngCookies'])
-.factory('NeStateService',['$timeout','$location','$rootScope','$cookies', function($timeout, $location, $rootScope, $cookies){
+.factory('NeStateService',['$timeout','$location','$rootScope','$cookies','neObject', function($timeout, $location, $rootScope, $cookies, object){
 
 	
     function encryptString(str){
@@ -6291,7 +6360,7 @@ angular.module('neState', ['ngCookies'])
             var stateObj = locationStore.parser(locationString) || {};
 
             $timeout(function(){
-                if(id) state.change(id, stateObj[id] || {}, true);
+                if(stateId) state.change(stateId, stateObj[stateId] || {}, true);
                 else for(var id in state.history) state.change(id, stateObj[id] || {}, true);
             });
         },
@@ -6324,7 +6393,7 @@ angular.module('neState', ['ngCookies'])
             var stateObj = $cookies.getObject(locationStore.prefix) || {};
 
             $timeout(function(){
-                if(id) state.change(id, stateObj[id] || {}, true);
+                if(stateId) state.change(stateId, stateObj[stateId] || {}, true);
                 else for(var id in state.history) state.change(id, stateObj[id] || {}, true);
             });
         },
@@ -6379,7 +6448,7 @@ angular.module('neState', ['ngCookies'])
         state.history[id].store.init(state, id);
 		return state.history[id];
 	};
-
+    
     StateService.prototype.changeState = 
 	StateService.prototype.change = function(id, value, disableStoreUpdate) {
 		if(!angular.isObject(value)) throw new Error('StateService: cannot change state, value have to be object and is "' +value+ '"');
@@ -6389,8 +6458,9 @@ angular.module('neState', ['ngCookies'])
 		var currIndex = state.history[id].currentStateIndex;
 		var howManyRemove = state.history[id].length ? state.history[id].length - 1 - currIndex : 0;
 
+        if(state.history[id].length > 0 && object.deepEquals(state.history[id][currIndex], value)) return state; // same state as previous, no change
+        
 		state.history[id].splice(currIndex + 1, howManyRemove);
-		state.history[id] = state.history[id];
 		state.history[id].push( angular.merge({}, value) );
 		if(state.history[id].length > state.history[id].maxHistoryStates) state.history[id].splice(0,1);
 		else state.history[id].currentStateIndex++;
@@ -6509,7 +6579,7 @@ angular.module('neState', ['ngCookies'])
 	StateService.prototype.getPrevState = function(id) {
 		if(!this.history[id]) throw new Error('StateService: there is no registered state with id "' +id+ '"');
 		var prevIndex = this.history[id].currentStateIndex - 1;
-		if(prevIndex < 0) prevIndex = 0;
+		if(prevIndex < 0) return {};
 		return this.history[id][ prevIndex ];
 	};
 

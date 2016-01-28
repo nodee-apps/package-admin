@@ -36,7 +36,7 @@ function debug() {
 
 function app() {
     var fork = require("child_process").fork;
-    var directories = [directory + "/controllers", directory + "/definitions", directory + "/modules", directory + "/resources", directory + "/components", directory + "/models", directory + "/source"];
+    var directories = [directory + "/controllers", directory + "/definitions", directory + "/modules", directory + "/resources", directory + "/components", directory + "/models", directory + "/source", directory + "/packages"];
     var files = {};
     var force = false;
     var changes = [];
@@ -49,7 +49,7 @@ function app() {
     var isLoaded = false;
 
     function onFilter(path, isDirectory) {
-        return isDirectory ? true : path.indexOf(".js") !== -1 || path.indexOf(".resource") !== -1
+        return isDirectory ? true : path.indexOf(".js") !== -1 || path.indexOf(".resource") !== -1 || path.indexOf(".html") !== -1
     }
 
     function onComplete() {
@@ -58,7 +58,7 @@ function app() {
             var length = arr.length;
             for (var i = 0; i < length; i++) {
                 var name = arr[i];
-                if (name === "config" || name === "config-debug" || name === "config-release" || name === "versions" || name.indexOf(".js") !== -1 || name.indexOf(".resource") !== -1) self.file.push(name)
+                if (name === "config" || name === "config-debug" || name === "config-release" || name === "versions" || name.indexOf(".js") !== -1 || name.indexOf(".resource") !== -1 || name.indexOf(".html") !== -1) self.file.push(name)
             }
             length = self.file.length;
             for (var i = 0; i < length; i++) {

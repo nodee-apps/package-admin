@@ -1,154 +1,156 @@
 <layout template="@enterprise-admin/views/layout">
-    
-    <script type="text/ng-template" id="admin/menu.html">
-        <li><div class="divider"></div></li>
-        <li class="nav-logo"><a class="logo logo-xs" href="http://nodejsenterprise.com" uib-tooltip="NODEJS ENTERPRISE" target="_blank" tooltip-placement="{{menu.tooltipPlacement()}}"></a></li>
-        <li>
-            <a class="nav-toggler" ng-click="menu.toggle('onTop')" uib-tooltip="{{::'Toogle Menu Position'|translate}}" tooltip-placement="{{menu.tooltipPlacement()}}">
-                <i class="fa" ng-class="{'fa-ellipsis-v':menu.onTop,'fa-ellipsis-h':menu.onTop===false}"></i>
-            </a>
-        </li>
-        <li ng-repeat-start="item in menu.items" ng-if="item.divider && roles(item.allowRoles) && roles.not(item.denyRoles)"><div class="{{item.divider}}"></div></li>
-        <li ng-repeat-end
-            ng-class="{'active':item.selected && item.children.length}"
-            ng-if="roles(item.allowRoles) && roles.not(item.denyRoles)"
-            ne-match-href-path="current">
+    <div>
+        <script type="text/ng-template" id="admin/menu.html">
+            <li><div class="divider"></div></li>
+            <li class="nav-logo"><a class="logo logo-xs" ng-href="{{menu.logo.link}}" uib-tooltip="{{menu.logo.tooltip}}" target="_blank" tooltip-placement="{{menu.tooltipPlacement()}}"></a></li>
+            <li>
+                <a class="nav-toggler" ng-click="menu.toggle('onTop')" uib-tooltip="{{::'Toogle Menu Position'|translate}}" tooltip-placement="{{menu.tooltipPlacement()}}">
+                    <i class="fa" ng-class="{'fa-ellipsis-v':menu.onTop,'fa-ellipsis-h':menu.onTop===false}"></i>
+                </a>
+            </li>
+            <li ng-repeat-start="item in menu.items" ng-if="item.divider && roles(item.allowRoles) && roles.not(item.denyRoles)"><div class="{{item.divider}}"></div></li>
+            <li ng-repeat-end
+                ng-class="{'active':item.selected && item.children.length}"
+                ng-if="roles(item.allowRoles) && roles.not(item.denyRoles)"
+                ne-match-href-path="current">
 
-            <a href="{{item.href}}"
-               class="{{item.css}}"
-               ng-style="item.style"
-               ng-click="menu.select(item,$event)"
-               uib-tooltip="{{::item.name|translate}}"
-               tooltip-placement="{{menu.tooltipPlacement()}}">
-                <i class="{{item.icon || 'fa fa-folder'}}"></i>
-            </a>
-            <ul ng-show="item.children.length && item.selected" class="submenu">
-                <li ng-if="item.name"><h4>{{::item.name|translate}}</h4></li>
-                <li ng-repeat="child in item.children"
-                    class="{{child.css}}" ne-match-href-path="active"
-                    ng-if="roles(child.allowRoles) && roles.not(child.denyRoles)"
-                    ng-style="child.style">
-                    <a href="{{child.href}}" ng-click="menu.select(child,$event)">
-                        <span class="sidebar-text">
-                            <i class="{{child.icon}}"></i>
-                            {{::child.name|translate}}
-                        </span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="nav-end">
-            <ul>
-                <li ng-repeat-start="item in menuCommon.items" ng-if="item.divider && roles(item.allowRoles) && roles.not(item.denyRoles)"><div class="{{item.divider}}"></div></li>
-                <li ng-repeat-end
+                <a href="{{item.href}}"
+                   class="{{item.css}}"
+                   ng-style="item.style"
+                   ng-click="menu.select(item,$event)"
+                   uib-tooltip="{{::item.name|translate}}"
+                   tooltip-placement="{{menu.tooltipPlacement()}}">
+                    <i class="{{item.icon || 'fa fa-folder'}}"></i>
+                </a>
+                <ul ng-show="item.children.length && item.selected" class="submenu">
+                    <li ng-if="item.name"><h4>{{::item.name|translate}}</h4></li>
+                    <li ng-repeat="child in item.children"
+                        class="{{child.css}}" ne-match-href-path="active"
+                        ng-if="roles(child.allowRoles) && roles.not(child.denyRoles)"
+                        ng-style="child.style">
+                        <a href="{{child.href}}" ng-click="menu.select(child,$event)">
+                            <span class="sidebar-text">
+                                <i class="{{child.icon}}"></i>
+                                {{::child.name|translate}}
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-end">
+                <ul>
+                    <li ng-repeat-start="item in menuCommon.items" ng-if="item.divider && roles(item.allowRoles) && roles.not(item.denyRoles)"><div class="{{item.divider}}"></div></li>
+                    <li ng-repeat-end
+                        ng-class="{'active':item.selected && item.children.length}"
+                        ng-if="roles(item.allowRoles) && roles.not(item.denyRoles)"
+                        ne-match-href-path="current">
+
+                        <a href="{{item.href}}"
+                           class="{{item.css}}"
+                           ng-style="item.style"
+                           ng-click="menuCommon.select(item,$event)"
+                           uib-tooltip="{{::item.name|translate}}"
+                           tooltip-placement="{{menu.tooltipPlacement()}}">
+                            <i class="{{item.icon || 'fa fa-folder'}}"></i>
+                        </a>
+                        <ul ng-show="item.children.length && item.selected" class="submenu">
+                            <li ng-if="item.name"><h4>{{::item.name|translate}}</h4></li>
+                            <li ng-repeat="child in item.children"
+                                class="{{child.css}}" ne-match-href-path="active"
+                                ng-if="roles(child.allowRoles) && roles.not(child.denyRoles)"
+                                ng-style="child.style">
+                                <a href="{{child.href}}" ng-click="menuCommon.select(child,$event)">
+                                    <span class="sidebar-text">
+                                        <i class="{{child.icon}}"></i>
+                                        {{::child.name|translate}}
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </script>
+
+        <div class="visible-xs">
+            <div class="navbar-header navbar-mobile-header" style="padding:5px;">
+                <button class="navbar-toggle" ng-click="menu.mobilenav=!menu.mobilenav">
+                    <i class="fa fa-lg fa-fw fa-bars"></i>
+                </button>
+                <a class="logo logo-xs pull-left" href="{{menu.logo.link}}" target="_blank"></a>
+            </div>
+            <ul ng-if="menu.mobilenav" class="nav navbar-mobile navbar-top">
+                <li ng-repeat="item in menu.items"
                     ng-class="{'active':item.selected && item.children.length}"
                     ng-if="roles(item.allowRoles) && roles.not(item.denyRoles)"
                     ne-match-href-path="current">
 
                     <a href="{{item.href}}"
                        class="{{item.css}}"
-                       ng-style="item.style"
-                       ng-click="menuCommon.select(item,$event)"
-                       uib-tooltip="{{::item.name|translate}}"
-                       tooltip-placement="{{menu.tooltipPlacement()}}">
+                       ng-click="menu.select(item,$event)">
                         <i class="{{item.icon || 'fa fa-folder'}}"></i>
+                        &nbsp;{{::item.name|translate}}
                     </a>
-                    <ul ng-show="item.children.length && item.selected" class="submenu">
-                        <li ng-if="item.name"><h4>{{::item.name|translate}}</h4></li>
+                    <ul ng-show="item.children.length && item.selected" class="mobile-submenu">
+                        <li ng-repeat="child in item.children"
+                            class="{{child.css}}"
+                            ne-match-href-path="active"
+                            ng-if="roles(child.allowRoles) && roles.not(child.denyRoles)">
+                            <a href="{{child.href}}" ng-click="menu.select(child,$event);menu.mobilenav=false">
+                                <i class="{{child.icon}}"></i>
+                                &nbsp;{{::child.name|translate}}
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li ng-repeat="item in menuCommon.items"
+                    ng-class="{'active':item.selected && item.children.length}"
+                    ng-if="roles(item.allowRoles) && roles.not(item.denyRoles)"
+                    ne-match-href-path="current">
+
+                    <a href="{{item.href}}"
+                       class="{{item.css}}"
+                       ng-click="menuCommon.select(item,$event)">
+                        <i class="{{item.icon || 'fa fa-folder'}}"></i>
+                        &nbsp;{{::item.name|translate}}
+                    </a>
+                    <ul ng-show="item.children.length && item.selected" class="mobile-submenu">
                         <li ng-repeat="child in item.children"
                             class="{{child.css}}" ne-match-href-path="active"
-                            ng-if="roles(child.allowRoles) && roles.not(child.denyRoles)"
-                            ng-style="child.style">
-                            <a href="{{child.href}}" ng-click="menuCommon.select(child,$event)">
-                                <span class="sidebar-text">
-                                    <i class="{{child.icon}}"></i>
-                                    {{::child.name|translate}}
-                                </span>
+                            ng-if="roles(child.allowRoles) && roles.not(child.denyRoles)">
+                            <a href="{{child.href}}" ng-click="menuCommon.select(child,$event);menu.mobilenav=false">
+                                <i class="{{child.icon}}"></i>
+                                &nbsp;{{::child.name|translate}}
                             </a>
                         </li>
                     </ul>
                 </li>
             </ul>
-        </li>
-    </script>
-
-    <div class="visible-xs">
-        <div class="navbar-header navbar-mobile-header" style="padding:5px;">
-            <button class="navbar-toggle" ng-click="menu.mobilenav=!menu.mobilenav">
-                <i class="fa fa-lg fa-fw fa-bars"></i>
-            </button>
-            <a class="logo logo-xs pull-left" href="http://nodejsenterprise.com" target="_blank"></a>
         </div>
-        <ul ng-if="menu.mobilenav" class="nav navbar-mobile navbar-top">
-            <li ng-repeat="item in menu.items"
-                ng-class="{'active':item.selected && item.children.length}"
-                ng-if="roles(item.allowRoles) && roles.not(item.denyRoles)"
-                ne-match-href-path="current">
 
-                <a href="{{item.href}}"
-                   class="{{item.css}}"
-                   ng-click="menu.select(item,$event)">
-                    <i class="{{item.icon || 'fa fa-folder'}}"></i>
-                    &nbsp;{{::item.name|translate}}
-                </a>
-                <ul ng-show="item.children.length && item.selected" class="mobile-submenu">
-                    <li ng-repeat="child in item.children"
-                        class="{{child.css}}"
-                        ne-match-href-path="active"
-                        ng-if="roles(child.allowRoles) && roles.not(child.denyRoles)">
-                        <a href="{{child.href}}" ng-click="menu.select(child,$event);menu.mobilenav=false">
-                            <i class="{{child.icon}}"></i>
-                            &nbsp;{{::child.name|translate}}
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li ng-repeat="item in menuCommon.items"
-                ng-class="{'active':item.selected && item.children.length}"
-                ng-if="roles(item.allowRoles) && roles.not(item.denyRoles)"
-                ne-match-href-path="current">
-
-                <a href="{{item.href}}"
-                   class="{{item.css}}"
-                   ng-click="menuCommon.select(item,$event)">
-                    <i class="{{item.icon || 'fa fa-folder'}}"></i>
-                    &nbsp;{{::item.name|translate}}
-                </a>
-                <ul ng-show="item.children.length && item.selected" class="mobile-submenu">
-                    <li ng-repeat="child in item.children"
-                        class="{{child.css}}" ne-match-href-path="active"
-                        ng-if="roles(child.allowRoles) && roles.not(child.denyRoles)">
-                        <a href="{{child.href}}" ng-click="menuCommon.select(child,$event);menu.mobilenav=false">
-                            <i class="{{child.icon}}"></i>
-                            &nbsp;{{::child.name|translate}}
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </div>
-
-    <div id="topbar-wrapper" class="hidden-xs" ng-class="{'toggled':menu.onTop===false}">
-        <ul class="nav navbar-nav navbar-top" ng-include="'admin/menu.html'"></ul>
-    </div>
-
-    <div id="wrapper" ng-class="{'toggled':menu.onTop}">
-
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper" class="hidden-xs">
-            <ul class="sidebar-nav" ng-include="'admin/menu.html'"></ul>
+        <div id="topbar-wrapper" class="hidden-xs" ng-class="{'toggled':menu.onTop===false}">
+            <ul class="nav navbar-nav navbar-top" ng-include="'admin/menu.html'"></ul>
         </div>
-        <!-- /#sidebar-wrapper -->
 
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <div ng-view class="container-fluid"></div>
+        <div id="wrapper" ng-class="{'toggled':menu.onTop}">
 
+            <!-- Sidebar -->
+            <div id="sidebar-wrapper" class="hidden-xs">
+                <ul class="sidebar-nav" ng-include="'admin/menu.html'"></ul>
+            </div>
+            <!-- /#sidebar-wrapper -->
+
+            <!-- Page Content -->
+            <div id="page-content-wrapper">
+                <div ng-view class="container-fluid"></div>
+
+            </div>
+            <!-- /#page-content-wrapper -->
         </div>
-        <!-- /#page-content-wrapper -->
+
+        <div ne-init-data style="display:none;" data-user ne-init-as="user"></div>
+        <div ne-init-data style="display:none;" data-global ne-init-as="key"></div>
+        <div ne-init-data style="display:none;" data-menu ne-init-as="menu.items" ne-init-done="menu.sortCommonItems()"></div>
+        <div ne-init-data style="display:none;" data-logo ne-init-as="menu.logo"></div>
     </div>
-    
-    <ne-init-data style="display:none;" data-user ne-init-as="user"></ne-init-data>
-    <ne-init-data style="display:none;" data-global ne-init-as="key"></ne-init-data>
-    <ne-init-data style="display:none;" data-menu ne-init-as="menu.items" ne-init-done="menu.sortCommonItems()"></ne-init-data>
 </layout>

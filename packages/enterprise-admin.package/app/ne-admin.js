@@ -26,7 +26,6 @@ angular.module('neAdmin',['neDirectives',
     return $ocLazyLoad;
 }])
 .run(['$rootScope', '$location', '$window', 'NeMenu', 'neLocal',  function($rootScope, $location, $window, Menu, local){
-    
     // replace time zone, include DST difference and offset
     Date.prototype.changeZone = function(newOffset){
         newOffset = newOffset || 0;

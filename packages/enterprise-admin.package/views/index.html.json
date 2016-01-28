@@ -13,5 +13,9 @@
 
     "[data-menu]":{
         "html":"JSON(menu.items)"
+    },
+    
+    "[data-logo]":{
+        "html":"JSON(menu.logo)"
     }
 }
