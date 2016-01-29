@@ -36,13 +36,13 @@ config
 config-release
 
 # related packages used for dev
-packages/enterprise-admin-languages.package
-packages/enterprise-total.package
+packages/nodee-admin-languages.package
+packages/nodee-total.package
 
 # angular module sources
-packages/enterprise-admin.package/app/angular-modules/src
-packages/enterprise-admin.package/app/angular-modules/*.command
+packages/nodee-admin.package/app/angular-modules/src
+packages/nodee-admin.package/app/angular-modules/*.command
 
 # theme sources
-packages/enterprise-admin.package/app/theme/src
-packages/enterprise-admin.package/app/theme/*.command
+packages/nodee-admin.package/app/theme/src
+packages/nodee-admin.package/app/theme/*.command
