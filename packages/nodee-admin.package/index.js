@@ -1,8 +1,8 @@
 'use strict';
 
-var Model = require('enterprise-model'),
-    object = require('enterprise-utils').object,
-    fsExt = require('enterprise-utils').fsExt,
+var Model = require('nodee-model'),
+    object = require('nodee-utils').object,
+    fsExt = require('nodee-utils').fsExt,
     usersPlugin = require('./plugins/users.js');
 
 /*
@@ -61,7 +61,7 @@ var basePath = unifyPath( framework.config['admin-base-path'] || '/admin/' );
 
 var admin = module.exports = {
     // module info
-    name: 'enterprise-admin',
+    name: 'nodee-admin',
     version: '0.7.0',
     
     basePath: basePath,
@@ -199,7 +199,7 @@ var admin = module.exports = {
     menu: {
         logo:{
             link:'http://nodee.io',
-            tooltip:'NODE ENTERPRISE'
+            tooltip:'NODEE'
         },
         items:[
             {
@@ -354,6 +354,9 @@ var admin = module.exports = {
         basePath + 'ne-admin-app.js'
     ],
     
+    // angular locale script, if localised
+    localeScript:'',
+    
     // admin globals object - helps with settings as language, user defined constants, etc...
     globals: {},
     
@@ -363,9 +366,6 @@ var admin = module.exports = {
     generateAppScript: function(user){
         var admin = this;
         var version = framework.isDebug ? new Date().getTime() : framework.config.version;
-        
-        // appendVersion(key, value); ...............
-        
         user = user || {};
         
         var userLang = (user.profile || {}).language;
@@ -375,6 +375,9 @@ var admin = module.exports = {
             if(lang === userLang) admin.usedLanguages[lang] = admin.languages[lang].common || {};
             else admin.usedLanguages[lang] = false;
         }
+        
+        // set correct angular locale script
+        admin.localeScript = (admin.languages[userLang] || {}).angular_locale || '';
         
         function appendVersion(key, value){
             if(key==='files' && value && value.length){
@@ -429,81 +432,81 @@ var admin = module.exports = {
     }
 };
 
-module.exports.id = 'enterprise-admin';
-module.exports.name = 'enterprise-admin';
+module.exports.id = 'nodee-admin';
+module.exports.name = 'nodee-admin';
 module.exports.version = '0.6.0';
-module.exports.dependencies = ['enterprise-total'];
+module.exports.dependencies = ['nodee-total'];
 module.exports.install = install;
 
 function install(){
     
     // 3rd-pary libs and styles
-    framework.mapping('/3rd-party/angular/','@enterprise-admin/app/3rd-party/angular/');
-    framework.mapping('/3rd-party/font-awesome/','@enterprise-admin/app/3rd-party/font-awesome/');
+    framework.mapping('/3rd-party/angular/','@nodee-admin/app/3rd-party/angular/');
+    framework.mapping('/3rd-party/font-awesome/','@nodee-admin/app/3rd-party/font-awesome/');
     
     // admin javascripts
     framework.merge(basePath + 'ne-admin-app.js',
-                    '@enterprise-admin/app/ne-admin.js',
-                    '@enterprise-admin/app/ne-admin-users.js',
-                    '@enterprise-admin/app/angular-modules/ne-modules-all.js');
+                    '@nodee-admin/app/ne-admin.js',
+                    '@nodee-admin/app/ne-admin-users.js',
+                    '@nodee-admin/app/angular-modules/ne-modules-all.js');
     
-                    //'@enterprise-admin/app/angular-modules/ne-directives.js',
-                    //'@enterprise-admin/app/angular-modules/ne-content-editors.js',
-                    //'@enterprise-admin/app/angular-modules/ne-dragdrop.js',
-                    //'@enterprise-admin/app/angular-modules/ne-object.js',
-                    //'@enterprise-admin/app/angular-modules/ne-loading.js',
-                    //'@enterprise-admin/app/angular-modules/ne-notifications.js',
-                    //'@enterprise-admin/app/angular-modules/ne-rest.js',
-                    //'@enterprise-admin/app/angular-modules/ne-grid.js',
-                    //'@enterprise-admin/app/angular-modules/ne-tree.js',
-                    //'@enterprise-admin/app/angular-modules/ne-modals.js',
-                    //'@enterprise-admin/app/angular-modules/ne-local.js',
-                    //'@enterprise-admin/app/angular-modules/ne-query.js',
-                    //'@enterprise-admin/app/angular-modules/ne-state.js',
-                    //'@enterprise-admin/app/angular-modules/ne-menu.js',
-                    //'@enterprise-admin/app/angular-modules/oc-lazyload.js',
-                    //'@enterprise-admin/app/angular-modules/ui-bootstrap-tpls-0.14.2.js',
-                    //'@enterprise-admin/app/angular-modules/ui-bootstrap-tpls-ext.js');
+                    //'@nodee-admin/app/angular-modules/ne-directives.js',
+                    //'@nodee-admin/app/angular-modules/ne-content-editors.js',
+                    //'@nodee-admin/app/angular-modules/ne-dragdrop.js',
+                    //'@nodee-admin/app/angular-modules/ne-object.js',
+                    //'@nodee-admin/app/angular-modules/ne-loading.js',
+                    //'@nodee-admin/app/angular-modules/ne-notifications.js',
+                    //'@nodee-admin/app/angular-modules/ne-rest.js',
+                    //'@nodee-admin/app/angular-modules/ne-grid.js',
+                    //'@nodee-admin/app/angular-modules/ne-tree.js',
+                    //'@nodee-admin/app/angular-modules/ne-modals.js',
+                    //'@nodee-admin/app/angular-modules/ne-local.js',
+                    //'@nodee-admin/app/angular-modules/ne-query.js',
+                    //'@nodee-admin/app/angular-modules/ne-state.js',
+                    //'@nodee-admin/app/angular-modules/ne-menu.js',
+                    //'@nodee-admin/app/angular-modules/oc-lazyload.js',
+                    //'@nodee-admin/app/angular-modules/ui-bootstrap-tpls-0.14.2.js',
+                    //'@nodee-admin/app/angular-modules/ui-bootstrap-tpls-ext.js');
     
     // modules javascripts - usefull outside of admin area
-    framework.merge('/ne-modules-all.js', '@enterprise-admin/app/angular-modules/ne-modules-all.js');
-    framework.merge('/ne-modules.js', '@enterprise-admin/app/angular-modules/ne-modules.js');
+    framework.merge('/ne-modules-all.js', '@nodee-admin/app/angular-modules/ne-modules-all.js');
+    framework.merge('/ne-modules.js', '@nodee-admin/app/angular-modules/ne-modules.js');
     
     // admin angular views
-    framework.mapping(basePath + 'views/login-form.html', '@enterprise-admin/app/views/login-form.html');
-    framework.mapping(basePath + 'views/login-modal.html', '@enterprise-admin/app/views/login-modal.html');
-    framework.mapping(basePath + 'views/register-form.html', '@enterprise-admin/app/views/register-form.html');
-    framework.mapping(basePath + 'views/changepass.html', '@enterprise-admin/app/views/changepass.html');
-    framework.mapping(basePath + 'views/forgotpass.html', '@enterprise-admin/app/views/forgotpass.html');
-    framework.mapping(basePath + 'views/profile.html', '@enterprise-admin/app/views/profile.html');
-    framework.mapping(basePath + 'views/profile-form.html', '@enterprise-admin/app/views/profile-form.html');
+    framework.mapping(basePath + 'views/login-form.html', '@nodee-admin/app/views/login-form.html');
+    framework.mapping(basePath + 'views/login-modal.html', '@nodee-admin/app/views/login-modal.html');
+    framework.mapping(basePath + 'views/register-form.html', '@nodee-admin/app/views/register-form.html');
+    framework.mapping(basePath + 'views/changepass.html', '@nodee-admin/app/views/changepass.html');
+    framework.mapping(basePath + 'views/forgotpass.html', '@nodee-admin/app/views/forgotpass.html');
+    framework.mapping(basePath + 'views/profile.html', '@nodee-admin/app/views/profile.html');
+    framework.mapping(basePath + 'views/profile-form.html', '@nodee-admin/app/views/profile-form.html');
     
     // users angular views
-    framework.mapping(basePath + 'views/resetpass-modal.html', '@enterprise-admin/app/views/resetpass-modal.html');
-    framework.mapping(basePath + 'views/users.html', '@enterprise-admin/app/views/users.html');
-    framework.mapping(basePath + 'views/users-create-modal.html', '@enterprise-admin/app/views/users-create-modal.html');
+    framework.mapping(basePath + 'views/resetpass-modal.html', '@nodee-admin/app/views/resetpass-modal.html');
+    framework.mapping(basePath + 'views/users.html', '@nodee-admin/app/views/users.html');
+    framework.mapping(basePath + 'views/users-create-modal.html', '@nodee-admin/app/views/users-create-modal.html');
     
     // config angular views
-    framework.mapping(basePath + 'views/config.html', '@enterprise-admin/app/views/config.html');
-    framework.mapping(basePath + 'views/config-mailer.html', '@enterprise-admin/app/views/config-mailer.html');
-    framework.mapping(basePath + 'views/config-language.html', '@enterprise-admin/app/views/config-language.html');
-    framework.mapping(basePath + 'views/config-forgotpass.html', '@enterprise-admin/app/views/config-forgotpass.html');
+    framework.mapping(basePath + 'views/config.html', '@nodee-admin/app/views/config.html');
+    framework.mapping(basePath + 'views/config-mailer.html', '@nodee-admin/app/views/config-mailer.html');
+    framework.mapping(basePath + 'views/config-language.html', '@nodee-admin/app/views/config-language.html');
+    framework.mapping(basePath + 'views/config-forgotpass.html', '@nodee-admin/app/views/config-forgotpass.html');
     
     // admin styles
-    framework.mapping(basePath + 'theme/ne-theme.css', '@enterprise-admin/app/theme/ne-theme.css');
-    framework.mapping(basePath + 'images/favicon.ico', '@enterprise-admin/app/images/favicon.ico');
+    framework.mapping(basePath + 'theme/ne-theme.css', '@nodee-admin/app/theme/ne-theme.css');
+    framework.mapping(basePath + 'images/favicon.ico', '@nodee-admin/app/images/favicon.ico');
     
     // intro
-    framework.mapping(basePath + 'views/intro.html', '@enterprise-admin/app/views/intro.html');
+    framework.mapping(basePath + 'views/intro.html', '@nodee-admin/app/views/intro.html');
     
-    // load "enterprise-total" module
-    var enterprise = MODULE('enterprise-total');
+    // load "nodee-total" module
+    var nodee = MODULE('nodee-total');
     
     // create auth
-    var auth = new enterprise.Auth({
+    var auth = new nodee.Auth({
         basePath: basePath,
-        loginTemplate: 'e: @enterprise-admin/views/login',
-        registerTemplate: 'e: @enterprise-admin/views/register',
+        loginTemplate: 'ne: @nodee-admin/views/login',
+        registerTemplate: 'ne: @nodee-admin/views/register',
         mailer: function(){ 
             var mailerId = admin.config.get('forgotpass').mailer;
             return mailerId ? admin.config.get('mailers')[mailerId] : undefined;
@@ -604,7 +607,7 @@ function install(){
         var ctrl = this;
         var lang = admin.languages[langId] || {};
         var langProp = ctrl.query.property || ctrl.query.path;
-        ctrl.json({ data: langProp ? lang[langProp] : lang });    
+        ctrl.json({ data: langProp ? lang[langProp] : lang });
     }
     
     // mailer test
@@ -636,5 +639,5 @@ function index() {
     
     // generate admin app init script
     admin.generateAppScript(self.user);
-    self.view('e: @enterprise-admin/views/index', admin);
+    self.view('ne: @nodee-admin/views/index', admin);
 }

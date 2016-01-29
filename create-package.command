@@ -1,6 +1,6 @@
 #!/bin/sh
 
-name="enterprise-admin"
+name="nodee-admin"
 
 thisdir="`dirname \"$0\"`"
 cd "$thisdir" &&

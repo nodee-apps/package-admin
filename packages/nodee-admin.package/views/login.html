@@ -1,4 +1,4 @@
-<layout template="@enterprise-admin/views/layout">
+<layout template="@nodee-admin/views/layout">
     
     <div class="container">
         <div class="row">
@@ -9,7 +9,10 @@
                         <div class="logo logo-md"></div>
                     </div>
                     <div class="panel-body">
-                        <div ne-register-form></div>
+                        <div ne-login-form 
+                             ne-login-form-register="true" 
+                             ne-login-form-redirect="true">
+                        </div>
                     </div>
                 </div>
                 

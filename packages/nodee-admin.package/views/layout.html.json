@@ -17,6 +17,10 @@
         "attrs":{ "src":"this" }
     },
     
+    "script[ne-admin-locale]":{
+        "attrs":{ "src":"localeScript" }
+    },
+    
     "link[ne-admin-styles]":{
         "repeat":"styles",
         "attrs":{ "href":"this" }
