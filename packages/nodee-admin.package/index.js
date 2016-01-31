@@ -208,6 +208,7 @@ var admin = module.exports = {
                 children:[
                     { id:'account-profile', name:'Profile', icon:'fa fa-fw fa-user', href:'#/account/profile' },
                     { id:'account-changepass', name:'Change Password', icon:'fa fa-fw fa-lock', href:'#/account/changepass' },
+                    { id:'account-changeemail', name:'Change Email', icon:'fa fa-fw fa-envelope', href:'#/account/changeemail' },
                     { id:'account-logout', name:'Logout', icon:'fa fa-fw fa-sign-out', href:'logout' }
                 ],
                 common:true
@@ -321,6 +322,11 @@ var admin = module.exports = {
         '/account/changepass': {
             templateUrl: basePath + 'views/changepass.html',
             controller: 'ChangePasswordCtrl',
+            // load:{ name:'admin.cms', files:[ 'cms.js' ] } - lazy load module and 3rd party libs
+        },
+        '/account/changeemail': {
+            templateUrl: basePath + 'views/changeemail.html',
+            controller: 'ChangeEmailCtrl',
             // load:{ name:'admin.cms', files:[ 'cms.js' ] } - lazy load module and 3rd party libs
         },
         '/account/profile': {
@@ -477,6 +483,7 @@ function install(){
     framework.mapping(basePath + 'views/login-modal.html', '@nodee-admin/app/views/login-modal.html');
     framework.mapping(basePath + 'views/register-form.html', '@nodee-admin/app/views/register-form.html');
     framework.mapping(basePath + 'views/changepass.html', '@nodee-admin/app/views/changepass.html');
+    framework.mapping(basePath + 'views/changeemail.html', '@nodee-admin/app/views/changeemail.html');
     framework.mapping(basePath + 'views/forgotpass.html', '@nodee-admin/app/views/forgotpass.html');
     framework.mapping(basePath + 'views/profile.html', '@nodee-admin/app/views/profile.html');
     framework.mapping(basePath + 'views/profile-form.html', '@nodee-admin/app/views/profile-form.html');

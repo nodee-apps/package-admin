@@ -390,6 +390,30 @@ angular.module('neAdmin',['neDirectives',
     };
     
 }])
+.controller('ChangeEmailCtrl',['$scope', 'neAdmin', 'neNotifications','neModals', function($scope, admin, notify, modals){
+
+    $scope.checkEmailDuplicity = function(email){
+        if(email) {
+            admin.users.exists({ email: email }, function(data){
+                $scope.dupliciteEmail = data;
+            }, function(){
+                $scope.dupliciteEmail = true;
+            });
+        }
+    };
+    
+    $scope.changeEmail = function(newEmail){     
+        var newUser = angular.copy($scope.user);
+        newUser.email = newEmail;
+        
+        admin.users.update(newUser, function(data){
+            $scope.user.modifiedDT = data.modifiedDT;
+            $scope.user.email = data.email;
+            notify.success('Email Changed');
+        });
+    };
+
+}])
 .controller('ConfigCtrl',['$scope','neAdmin','neNotifications', function($scope, admin, notify){
     $scope.configItems = angular.copy($scope.appConfig);
     

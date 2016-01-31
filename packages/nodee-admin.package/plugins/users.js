@@ -23,8 +23,7 @@ module.exports.install = function(admin){
     // admin.libs.push('js/somelibrary.js');
     
     // admin scripts, will be loaded
-    // admin.scripts.push('controllers/usersCtrl.js');
-    
+    // admin.scripts.push('controllers/users-ctrl.js');
     
     framework.rest(admin.basePath + 'users', 'User', [
         { route:'/', collection:'all', flags:[ 'get' ], count:true },

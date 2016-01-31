@@ -15,7 +15,7 @@
                        ng-blur="checkEmailDuplicity(reg.email)"
                        required />
             </div>
-            <span class="valid-warning" ng-if="dupliciteEmail">*{{::'This email is used by another user, please enter different'|translate}}</span>
+            <span class="text-danger" ng-if="dupliciteEmail">*{{::'This email is used by another user, please enter different'|translate}}</span>
         </div>
         <div class="form-group">
             <div class="input-group">

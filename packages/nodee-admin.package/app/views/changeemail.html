@@ -1,0 +1,40 @@
+
+<div class="row">
+    <div class="col-xs-12 col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-fw fa-envelope"></i> {{::'Change Your Email'|translate}}
+            </div>
+            <div class="panel-body">
+
+                <form class="row form-horizontal" name="changeEmailForm">
+                    <div class="col-sm-8 col-sm-prefix-2">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">{{::'New Email'|translate}}</label>
+                            <div class="col-sm-7">
+                                <input class="form-control"
+                                       placeholder="{{user.email}}"
+                                       name="email"
+                                       type="email"
+                                       ng-model="reg.email"
+                                       ng-blur="checkEmailDuplicity(reg.email)"
+                                       required>
+                                <span class="text-danger" ng-if="dupliciteEmail">*{{::'This email is used by another user, please enter different'|translate}}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group margin-top-lg">
+                            <div class="col-sm-12 text-right">
+                                <button class="btn btn-primary pull-right"
+                                        ng-disabled="!changeEmailForm.$valid || dupliciteEmail" 
+                                        ng-click="changeEmail(reg.email)">
+                                    {{::'Change'|translate}}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
