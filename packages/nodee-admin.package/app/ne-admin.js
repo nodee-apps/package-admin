@@ -180,24 +180,58 @@ angular.module('neAdmin',['neDirectives',
     RestResource.defaults.queryKey = '$q'; // if there is query Key, whole query will be stringified into one query string key
     RestResource.defaults.commands.remove.url = '/{id}?modifiedDT={modifiedDT}'; // allways send modifiedDT when DELETE, because of optimistic locks
 
-    function translateValidations(errArray){
-        errArray = Array.isArray(errArray) ? errArray : [errArray];
+    function translateValidations(key, value){
+        var errArray = Array.isArray(value) ? value : [value];
 
         var text = '';
         for(var i=0;i<errArray.length;i++){
-            text+= (i>0 ? ', ' : '') + local.translate(errArray[i]);
+            text += (i>0 ? ', ' : '') + local.translate(errArray[i]);
         }
         return text;
+    }
+    
+    function translateKeys(keys){
+        if(!Array.isArray(keys)) return local.translate(keys);
+        var result = '';
+        for(var i=0;i<keys.length;i++) result += (i > 0 ? '.' : '') + local.translate(keys[i]);
+        return result;
+    }
+    
+    function flatErrValues(obj, parentKeys, hasNestedParent){
+        parentKeys = parentKeys || [];
+        var parentKey = parentKeys.length ? parentKeys.join('.') : '';
+        var result = {}; // [ { keys:[], errs:[] } ]
+
+        var key, subresult, isStringArray = Array.isArray(obj), isNested = Array.isArray(obj) && obj.length===1 && Array.isArray(obj[0]);        
+        if(isStringArray) for(var i=0;i<obj.length;i++) if(typeof obj[i] !== 'string') {
+            isStringArray = false;
+            break;
+        }
+
+        if(isStringArray) {
+            result[ parentKey ] = obj;
+            result[ parentKey ].keys = parentKeys;
+            return result;
+        }
+
+        for(key in obj) {
+            if(obj.hasOwnProperty(key)){
+                subresult = flatErrValues(obj[key], (isNested || (!hasNestedParent && obj.length === 1)) ? parentKeys : parentKeys.concat([ key ]), isNested);
+                for(var subKey in subresult) result[ subKey ] = subresult[ subKey ];
+            }
+        }
+        return result;
     }
 
     RestResource.defaults.responseErrors = {
         '400': function (data, status, headers) {
             var text = data;
             if (angular.isObject(data)) {
+                data = flatErrValues(data);
                 text = '';
                 var first = true;
                 for (var key in data) {
-                    text += (first ? '' : '<br>') + '<strong>'+local.translate(key) + '</strong> ' + local.translate('must be') + ': ' + translateValidations(data[key]);
+                    text += (first ? '' : '<br>') + '<strong>'+ translateKeys(data[key].keys) + '</strong> ' + local.translate('must be') + ': ' + translateValidations(key, data[key]);
                     first = false;
                 }
             }

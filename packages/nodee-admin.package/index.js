@@ -208,7 +208,7 @@ var admin = module.exports = {
                 children:[
                     { id:'account-profile', name:'Profile', icon:'fa fa-fw fa-user', href:'#/account/profile' },
                     { id:'account-changepass', name:'Change Password', icon:'fa fa-fw fa-lock', href:'#/account/changepass' },
-                    { id:'account-changeemail', name:'Change Email', icon:'fa fa-fw fa-envelope', href:'#/account/changeemail' },
+                    { id:'account-changeemail', name:'Change Email', icon:'fa fa-fw fa-at', href:'#/account/changeemail' },
                     { id:'account-logout', name:'Logout', icon:'fa fa-fw fa-sign-out', href:'logout' }
                 ],
                 common:true
