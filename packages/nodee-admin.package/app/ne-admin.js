@@ -257,6 +257,24 @@ angular.module('neAdmin',['neDirectives',
         }
     };
     
+    angular.merge(RestResource.defaults.commands, {
+        create: {
+            onSuccess: function (status, data) {
+                notify.success('Created', 'successfully');
+            }
+        },
+        update: {
+            onSuccess: function (status, data) {
+                notify.success('Updated', 'successfully');
+            }
+        },
+        remove: {
+            onSuccess: function (status, data) {
+                notify.success('Removed', 'successfully');
+            }
+        }
+    });
+    
     admin.users = new RestResource({
         baseUrl: 'users',
         commands:{

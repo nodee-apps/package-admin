@@ -46,7 +46,6 @@ angular.module('neAdmin.users', [])
             templateUrl: 'views/users-create-modal.html',
             createUser: function (user) {
                 admin.users.create(user, function (data) {
-                    notify.success('User Created');
                     modals.get('users.create').hide();
                     $scope.grid.setPage('first');
                 });
