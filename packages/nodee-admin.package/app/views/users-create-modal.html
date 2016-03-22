@@ -1,5 +1,5 @@
 <div>
-    <form>
+    <form novalidate>
         <label>{{::'Email'|translate}}</label>
         <input type="email" class="form-control" ng-model="modal.newUser.email" placeholder="{{::'email@email.com'|translate}}" ng-blur="modal.checkEmailDuplicity(modal.newUser.email)" required>
         <span class="valid-warning" ng-if="modal.newUser.$dupliciteEmail">{{::'*This email is used by another user, please enter different'|translate}}</span>
