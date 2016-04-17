@@ -136,6 +136,14 @@ var admin = module.exports = {
             },
         },
         
+        // gets default config item data
+        getDefault: function(id){
+            return (CONFIG.hasOwnProperty(id) || admin.config.items[id]) ? 
+                (typeof admin.config.items[id].defaultValue === 'function' ? 
+                  admin.config.items[id].defaultValue() : 
+                  admin.config.items[id].defaultValue) : undefined;
+        },
+        
         // gets config item data
         get: function(id){
             return (CONFIG.hasOwnProperty(id) || admin.config.items[id]) ? 
@@ -360,8 +368,8 @@ var admin = module.exports = {
         basePath + 'ne-admin-app.js'
     ],
     
-    // angular locale script, if localised
-    localeScript:'',
+    // angular locale scripts, if localised
+    localeScripts:[],
     
     // admin globals object - helps with settings as language, user defined constants, etc...
     globals: {},
@@ -383,7 +391,8 @@ var admin = module.exports = {
         }
         
         // set correct angular locale script
-        admin.localeScript = (admin.languages[userLang] || {}).angular_locale || '';
+        admin.localeScripts = (admin.languages[userLang] || {}).angular_locale;
+        admin.localeScripts = admin.localeScripts ? [admin.localeScripts] : [];
         
         function appendVersion(key, value){
             if(key==='files' && value && value.length){
@@ -510,7 +519,7 @@ function install(){
     var nodee = MODULE('nodee-total');
     
     // create auth
-    var auth = new nodee.Auth({
+    var auth = admin.auth = new nodee.Auth({
         basePath: basePath,
         loginTemplate: 'ne: @nodee-admin/views/login',
         registerTemplate: 'ne: @nodee-admin/views/register',
@@ -590,7 +599,14 @@ function install(){
     // admin route
     admin.routes[ '/config' ] = { templateUrl: basePath + 'views/config.html', controller:'ConfigCtrl' };
     
-    // get config  item settings
+    // get default config item settings
+    framework.route(basePath + 'config/{id}/default', getDefaultConfig, ['authorize','!admin','!adminarea']);
+    function getDefaultConfig(id){
+        var ctrl = this;
+        ctrl.json({ data: admin.config.getDefault(id) });
+    }
+    
+    // get config item settings
     framework.route(basePath + 'config/{id}', getConfig, ['authorize','!admin','!adminarea']);
     function getConfig(id){
         var ctrl = this;

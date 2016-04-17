@@ -32,6 +32,10 @@
                                 <div class="col-xs-12">
                                     <div ng-include="item.templateUrl"></div>
                                     <div class="text-right">
+                                        <button class="btn btn-default btn-sm" ng-click="resetConfig(id,item)">
+                                            <i class="fa fa-fw fa-exclamation"></i>
+                                            <span class="hidden-xs">{{::'Reset'|translate}}</span>
+                                        </button>
                                         <button class="btn btn-default btn-sm" ng-click="loadConfig(id,item)">
                                             <i class="fa fa-fw fa-refresh"></i>
                                             <span class="hidden-xs">{{::'Reload'|translate}}</span>

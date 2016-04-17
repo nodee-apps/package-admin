@@ -319,7 +319,13 @@ angular.module('neAdmin',['neDirectives',
     });
     
     admin.configs = new RestResource({ 
-        baseUrl: 'config'
+        baseUrl: 'config',
+        commands:{
+            default:{
+                url:'/{id}/default',
+                method:'GET',
+            }
+        }
     });
     
     
@@ -475,6 +481,13 @@ angular.module('neAdmin',['neDirectives',
         });
     };
     
+    $scope.resetConfig = function(id, item){
+        admin.configs.default(id, function(data){
+            item.loaded = true;
+            item.config = data;
+        });
+    };
+    
     $scope.loadConfig = function(id, item){
         admin.configs.one(id, function(data){
             item.loaded = true;
@@ -482,9 +495,10 @@ angular.module('neAdmin',['neDirectives',
         });
     };
     
-    $scope.updateConfig = function(id, item){
+    $scope.updateConfig = function(id, item, cb){
         admin.configs.update(id, item.config, function(data){
             item.config = data;
+            if(cb) cb();
         });
     };
     

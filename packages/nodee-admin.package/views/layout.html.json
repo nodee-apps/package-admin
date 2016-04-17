@@ -18,7 +18,8 @@
     },
     
     "script[ne-admin-locale]":{
-        "attrs":{ "src":"localeScript" }
+        "repeat":"localeScripts",
+        "attrs":{ "src":"this" }
     },
     
     "link[ne-admin-styles]":{
