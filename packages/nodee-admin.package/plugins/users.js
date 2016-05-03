@@ -30,14 +30,19 @@ module.exports.install = function(admin){
         { route:'/exists', collection:'exists', flags:['get'] },
         { route:'/{id}', collection:'one', flags:[ 'get' ] },
         { route:'/', instance:'create', flags:[ 'post', 'json' ] },
-        { route:'/{id}', instance:'create', flags:[ 'post', 'json' ] },
-        { route:'/{id}', instance:'update', before:disableSelfDisable, flags:[ 'put', 'json' ] },
-        { route:'/{id}', instance:'remove', before:disableSelfRemove, flags:[ 'delete' ] },
+        { route:'/{id}', instance:'create', afterValidation:hashPass, flags:[ 'post', 'json' ] },
+        { route:'/{id}', instance:'update', afterValidation:disableSelfDisable, flags:[ 'put', 'json' ] },
+        { route:'/{id}', instance:'remove', afterValidation:disableSelfRemove, flags:[ 'delete' ] },
         
         { route:'/{id}/resetpass', instance:'resetPass', flags:[ 'post', 'json' ] },
         
     ], ['authorize','!admin']);
 
+    function hashPass(ctx, next){
+        ctx.model.hashPass();
+        next();
+    }
+    
     function disableSelfRemove(ctx, next){
         if(ctx.params.id === this.user.id){
             this.status = 400;

@@ -9,22 +9,26 @@
     
     "script[ne-admin-libs]":{
         "repeat":"libs",
-        "attrs":{ "src":"this" }
+        "attrs":{ "src":"this" },
+        "default":false
     },
     
     "script[ne-admin-scripts]":{
         "repeat":"scripts",
-        "attrs":{ "src":"this" }
+        "attrs":{ "src":"this" },
+        "default":false
     },
     
     "script[ne-admin-locale]":{
         "repeat":"localeScripts",
-        "attrs":{ "src":"this" }
+        "attrs":{ "src":"this" },
+        "default":false
     },
     
     "link[ne-admin-styles]":{
         "repeat":"styles",
-        "attrs":{ "href":"this" }
+        "attrs":{ "href":"this" },
+        "default":false
     },
     
     "#app-script":{

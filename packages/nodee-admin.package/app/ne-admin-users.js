@@ -45,11 +45,14 @@ angular.module('neAdmin.users', [])
             title: 'Create User',
             templateUrl: 'views/users-create-modal.html',
             createUser: function (user) {
+                if(this.useDefaultRoles) delete user.roles;
+                
                 admin.users.create(user, function (data) {
                     modals.get('users.create').hide();
-                    $scope.grid.setPage('first');
+                    $scope.grid.load();
                 });
             },
+            useDefaultRoles: true,
             newUser: {
                 roles: ['user']
             },
@@ -76,7 +79,7 @@ angular.module('neAdmin.users', [])
             templateUrl: 'views/resetpass-modal.html',
             user: user,
             resetPass: function (user) {
-                admin.users.resetPass(user.id, user.password, function (data) {
+                admin.users.resetPass(user.id, JSON.stringify(user.password), function (data) {
                     user.modifiedDT = data.modifiedDT;
                     notify.success('Password Changed');
                     modals.get('users.resetPass').hide();

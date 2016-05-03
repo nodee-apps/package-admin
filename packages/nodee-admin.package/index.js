@@ -8,43 +8,9 @@ var Model = require('nodee-model'),
 /*
  * Config definition
  */
-var CONFIG_PATH = './databases/config.json';
 
-fsExt.existsOrCreateSync(CONFIG_PATH,{ content:'{}' });
-var CONFIG = fsExt.requireSync(CONFIG_PATH,{ isJson:true, jsonParse:parseISODates, watch:true });
-
-function update_config(id, value, cb){
-    CONFIG[ id ] = value;
-    var content = stringify(CONFIG);
-    
-    fsExt.writeFile(CONFIG_PATH, content, function(err){
-        if(err && !cb) throw err;
-        else if(cb) cb(err);
-    });
-}
-
-// parse all string in format ISODate("...") dates
-function parseISODates(key, value){
-    if(typeof value === 'string'){
-        var matched = value.match(/^ISODate\("(.+)"\)$/);
-        if(matched) return new Date(Date.parse(matched[1]));
-        else return value;
-    }
-    else return value;
-}
-
-// pretty stringify include ISODates
-function stringify(data){
-    // temporary change date toJSON
-    var oldDateJSON = Date.prototype.toJSON;
-    Date.prototype.toJSON = function(){ return 'ISODate("' +this.toISOString()+ '")'; };
-    
-    var str = JSON.stringify(data, null, 4);
-    
-    // change toJSON back to original
-    Date.prototype.toJSON = oldDateJSON;
-    return str;
-}
+// init AdminConfig model
+require('./models/AdminConfig.js');
 
 // path format to /mypath/
 function unifyPath(path){
@@ -145,13 +111,14 @@ var admin = module.exports = {
         },
         
         // gets config item data
-        get: function(id){
-            return (CONFIG.hasOwnProperty(id) || admin.config.items[id]) ? 
-                   (CONFIG[id] || 
-                    (typeof admin.config.items[id].defaultValue === 'function' ? 
-                     admin.config.items[id].defaultValue() : 
-                     admin.config.items[id].defaultValue)
-                   ) : undefined;
+        get: function(id, cb){ // cb(err, config)
+            if(!CONFIG.hasOwnProperty(id) && !admin.config.items[id]) return cb(new Error('Admin Config: cannot get value of item "'+id+'", not found'));
+            
+            Model('AdminConfig').collection().findId(id).cache().one(function(err, config){
+                if(err) cb(err);
+                else if(config) cb(null, config.value);
+                else cb(null, typeof admin.config.items[id].defaultValue === 'function' ? admin.config.items[id].defaultValue() : admin.config.items[id].defaultValue);
+            });
         },
         
         // gets config item data
@@ -198,8 +165,18 @@ var admin = module.exports = {
                 cfg = cfg.getData();
             }
             
-            // update application
-            update_config(id, cfg, cb);
+            // create or update configuration
+            Model('AdminConfig').collection().findId(id).exists(function(err, exists){
+                if(err) {
+                    if(cb) return cb(err);
+                    else throw err;
+                }
+                
+                Model('AdminConfig').new({ id:id, value:cfg })[ exists ? 'update' : 'create' ](function(err,cfg){
+                    if(cb) cb(err, cfg.value);
+                    else if(err) throw err;
+                });
+            });
         }
     },
     
@@ -377,13 +354,13 @@ var admin = module.exports = {
     defaultRedirect: '/intro',
     _viewMode: 'admin',
 
-    generateAppScript: function(user){
+    generateAppScript: function(user, langCfg){
         var admin = this;
         var version = framework.isDebug ? new Date().getTime() : framework.config.version;
         user = user || {};
         
         var userLang = (user.profile || {}).language;
-        if(!userLang || userLang==='default') userLang = admin.config.get('language').defaultLanguage;
+        if(!userLang || userLang==='default') userLang = langCfg.defaultLanguage;
         admin.usedLanguages = {};
         for(var lang in admin.languages){
             if(lang === userLang) admin.usedLanguages[lang] = admin.languages[lang].common || {};
@@ -518,38 +495,63 @@ function install(){
     // load "nodee-total" module
     var nodee = MODULE('nodee-total');
     
+    // use local vairables, because of async config loading
+    var _mailersCfg, _forgotpassCfg;
+    
     // create auth
     var auth = admin.auth = new nodee.Auth({
         basePath: basePath,
         loginTemplate: 'ne: @nodee-admin/views/login',
         registerTemplate: 'ne: @nodee-admin/views/register',
         mailer: function(){ 
-            var mailerId = admin.config.get('forgotpass').mailer;
-            return mailerId ? admin.config.get('mailers')[mailerId] : undefined;
+            var mailerId = _forgotpassCfg.mailer;
+            return mailerId ? _mailersCfg[mailerId] : undefined;
         },
-        forgotPassSubject: function(){ return admin.config.get('forgotpass').emailSubject; },
-        forgotPassEmail: function(){ return admin.config.get('forgotpass').emailTemplate; }
+        forgotPassSubject: function(){ return _forgotpassCfg.emailSubject; },
+        forgotPassEmail: function(){ return _forgotpassCfg.emailTemplate; }
     });
     
+    var _forgotpass = auth.forgotpass;
+    auth.forgotpass = function(){
+        var ctrl = this;
+        admin.config.get('mailers', function(err, mailersCfg){
+            if(err) return ctrl.view500(err);
+            _mailersCfg = mailersCfg;
+            
+            admin.config.get('forgotpass', function(err, forgotpassCfg){
+                if(err) return ctrl.view500(err);
+                _forgotpassCfg = forgotpassCfg;
+                _forgotpass.call(ctrl);
+            });
+        });
+    };
+    
     auth.viewRegister = function(data){
-        if(this.xhr) return this.json({ data:data });
+        var ctrl = this;
+        if(ctrl.xhr) return ctrl.json({ data:data });
         
-        // refresh admin app init script
-        admin.generateAppScript(this.user);
-        this.view(auth.registerTemplate, admin);
+        admin.config.get('language', function(err, langCfg){
+            if(err) return ctrl.view500(err);
+            // refresh admin app init script
+            admin.generateAppScript(ctrl.user, langCfg);
+            ctrl.view(auth.registerTemplate, admin);
+        });
     };
     
     auth.viewLogin = function(loginFailed){
-        if(this.xhr) {
-            if(loginFailed) this.status = 400;
-            return this.json({ data:{ loginFailed:loginFailed } });
+        var ctrl = this;
+        if(ctrl.xhr) {
+            if(loginFailed) ctrl.status = 400;
+            return ctrl.json({ data:{ loginFailed:loginFailed } });
         }
         
-        // refresh admin app init script
-        admin.generateAppScript(this.user);
-        
-        admin.loginFailed = loginFailed;
-        this.view(auth.loginTemplate, admin);
+        admin.config.get('language', function(err, langCfg){
+            if(err) return ctrl.view500(err);
+            // refresh admin app init script
+            admin.generateAppScript(ctrl.user, langCfg);
+            admin.loginFailed = loginFailed;
+            ctrl.view(auth.loginTemplate, admin);
+        });
     };
     
     auth.registerSuccess = function(user){
@@ -610,7 +612,10 @@ function install(){
     framework.route(basePath + 'config/{id}', getConfig, ['authorize','!admin','!adminarea']);
     function getConfig(id){
         var ctrl = this;
-        ctrl.json({ data: admin.config.get(id) });
+        admin.config.get(id, function(err, cfg){
+            if(err)return ctrl.view500(err);
+            ctrl.json({ data: cfg });
+        });
     }
     
     // set config item settings
@@ -618,9 +623,9 @@ function install(){
     function setConfig(id){
         var ctrl = this;
         
-        admin.config.set(id, ctrl.body, function(err){
+        admin.config.set(id, ctrl.body, function(err, cfg){
             if(err) framework.rest.handleResponse(ctrl)(err);
-            else ctrl.json({ data: admin.config.get(id) });
+            else ctrl.json({ data: cfg });
         });
     }
     
@@ -658,9 +663,12 @@ function install(){
 }
 
 function index() {
-    var self = this;
+    var ctrl = this;
     
     // generate admin app init script
-    admin.generateAppScript(self.user);
-    self.view('ne: @nodee-admin/views/index', admin);
+    admin.config.get('language', function(err, langCfg){
+        if(err) return ctrl.view500(err);
+        admin.generateAppScript(ctrl.user, langCfg);
+        ctrl.view('ne: @nodee-admin/views/index', admin);
+    });
 }

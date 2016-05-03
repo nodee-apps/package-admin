@@ -303,7 +303,7 @@ angular.module('neAdmin',['neDirectives',
             },
             resetPass:{ 
                 method:'POST',
-                url: '/{id}/'
+                url: '/{id}/resetpass'
             }
         }
     });

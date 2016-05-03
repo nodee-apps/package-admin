@@ -5,12 +5,17 @@
         <span class="valid-warning" ng-if="modal.newUser.$dupliciteEmail">{{::'*This email is used by another user, please enter different'|translate}}</span>
         <br/>
         
-        <label>{{::'New Password'|translate}}</label>
-        <input type="password" class="form-control" ng-model="modal.newUser.password" placeholder="{{::'password (min. 5 letters)'|translate}}" ng-minlength="5" required><br/>
-        <label>{{::'Repeat New Password'|translate}}</label>
-        <input type="password" class="form-control" ng-model="modal.newUser.passRetype" placeholder="{{::'repeat new password (min. 5 letters)'|translate}}" ng-minlength="5" required><br />
-        <label>{{::'Roles'|translate}}</label>
-        <input type="text" ng-list class="form-control" ng-model="modal.newUser.roles" placeholder="{{::'roles'|translate}}" required><br />
+        <label>{{::'Password'|translate}}</label>
+        <input type="password" class="form-control" ng-model="modal.newUser.password" placeholder="{{::'password (min. 5 letters)'|translate}}" ng-minlength="5" required><br>
+        <label>{{::'Repeat Password'|translate}}</label>
+        <input type="password" class="form-control" ng-model="modal.newUser.passRetype" placeholder="{{::'repeat password (min. 5 letters)'|translate}}" ng-minlength="5" required><br>
+        <label>{{::'Roles'|translate}}</label><br>
+        <label class="checkbox checkbox-default">
+            <input type="checkbox" class="form-control" ng-model="modal.useDefaultRoles">
+            <i class="checkbox-icon"></i>
+            <strong>{{::'Use Default Roles'|translate}}</strong>
+        </label>
+        <input type="text" ng-if="!modal.useDefaultRoles" ng-list class="form-control" ng-model="modal.newUser.roles" placeholder="{{::'roles'|translate}}" required><br>
     </form>
     <hr/>
     <div class="pull-right">
