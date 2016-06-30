@@ -282,6 +282,8 @@ var admin = module.exports = {
         'ui.bootstrap',
         'ui.bootstrap.ext',
         'oc.lazyLoad',
+        'textAngular',
+        'textAngular.ext',
         
         'neDirectives',
         'neContentEditors',
@@ -462,6 +464,7 @@ function install(){
     
     // modules javascripts - usefull outside of admin area
     framework.merge('/ne-modules-all.js', '@nodee-admin/app/angular-modules/ne-modules-all.js');
+    framework.merge('/ne-modules-ui.js', '@nodee-admin/app/angular-modules/ne-modules-ui.js');
     framework.merge('/ne-modules.js', '@nodee-admin/app/angular-modules/ne-modules.js');
     
     // admin angular views

@@ -164,216 +164,217 @@ angular.module('neContentEditors',[])
 .factory('neWysiwyg', ['$document', 'neModals', function($document, modals){
 
     function insertNodeAtSelection(selection, insertNode){
-	// get current selection
-	var sel = window.getSelection();
-	
-	// get the first range of the selection
-	// (there's almost always only one range)
-	var range = selection.range;
-	
-	// deselect everything
-	sel.removeAllRanges();
-	
-	// remove content of current selection from document
-	range.deleteContents();
-	
-	// get location of current selection
-	var container = range.startContainer;
-	var pos = range.startOffset;
-	
-	// make a new range for the new selection
-	range=document.createRange();
-	
-	if (container.nodeType===3 && insertNode.nodeType===3) {
-	    
-	    // if we insert text in a textnode, do optimized insertion
-	    container.insertData(pos, insertNode.nodeValue);
-	    
-	    // put cursor after inserted text
-	    range.setEnd(container, pos+insertNode.length);
-	    range.setStart(container, pos+insertNode.length);
-	}
-	else {
-	    var afterNode;
-	    if (container.nodeType===3) {
-	      
-		// when inserting into a textnode
-		// we create 2 new textnodes
-		// and put the insertNode in between
-		
-		var textNode = container;
-		container = textNode.parentNode;
-		var text = textNode.nodeValue;
-		
-		// text before the split
-		var textBefore = text.substr(0,pos);
-		// text after the split
-		var textAfter = text.substr(pos);
-		
-		var beforeNode = document.createTextNode(textBefore);
-		afterNode = document.createTextNode(textAfter);
-		
-		// insert the 3 new nodes before the old one
-		container.insertBefore(afterNode, textNode);
-		container.insertBefore(insertNode, afterNode);
-		container.insertBefore(beforeNode, insertNode);
-		
-		// remove the old node
-		container.removeChild(textNode);    
-	    }
-	    else {
-		// else simply insert the node
-		afterNode = container.childNodes[pos];
-		container.insertBefore(insertNode, afterNode);
-	    }
-	    
-	    range.setEnd(afterNode, 0);
-	    range.setStart(afterNode, 0);
-	}
-	
-	sel.addRange(range);
+        // get current selection
+        var sel = window.getSelection();
+
+        // get the first range of the selection
+        // (there's almost always only one range)
+        var range = selection.range;
+
+        // deselect everything
+        sel.removeAllRanges();
+
+        // remove content of current selection from document
+        range.deleteContents();
+
+        // get location of current selection
+        var container = range.startContainer;
+        var pos = range.startOffset;
+
+        // make a new range for the new selection
+        range=document.createRange();
+
+        if (container.nodeType===3 && insertNode.nodeType===3) {
+
+            // if we insert text in a textnode, do optimized insertion
+            container.insertData(pos, insertNode.nodeValue);
+
+            // put cursor after inserted text
+            range.setEnd(container, pos+insertNode.length);
+            range.setStart(container, pos+insertNode.length);
+        }
+        else {
+            var afterNode;
+            if (container.nodeType===3) {
+
+                // when inserting into a textnode
+                // we create 2 new textnodes
+                // and put the insertNode in between
+
+                var textNode = container;
+                container = textNode.parentNode;
+                var text = textNode.nodeValue;
+
+                // text before the split
+                var textBefore = text.substr(0,pos);
+                // text after the split
+                var textAfter = text.substr(pos);
+
+                var beforeNode = document.createTextNode(textBefore);
+                afterNode = document.createTextNode(textAfter);
+
+                // insert the 3 new nodes before the old one
+                container.insertBefore(afterNode, textNode);
+                container.insertBefore(insertNode, afterNode);
+                container.insertBefore(beforeNode, insertNode);
+
+                // remove the old node
+                container.removeChild(textNode);    
+            }
+            else {
+                // else simply insert the node
+                afterNode = container.childNodes[pos];
+                container.insertBefore(insertNode, afterNode);
+            }
+
+            range.setEnd(afterNode, 0);
+            range.setStart(afterNode, 0);
+        }
+
+        sel.addRange(range);
     }
     
     
     function formatDoc(sCmd, sValue){
-	return function(selection){
-	    $document[0].execCommand(sCmd, false, sValue);
-	    //selection.select(selection.start, selection.end);
-	    return selection.parent.html();
-	};
+        return function(selection){
+            $document[0].execCommand(sCmd, false, sValue);
+            //selection.select(selection.start, selection.end);
+            return selection.parent.html();
+        };
     }
     
     var colors = ['#ffffff','#ffccc9','#ffce93','#fffc9e','#ffffc7','#9aff99','#96fffb','#cdffff','#cbcefb','#cfcfcf','#fd6864','#fe996b','#fffe65','#fcff2f','#67fd9a','#38fff8','#68fdff','#9698ed','#c0c0c0','#fe0000','#f8a102','#ffcc67','#f8ff00','#34ff34','#68cbd0','#34cdf9','#6665cd','#9b9b9b','#cb0000','#f56b00','#ffcb2f','#ffc702','#32cb00','#00d2cb','#3166ff','#6434fc','#656565','#9a0000','#ce6301','#cd9934','#999903','#009901','#329a9d','#3531ff','#6200c9','#343434','#680100','#963400','#986536','#646809','#036400','#34696d','#00009b','#303498','#000000','#330001','#643403','#663234','#343300','#013300','#003532','#010066','#340096'];
     var fontSizes = [
-	{name: 'Extra Small', css: 'xx-small', value: '1'},
-	{name: 'Small', css: 'x-small', value: '2'},
-	{name: 'Medium', css: 'small', value: '3'},
-	{name: 'Large', css: 'medium', value: '4'},
-	{name: 'Extra Large', css: 'large', value: '5'},
-	{name: 'Huge', css: 'x-large', value: '6'}
+        {name: 'Extra Small', css: 'xx-small', value: '1'},
+        {name: 'Small', css: 'x-small', value: '2'},
+        {name: 'Medium', css: 'small', value: '3'},
+        {name: 'Large', css: 'medium', value: '4'},
+        {name: 'Extra Large', css: 'large', value: '5'},
+        {name: 'Huge', css: 'x-large', value: '6'}
     ];
     
     var editor = {
-	undo: formatDoc('undo'),
-	redo: formatDoc('redo'),
+        undo: formatDoc('undo'),
+        redo: formatDoc('redo'),
+
+        bold: formatDoc('bold'),
+        italic: formatDoc('italic'),
+        strikethrough: formatDoc('strikeThrough'),
+        underline: formatDoc('underline'),
+        quote: formatDoc('quote'),
+
+        h1: formatDoc('formatblock','<h1>'),
+        h2: formatDoc('formatblock','<h2>'),
+        h3: formatDoc('formatblock','<h3>'),
+        h4: formatDoc('formatblock','<h4>'),
+        h5: formatDoc('formatblock','<h5>'),
+        h6: formatDoc('formatblock','<h6>'),
+
+        fontSizes: fontSizes,
+        fontSize: function(selection, size){
+            return formatDoc('fontsize', size)(selection);
+        },
 	
-	bold: formatDoc('bold'),
-	italic: formatDoc('italic'),
-	strikethrough: formatDoc('strikeThrough'),
-	underline: formatDoc('underline'),
-	quote: formatDoc('quote'),
-	
-	h1: formatDoc('formatblock','<h1>'),
-	h2: formatDoc('formatblock','<h2>'),
-	h3: formatDoc('formatblock','<h3>'),
-	h4: formatDoc('formatblock','<h4>'),
-	h5: formatDoc('formatblock','<h5>'),
-	h6: formatDoc('formatblock','<h6>'),
-	
-	fontSizes: fontSizes,
-	fontSize: function(selection, size){
-	    return formatDoc('fontsize', size)(selection);
-	},
-	
-	colors: colors,
-	color: function(selection, color){
-	    return formatDoc('forecolor', color)(selection);
-	},
-	bgColor: function(selection, color){
-	    return formatDoc('hilitecolor', color)(selection);
-	},
-	
-	justifyLeft: formatDoc('justifyleft'),
-	justifyCenter: formatDoc('justifycenter'),
-	justifyRight: formatDoc('justifyright'),
-	justifyFull: formatDoc('justifyfull'),
-	
-	ol: formatDoc('insertorderedlist'),
-	ul: formatDoc('insertunorderedlist'),
-	indent: formatDoc('indent'),
-	outdent: formatDoc('outdent'),
-	
-	unlink: formatDoc('unlink'),
-	link: function(selection, url, name){ // selection, [url || usePrompt]
+        colors: colors,
+        color: function(selection, color){
+            return formatDoc('forecolor', color)(selection);
+        },
+        bgColor: function(selection, color){
+            return formatDoc('hilitecolor', color)(selection);
+        },
+
+        justifyLeft: formatDoc('justifyleft'),
+        justifyCenter: formatDoc('justifycenter'),
+        justifyRight: formatDoc('justifyright'),
+        justifyFull: formatDoc('justifyfull'),
+
+        ol: formatDoc('insertorderedlist'),
+        ul: formatDoc('insertunorderedlist'),
+        indent: formatDoc('indent'),
+        outdent: formatDoc('outdent'),
+
+        unlink: formatDoc('unlink'),
+        link: function(selection, url, name){ // selection, [url || usePrompt]
             if(!(url || url==='')){
-		url = prompt('Please enter link url','http://');
+                url = prompt('Please enter link url','http://');
             }
             if(url) {
-		var link = angular.element('<a href="' +url+ '">' +(name || url)+ '</a>');
-		insertNodeAtSelection(selection, link[0]);
-		return selection.parent.html();
-	    }
-	    else return '';
-	},
-	
-	image: function(selection, url){ // selection, [url || usePrompt]
-            if(!(url || url==='')){
-                url = prompt('Please enter image url','http://');
+                var link = angular.element('<a href="' +url+ '">' +(name || url)+ '</a>');
+                insertNodeAtSelection(selection, link[0]);
+                return selection.parent.html();
             }
-            if(url) {
-		var img = angular.element('<img src="' +url+ '">');
-		insertNodeAtSelection(selection, img[0]);
-		return selection.parent.html();
-	    }
             else return '';
-	},
+        },
 	
-	table: function(selection, cols, rows){
-	    rows = parseInt(rows,10);
-	    cols = parseInt(cols,10);
-	    var doc = $document[0];
-	    
-	    if ((rows > 0) && (cols > 0)) {
-		var table = doc.createElement('table');
-		var thead = doc.createElement('thead');
-		var tbody = doc.createElement('tbody');
-		var th,tr,td,br;
-		
-		tr = doc.createElement('tr');
-		for (var j=0; j < cols; j++) {
-		    th = doc.createElement('th');
-            th.innerHTML = 'col '+(j+1);
-		    br = doc.createElement('br');
-		    th.appendChild(br);
-		    tr.appendChild(th);
-		}
-		thead.appendChild(tr);
-		
-		for (var i=0; i < rows; i++) {
-		    tr = doc.createElement('tr');
-		    for (var j=0; j < cols; j++) {
-			td = doc.createElement('td');
-            td.innerHTML = 'row '+(i+1);
-			br = doc.createElement('br');
-			td.appendChild(br);
-			tr.appendChild(td);
-		    }
-		    tbody.appendChild(tr);
-		}
-		table.appendChild(thead);
-		table.appendChild(tbody);      
-		insertNodeAtSelection(selection, table);
-	    }
-	    
-	    return selection.parent.html();
-	},
+        image: function(selection, url){ // selection, [url || usePrompt]
+            if(!(url || url==='')){
+                    url = prompt('Please enter image url','http://');
+            }
+            if(url) {
+                var img = angular.element('<img src="' +url+ '">');
+                insertNodeAtSelection(selection, img[0]);
+                return selection.parent.html();
+            }
+            else return '';
+        },
 	
-	hr: formatDoc('inserthorizontalrule')
-	
-	// TODO:
-	// blocquote: wrapText('\n> ','','blocquote text'),
+        table: function(selection, cols, rows){
+            rows = parseInt(rows,10);
+            cols = parseInt(cols,10);
+            var doc = $document[0];
+
+            if ((rows > 0) && (cols > 0)) {
+                var table = doc.createElement('table');
+                var thead = doc.createElement('thead');
+                var tbody = doc.createElement('tbody');
+                var th,tr,td,br;
+
+                tr = doc.createElement('tr');
+                for (var j=0; j < cols; j++) {
+                    th = doc.createElement('th');
+                    th.innerHTML = 'col '+(j+1);
+                    br = doc.createElement('br');
+                    th.appendChild(br);
+                    tr.appendChild(th);
+                }
+                thead.appendChild(tr);
+
+                for (var i=0; i < rows; i++) {
+                    tr = doc.createElement('tr');
+                    for (var j=0; j < cols; j++) {
+                        td = doc.createElement('td');
+                        td.innerHTML = 'row '+(i+1);
+                        br = doc.createElement('br');
+                        td.appendChild(br);
+                        tr.appendChild(td);
+                    }
+                    tbody.appendChild(tr);
+                }
+                table.appendChild(thead);
+                table.appendChild(tbody);      
+                insertNodeAtSelection(selection, table);
+            }
+
+            return selection.parent.html();
+        },
+
+        hr: formatDoc('inserthorizontalrule')
+
+        // TODO:
+        // blocquote: wrapText('\n> ','','blocquote text'),
     };
     
     this.editor = editor;
     
     return this;
 }])
-.directive('contenteditable', ['$sce', function($sce) {
+.directive('neContenteditable', ['$sce', function($sce) {
     return {
 	restrict: 'A', // only activate on element attribute
 	require: '?ngModel', // get a hold of NgModelController
 	link: function(scope, element, attrs, ngModel) {
 	    if(!ngModel) return; // do nothing if no ng-model
+        if(!attrs['contenteditable']) element.attr('contenteditable', 'true');
 	    
 	    // Specify how UI should be updated
 	    ngModel.$render = function() {
@@ -407,9 +408,10 @@ angular.module('neContentEditors',[])
         require:'^ngModel',
         scope:{ neSelectionModel:'=' },
         link: function(scope, element, attrs, ctrl){
-            if(element[0].nodeName !== 'TEXTAREA' && attrs.contenteditable!=='true')
+            if(element[0].nodeName !== 'TEXTAREA' && attrs.contenteditable!=='true'){
                 throw new Error('neSelectionModel directive can be used only on <textarea> or contentEditable="true" element');
-
+            }
+            
             function TextAreaSelection(){
 
                 function setSelection(e, start, end){
@@ -4227,7 +4229,7 @@ angular.module('neObject',[])
         for(var key in parentObj){
             if(angular.isObject(parentObj[key])) deepReplace(parentObj[key], cb, (keyPath==='' ? key : keyPath + '.' + key));
             value = cb((keyPath==='' ? key : keyPath + '.' + key), key, parentObj[key]);
-            if(!value) delete parentObj[key];
+            if(value===undefined) delete parentObj[key];
             else parentObj[key] = value;
         }
     }
@@ -4318,13 +4320,13 @@ angular.module('neObject',[])
         var array = [];
         
         for(var key in obj) {
-            if(obj.hasOwnProperty(key)){
+            if(key!=='$key' && key!=='$sortIndex' && obj.hasOwnProperty(key)){
                 obj.$key = key;
-                obj.$sortIndex = deepGet(obj[key], sortNamespace);
+                if(sortNamespace) obj.$sortIndex = deepGet(obj[key], sortNamespace);
                 array.push(obj[key]);
             }
         }
-        return sortArray('$sortIndex', dir || 'asc', array);
+        return sortNamespace ? sortArray('$sortIndex', dir || 'asc', array) : array;
     }
     
     function arrayToObject(array, idNamespace){
@@ -4429,6 +4431,69 @@ angular.module('neObject',[])
         };
     }
     
+    // auto parse dates
+    var regexIso8601 = /^(\d{4}|\+\d{6})(?:-(\d{2})(?:-(\d{2})(?:T(\d{2}):(\d{2}):(\d{2})\.(\d{1,})(Z|([\-+])(\d{2}):(\d{2}))?)?)?)?$/;
+    var regexIsoJson = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/;
+
+    function dateStringsToDates(input, useIsoJson) {
+        var value, match, milliseconds;
+
+        // try to parse if input is string
+        if(typeof input === 'string' && (match = input.match(useIsoJson ? regexIsoJson : regexIso8601))) {
+            milliseconds = Date.parse(match[0]);
+            if (!isNaN(milliseconds)) {
+                input = new Date(milliseconds);
+            }
+            return input;
+        }
+
+        // Ignore things that aren't objects
+        else if(typeof input !== 'object') return input;
+
+        for(var key in input){
+            value = input[key];
+
+            // Check for string properties which look like dates.
+            if(typeof value === 'string' && (match = value.match(useIsoJson ? regexIsoJson : regexIso8601))) {
+                milliseconds = Date.parse(match[0]);
+                if (!isNaN(milliseconds)) {
+                    input[key] = new Date(milliseconds);
+                }
+            }
+            else if (typeof value === 'object') {
+                // Recurse into object
+                dateStringsToDates(value, useIsoJson);
+            }
+        }        
+        return input;
+    }
+    
+    function fromJson(str, useIsoJson){
+        var result;
+        try {
+            result = JSON.parse(str);
+        }
+        catch(err){}
+        
+        return dateStringsToDates(result, useIsoJson);
+    }
+    
+    function removePrefixedProps(input, prefix) {
+
+        // Ignore things that aren't objects.
+        if(typeof input !== 'object' || !prefix) return input;
+
+        for(var key in input) {
+            if(input.hasOwnProperty(key)) {
+                var value = input[key];
+
+                if(key.indexOf(prefix)===0) delete input[key];
+                else if(typeof value === 'object') removePrefixedProps(value, prefix);
+            }
+        }
+    }
+
+    
     return {
         extendReservedInstances: [File, FileList, Blob],
         extend: extend,
@@ -4442,6 +4507,10 @@ angular.module('neObject',[])
         deepEqual: deepEquals,
         objectToArray: objectToArray,
         arrayToObject: arrayToObject,
+        dateStringsToDates: dateStringsToDates,
+        fromJson: fromJson,
+        fromJSON: fromJson,
+        removePrefixedProps: removePrefixedProps,
         debounce: debounce
     };
 }]);
@@ -4459,7 +4528,7 @@ angular.module('neObject',[])
 angular.module('neQuery',['neLocal','neObject'])
 .config(['neLocalProvider', function(localProvider){
     localProvider.set('default', {
-        $equal:'=',
+        $eq:'=',
         $lt:'<',
         $lte:'<=',
         $gt:'>',
@@ -4469,7 +4538,7 @@ angular.module('neQuery',['neLocal','neObject'])
         $regex_begins:'begins with',
         $regex_ends:'ends with',
         $in:'is in',
-        $ne:'not equal',
+        $ne:'not equal to',
         $regex_ncontains:'not contains',
         $regex_nbegins:'not begins with',
         $regex_nends:'not ends with',
@@ -4502,7 +4571,10 @@ angular.module('neQuery',['neLocal','neObject'])
         qvalue_true:'True',
         qvalue_false:'False',
         Search:'Search',
-        'Order By':'Order By'
+        'Order By':'Order By',
+        'choose field':'choose field',
+        'type value':'type value',
+        'empty value':'empty value'
     });
 }])
 .run(['$templateCache', function($templateCache){
@@ -4512,18 +4584,21 @@ angular.module('neQuery',['neLocal','neObject'])
                        '    <small ng-if="!$first && query.logical===\'OR\' && !query.length">{{query.logical | translate}}<br></small>'+
                        '    <div ng-if="!query.length" class="visible-inline-block">'+
                        '        <div class="dropdown visible-inline-block" uib-dropdown keyboard-nav>'+
-                       '            <input type="text" class="input-sm" uib-dropdown-toggle ng-change="query.setFieldByName(query.fieldName);onChange()" ng-model="query.fieldName"/>'+
+                       '            <button ng-if="query.onlyPredefinedFields" class="btn btn-sm btn-default" uib-dropdown-toggle style="width:142px;height:30px">'+
+                       '                <span class="nowrap" ng-if="query.fieldName">{{query.fieldName}}</span><span class="nowrap" ng-if="!query.fieldName">{{::\'choose field\'|translate}}</span>'+
+                       '            </button>'+
+                       '            <input ng-if="!query.onlyPredefinedFields" type="text" placeholder="{{::\'choose field\'|translate}}" class="input-sm" uib-dropdown-toggle ng-change="query.setFieldByName(query.fieldName);onChange()" ng-model="query.fieldName"/>'+
                        '            <ul ng-if="query.fields.filterByName(query.fieldName, query.field.name).length" class="dropdown-menu" style="max-height:220px;overflow:auto">'+
                        '                <li ng-repeat="field in query.fields.filterByName(query.fieldName, query.field.name)" ng-class="{\'active\':(field.name===query.fieldName)}">'+
                        '                    <a href="" ng-click="query.setField(field);onChange()">'+
-                       '			    {{field.name}}'+
-                       '			</a>'+
+                       '			             {{field.name}}'+
+                       '			        </a>'+
                        '                </li>'+
                        '            </ul>'+
                        '        </div>'+
                        '        <div class="dropdown visible-inline-block" uib-dropdown keyboard-nav>'+
-                       '            <button ng-disabled="query.field.disableOperator" class="btn btn-default btn-sm" uib-dropdown-toggle style="width:120px;">'+
-                       '                <span>{{query.operator | translate}}&nbsp;</span>'+
+                       '            <button ng-disabled="query.field.disableOperator" class="btn btn-default btn-sm" uib-dropdown-toggle style="width:120px;height:30px">'+
+                       '                <span class="class="nowrap"">{{query.operator | translate}}&nbsp;</span>'+
                        '            </button>'+
                        '            <ul class="dropdown-menu" style="min-width:210px;overflow:auto">'+
                        '                <li ng-if="!query.field.disableType" class="text-center">'+
@@ -4534,7 +4609,7 @@ angular.module('neQuery',['neLocal','neObject'])
                        '                    </div>'+
                        '                </li>'+
                        '                <li ng-if="!query.field.disableType" class="divider"></li>'+
-                       '                <li ng-repeat="operator in query.type.operators" ng-class="{\'active\':(query.operator===operator)}">'+
+                       '                <li ng-repeat="operator in query.type.operators" ng-if="!query.field.allowedOperatorIndexes || query.field.allowedOperatorIndexes.indexOf($index)>-1" ng-class="{\'active\':(query.operator===operator)}">'+
                        '                    <a href="" ng-click="query.setOperator(operator);onChange()">'+
                        '			            <span>{{operator | translate}}</span>'+
                        '			        </a>'+
@@ -4550,7 +4625,7 @@ angular.module('neQuery',['neLocal','neObject'])
                        '        </div>'+
                        '    </div>'+
                        '    <div ng-if="query.length" class="visible-inline-block" style="position:relative;">'+
-                       '        <small>{{query.logical | translate}}<br></small>'+
+                       '        <small>{{ ($first ? \' \' : query.logical) | translate}}<br></small>'+
                        '        <div class="btn-group btn-group-xs" style="position:absolute;right:0px;top:1px">'+
                        '            <button class="btn btn-default" style="border:1px dashed #999;border-right:none;color:#999;border-bottom: 1px solid transparent;" ng-click="query.next(\'AND\')">{{::\'AND\' | translate}}</button>'+
                        '            <button class="btn btn-default" style="border:none;border-top:1px dashed #999;color:#999;border-bottom: 1px solid transparent;" ng-click="query.next(\'OR\')">{{::\'OR\' | translate}}</button>'+
@@ -4565,6 +4640,7 @@ angular.module('neQuery',['neLocal','neObject'])
     $templateCache.put('neQuery/date.html',
                        '<input type="text" '+
                        '       class="input-sm" '+
+                       '       placeholder="{{(query.field.isEmptyValue(query.value) ? (query.field.placeholder||\'type value\') : \'empty value\')|translate}}" '+
                        '       uib-datepicker-popup '+
                        '       is-open="query.value_opened" '+
                        '       ng-click="query.value_opened=!query.value_opened" '+
@@ -4574,6 +4650,7 @@ angular.module('neQuery',['neLocal','neObject'])
     $templateCache.put('neQuery/datetime.html',
                        '<input type="text" '+
                        '       class="input-sm" '+
+                       '       placeholder="{{(query.field.isEmptyValue(query.value) ? (query.field.placeholder||\'type value\') : \'empty value\')|translate}}"'+
                        '       uib-datetimepicker-popup '+
                        '       show-seconds="true" '+
                        '       is-open="query.value_opened" '+
@@ -4582,7 +4659,12 @@ angular.module('neQuery',['neLocal','neObject'])
                        '       ng-change="onChange()"/>');
     
     $templateCache.put('neQuery/number.html',
-                       '<input type="number" class="input-sm" ng-model="query.value" ng-change="onChange()" style="width:142px;"/>');
+                       '<input type="number" '+
+                       '       class="input-sm" '+
+                       '       placeholder="{{(query.field.isEmptyValue(query.value) ? (query.field.placeholder||\'type value\') : \'empty value\')|translate}}" '+
+                       '       ng-model="query.value" '+
+                       '       ng-change="onChange()" '+
+                       '       style="width:142px;"/>');
     
     $templateCache.put('neQuery/list.html',
                        '<select class="input-sm" '+
@@ -4601,7 +4683,28 @@ angular.module('neQuery',['neLocal','neObject'])
                        '</select>');
     
     $templateCache.put('neQuery/string.html',
-                       '<input type="text" class="input-sm" ng-model="query.value" ng-change="onChange()"/>');
+                       '<input type="text" '+
+                       '       class="input-sm" '+
+                       '       placeholder="{{(query.field.isEmptyValue(query.value) ? (query.field.placeholder||\'type value\') : \'empty value\')|translate}}" '+
+                       '       ng-model="query.value" '+
+                       '       ng-change="onChange()"/>');
+    
+    $templateCache.put('neQuery/string-suggestions.html',
+                       '<div class="dropdown visible-inline-block" uib-dropdown keyboard-nav>'+
+                       '    <input type="text" '+
+                       '           class="input-sm" '+
+                       '           placeholder="{{(query.field.isEmptyValue(query.value) ? (query.field.placeholder||\'type value\') : \'empty value\')|translate}}" '+
+                       '           uib-dropdown-toggle '+
+                       '           ng-model="query.suggestion" '+
+                       '           ng-change="query.field.onlySuggestedValues ? query.value=null : query.value=query.suggestion;query.field.createSuggestions(query, query.suggestion);onChange()">'+
+                       '    <ul ng-if="query.suggestions.length" class="dropdown-menu" style="max-height:220px;overflow:auto">'+
+                       '        <li ng-repeat="value in query.suggestions" ng-class="{\'active\':(value===query.value)}">'+
+                       '          <a href="" ng-click="query.value=value;query.suggestion=value;onChange()">'+
+                       '		      {{value}}'+
+                       '		  </a>'+
+                       '        </li>'+
+                       '    </ul>'+
+                       '</div>');
     
     $templateCache.put('neQuery/disabled.html',
                        '<input type="text" disabled="disabled" class="input-sm" ng-model="query.value"/>');
@@ -4612,10 +4715,13 @@ angular.module('neQuery',['neLocal','neObject'])
                        '    <small>{{::\'Order By\'|translate}}</small>'+
                        '    <div class="visible-inline-block">'+
                        '        <div class="dropdown visible-inline-block" uib-dropdown keyboard-nav>'+
-                       '            <input type="text" class="input-sm dropdown-toggle" uib-dropdown-toggle ng-change="query.setSortByName(sort.fieldName, $index);onChange()" ng-model="sort.fieldName" />'+
+                       '            <button ng-if="query.onlyPredefinedFields" class="btn btn-sm btn-default" uib-dropdown-toggle style="width:142px;height:30px">'+
+                       '                <span class="nowrap" ng-if="sort.fieldName">{{sort.fieldName}}</span><span class="nowrap" ng-if="!sort.fieldName">{{::\'choose field\'|translate}}</span>'+
+                       '            </button>'+
+                       '            <input ng-if="!query.onlyPredefinedFields" type="text" placeholder="{{::\'choose field\'|translate}}" class="input-sm" uib-dropdown-toggle ng-change="query.setSortByName(sort.fieldName, $index);onChange()" ng-model="sort.fieldName" />'+
                        '            <ul ng-if="query.fields.filterByName(sort.fieldName, sort.name).length" class="dropdown-menu" style="max-height:220px;overflow:auto">'+
                        '                <li ng-repeat="field in query.fields.filterByName(sort.fieldName, sort.name)" ng-class="{\'active\':(field.name===sort.fieldName)}">'+
-                       '                    <a href="" ng-click="query.setSortField(field,$parent.$index)">'+
+                       '                    <a href="" ng-click="query.setSortField(field,$parent.$index);onChange()">'+
                        '        			    {{field.name}}'+
                        '        			</a>'+
                        '                </li>'+
@@ -4655,9 +4761,15 @@ angular.module('neQuery',['neLocal','neObject'])
                   '    <i class="fa fa-fw fa-search"></i>'+
                   '    <span class="hidden-sm">{{::\'Search\' | translate}}</span>'+
                   '</button>',
-        scope:{ query:'=neQuerySearch', searchClick:'&neQuerySearchClick', onChange:'&neQuerySearchChange' },
+        scope:{ query:'=neQuerySearch', searchClick:'&neQuerySearchClick', onQuerySearchChange:'&neQuerySearchChange', querySearchEmpty:'=neQuerySearchEmpty' },
         link: function(scope, elm, attrs, ctrl){
-            
+            var watchEmptyState = !!attrs.neQuerySearchEmpty;
+            scope.onChange = function(){
+                scope.query.setDirty();
+                if(watchEmptyState) scope.querySearchEmpty = scope.query.isEmpty();
+                if(scope.onQuerySearchChange) scope.onQuerySearchChange();
+            };
+            if(watchEmptyState) scope.querySearchEmpty = scope.query.isEmpty();
         }
     };
 }])
@@ -4665,9 +4777,15 @@ angular.module('neQuery',['neLocal','neObject'])
     return {
         restrict:'A',
         templateUrl: 'neQuery/query.html',
-        scope:{ query:'=neQuery', onChange:'&neQueryChange' },
+        scope:{ query:'=neQuery', onQueryChange:'&neQueryChange', queryEmpty:'=neQueryEmpty' },
         link: function(scope, elm, attrs, ctrl){
-
+            var watchEmptyState = !!attrs.neQueryEmpty;
+            scope.onChange = function(){
+                scope.query.setDirty();
+                if(watchEmptyState) scope.queryEmpty = scope.query.isQueryEmpty();
+                if(scope.onQueryChange) scope.onQueryChange();
+            };
+            if(watchEmptyState) scope.queryEmpty = scope.query.isQueryEmpty();
         }
     };
 }])
@@ -4675,9 +4793,15 @@ angular.module('neQuery',['neLocal','neObject'])
     return {
         restrict:'A',
         templateUrl: 'neQuery/sort.html',
-        scope:{ query:'=neQuerySort', onChange:'&neQuerySortChange' },
+        scope:{ query:'=neQuerySort', onQuerySortChange:'&neQuerySortChange', querySortEmpty:'=neQuerySortEmpty' },
         link: function(scope, elm, attrs, ctrl){
-
+            var watchEmptyState = !!attrs.neQuerySortEmpty;
+            scope.onChange = function(){
+                scope.query.setDirty();
+                if(watchEmptyState) scope.querySortEmpty = scope.query.isSortEmpty();
+                if(scope.onQuerySortChange) scope.onQuerySortChange();
+            };
+            if(watchEmptyState) scope.querySortEmpty = scope.query.isSortEmpty();
         }
     };
 }])
@@ -4692,7 +4816,8 @@ angular.module('neQuery',['neLocal','neObject'])
         boolean: 'neQuery/boolean.html',
         date: 'neQuery/date.html',
         datetime: 'neQuery/datetime.html',
-        list: 'neQuery/list.html'
+        list: 'neQuery/list.html',
+        suggestions: 'neQuery/string-suggestions.html'
     };
     
     // used when parsing query
@@ -4719,23 +4844,23 @@ angular.module('neQuery',['neLocal','neObject'])
         },
         number:{
             name:'number',
-            operators:['$equal','$lt','$lte','$gt','$gte'], // '=','<','<=','>','>='
+            operators:['$eq','$lt','$lte','$gt','$gte'], // '=','<','<=','>','>='
             template: templates.number
         },
         boolean:{
             name:'boolean',
-            operators:['$equal'], // 'is'
+            operators:['$eq'], // 'is'
             template: templates.boolean,
             onBuild: function(value){ if([true,'true','True',1,'yes','Yes'].indexOf(value)!==-1) return true; else return false; }
         },
         date:{
             name:'date',
-            operators:['$equal','$lt','$lte','$gt','$gte'], // '=','<','<=','>','>='
+            operators:['$eq','$lt','$lte','$gt','$gte'], // '=','<','<=','>','>='
             template: templates.date
         },
         datetime:{
             name:'datetime',
-            operators:['$equal','$lt','$lte','$gt','$gte'], // '=','<','<=','>','>='
+            operators:['$eq','$lt','$lte','$gt','$gte'], // '=','<','<=','>','>='
             template: templates.datetime
         },
         object:{
@@ -4804,7 +4929,7 @@ angular.module('neQuery',['neLocal','neObject'])
                 andGroups[g].push(query[i]);
             }
             
-            // no OR query, just ands
+            // no OR query, just ANDs
             if(g===0) {
                 var presult, 
                     wrappedByAnd = false, 
@@ -4825,7 +4950,7 @@ angular.module('neQuery',['neLocal','neObject'])
                             else {
                                 // key conflict, and field has no merge method, need to wrap it by AND
                                 delete result[ pkey ]; // this field will be inside $and
-                                result = object.extend(true, result, queries['AND'].build(andGroup));
+                                result = queries['AND'].build(andGroup); // object.extend(true, {}, queries['AND'].build(andGroup));
                                 wrappedByAnd = true;
                                 break;
                             }
@@ -4844,13 +4969,15 @@ angular.module('neQuery',['neLocal','neObject'])
         else if(query.operator && query.field && query.field.key) {
             value = angular.copy(query.value);
             if(query.type.onBuild) value = query.type.onBuild(value);
-            value = queries[ query.operator ].build(typeof query.field.onBuild==='function' ? query.field.onBuild(value) : value);
-            if(value!==undefined && value!==null) {
-                if(query.field.build) {
-                    var customBuild = query.field.build(query.field.key, value, query); // custom field build
-                    result[ customBuild.key || query.field.key] = customBuild.key ? customBuild.value : customBuild;
+            if(!query.field.isEmptyValue || !query.field.isEmptyValue(value)){
+                value = queries[ query.operator ].build(typeof query.field.onBuild==='function' ? query.field.onBuild(value) : value);
+                if(value!==undefined && value!==null) {
+                    if(query.field.build) {
+                        var customBuild = query.field.build(query.field.key, value, query); // custom field build
+                        result[ customBuild.key || query.field.key] = customBuild.key ? customBuild.value : customBuild;
+                    }
+                    else result[query.field.key] = value;
                 }
-                else result[query.field.key] = value;
             }
         }
         
@@ -4932,7 +5059,9 @@ angular.module('neQuery',['neLocal','neObject'])
                     // if parent logical !== result logical, and it is first item inside logical group, its logical will be parent logical
                     // pseudo example 1: or[ and[1,2], or[1,2], and[1,2] ]
                     // pseudo example 2: and[ or[1,2], and[1,2], or[1,2] ]
-                    if(keys.length===1) query.parse(result.queries[i], i===0 && parentLogical ? parentLogical : result.logical);
+                    // pseudo example 3: and[ or[1,2], or[1,2] ]
+                    // pseudo example 4: or[ and[1,2], and[1,2] ]
+                    if(keys.length===1 && !parentLogical) query.parse(result.queries[i], i===0 && parentLogical ? parentLogical : result.logical);
                     
                     // if mixed ANDs or ORs with other keys, create one child and then append to it all remaining queries
                     else if(child) child.parse(result.queries[i], result.logical);
@@ -4952,10 +5081,10 @@ angular.module('neQuery',['neLocal','neObject'])
         
         function addQuery(query, result, logical){
             child = query.append(logical);
-            child.setFieldByName(result.fieldName, true); // reset if defined, because default field (first) was already set
             child.type = types[result.typeName];
-            child.operator = result.operator;
             child.value = result.value;
+            child.setFieldByName(result.fieldName, true); // reset if defined, because default field (first) was already set
+            child.operator = result.operator; // force change operator to show original query operator, even if field has disabled changing operator
         }
         
         return query;
@@ -4995,20 +5124,22 @@ angular.module('neQuery',['neLocal','neObject'])
     var queries = {
         AND:{ // called on build when AND operator
             build: function(value){
-                var $and = [];
+                var $and = [], andVal;
                 for(var i=0;i<(value.length||0);i++){
-                    $and.push(build(value[i], true));
+                    andVal = build(value[i], true);
+                    if(Object.keys(andVal).length) $and.push(andVal);
                 }
-                return { $and: $and };
+                return $and.length ? { $and: $and } : {};
             }
         },
         OR:{ // called on build when OR operator
             build: function(value){
-                var $or = [];
+                var $or = [], orVal;
                 for(var i=0;i<(value.length||0);i++){
-                    $or.push(build(value[i], true));
+                    orVal = build(value[i], true);
+                    if(Object.keys(orVal).length) $or.push(orVal);
                 }
-                return { $or: $or };
+                return $or.length ? { $or: $or } : {};
             }
         },
         VALUE:{ // if parsed query value is not recognized object, this will be called
@@ -5028,7 +5159,7 @@ angular.module('neQuery',['neLocal','neObject'])
                 if(type) return {
                     fieldName: key,
                     typeName: type,
-                    operator: type==='string' ? '$regex_exact' : '$equal',
+                    operator: type==='string' ? '$regex_exact' : '$eq',
                     value: value
                 };
             }
@@ -5055,9 +5186,20 @@ angular.module('neQuery',['neLocal','neObject'])
                 };
             }
         },
-        $equal:{ // virtual, called on build when equal operator
+        $eq:{
             build: function(value){
                 return value;
+            },
+            parse: function(key, value){
+                var vt = parseValueType(value), type = vt.type;
+                value = vt.value;
+                
+                if(type) return {
+                    fieldName: key,
+                    typeName: type,
+                    operator: type==='string' ? '$regex_exact' : '$eq',
+                    value: value
+                };
             }
         },
         $exists:{
@@ -5316,11 +5458,17 @@ angular.module('neQuery',['neLocal','neObject'])
             if((!this.parent || !this.parent()) && this.length===0) this.append('AND'); // if this is root query and there is no child, add one
             return q;
         };
+        q.isEmpty = isEmpty; // is both, sort and query empty
+        q.isQueryEmpty = isQueryEmpty;
+        q.isSortEmpty = isSortEmpty;
+        q.isDirty = isDirty;
+        q.setDirty = setDirty;
         q.clear = clear;
         q.newQuery = newQuery;
         q.templates = templates;
         q.fields = this.fields; // inherit fields
         q.types = this.types; // inherit types
+        q.onlyPredefinedFields = this.onlyPredefinedFields; // inherit onlyPredefinedFields
         q.logical = logical || 'AND'; // default logical is AND
         q.append = append;
         q.next = next;
@@ -5418,10 +5566,39 @@ angular.module('neQuery',['neLocal','neObject'])
     
     function clear(){
         this.splice(0, this.length); // clear array
+        this.setDirty(false);
         return this;
     }
     
-    function setFieldByName(fieldName, resetIfDefined){
+    function isEmpty(builtQuery){
+        builtQuery = builtQuery || this.build();
+        return this.isQueryEmpty(builtQuery) && this.isSortEmpty(builtQuery);
+    }
+    
+    function isQueryEmpty(builtQuery){
+        builtQuery = builtQuery || this.build();
+        var keysLength = Object.keys(builtQuery).length;
+        return keysLength === 0 || (keysLength === 1 && builtQuery.hasOwnProperty('$sort'));
+    }
+    
+    function isSortEmpty(builtQuery){
+        builtQuery = builtQuery || this.build();
+        return Object.keys(builtQuery.$sort||{}).length === 0;
+    }
+    
+    function setDirty(isDirty){
+        this.$dirty = isDirty = false ? false : true;
+        this.$touched = isDirty = false ? false : true;
+        return this;
+    }
+    
+    function isDirty(){
+        return this.$dirty;
+    }
+    
+    function setFieldByName(fieldName, resetPrevField){
+        if(resetPrevField) delete this.field;
+        
         if(fieldName){
             var fieldNameLower = fieldName.toLowerCase();
             for(var i=0;i<this.fields.length;i++){
@@ -5429,7 +5606,7 @@ angular.module('neQuery',['neLocal','neObject'])
                     return this.setField(this.fields[i]); // match with predefined fields
                 }
                 else if(this.fields[i].match && (fieldName.match(this.fields[i].match) || fieldNameLower.match(this.fields[i].match))){
-                    if(!resetIfDefined && this.field && this.field.field === this.fields[i].field) return;
+                    if(this.field && this.field.field === this.fields[i].field) return;
                     else return this.setField(this.fields[i], fieldName); // match with predefined fields
                 }
             }
@@ -5446,11 +5623,13 @@ angular.module('neQuery',['neLocal','neObject'])
             // this.operator = this.type.operators[0];
             this.value = null;
         }
+        var prevField = this.field;
         this.field = angular.copy(field||{});
         this.fieldName = fieldName || this.field.name;
         
         // set default operator, if field has operatorIndex
         this.operator = this.type.operators[ this.field.operatorIndex||0 ];
+        if(field.onSet) field.onSet(this, prevField);
     }
         
     function setOperator(operator){
@@ -5590,10 +5769,18 @@ angular.module('neQuery',['neLocal','neObject'])
         }
     };
     
-    function Query(name, fields){
-        if(arguments.length===1 && typeof arguments[0]!=='string'){
-            fields = arguments[0];
-            name = null;
+    function Query(name, fields){ // Query(opts)
+        var opts = {};
+        if(arguments.length===1){
+            if(Array.isArray(arguments[0])){
+                fields = arguments[0];
+                name = null;    
+            }
+            else if(angular.isObject(arguments[0])) {
+                opts = arguments[0];
+                fields = opts.fields;
+                name = opts.name;
+            }
         }
 
         fields = fields || [];
@@ -5623,23 +5810,57 @@ angular.module('neQuery',['neLocal','neObject'])
             if(fields[i].type) fields[i].disableType = true;
             fields[i].type = fields[i].type || fields[i].defaultType || defaultType; // set default type if field has no type
 
+            // config can disable some operators
+            fields[i].allowedOperatorIndexes = fields[i].allowedOperatorIndexes;
+            
             // if operator is set, disable changing operator
             if(fields[i].operatorIndex >= 0) fields[i].disableOperator = true;
             fields[i].operatorIndex = fields[i].operatorIndex || fields[i].defaultOperatorIndex;
 
             // set list template if values are set, but template not
             if(fields[i].values && !fields[i].template) fields[i].template = templates.list;
+            
+            // config can define emptyValues - values which can be valid but considered as empty, e.g. empty string, zero, etc...
+            fields[i].emptyValues = fields[i].emptyValues || fields[i].ignoreValues;
+            fields[i].isEmptyValue = fields[i].isEmptyValue || function(value){
+                if(value===null || value===undefined) return true;
+                return (this.emptyValues||this.type.emptyValues) ? (this.emptyValues||this.type.emptyValues).indexOf(value) > -1 : false;
+            };
+            
+            // wrap load suggestions method
+            fields[i].loadSuggestions = fields[i].loadSuggestions || fields[i].getSuggestions || fields[i].suggestions;
+            fields[i].onlySuggestedValues = fields[i].onlySuggestedValues;
+            
+            if(fields[i].loadSuggestions) {
+                fields[i].resetOnFieldChange = true;
+                fields[i].onSet = fields[i].onSet || function(query, prevField){
+                    if(prevField){
+                        query.value = null;
+                        query.suggestion = '';
+                        query.suggestions = [];
+                    }
+                    else query.suggestion = query.suggestion || query.value;
+                };
+                fields[i].template = fields[i].template || templates.suggestions;
+                fields[i].createSuggestions = (function(field){
+                    var minLength = field.suggestionMinLength || field.suggestionMinSearchLength || 3;
+                    return object.debounce(function(query, searchText){
+                        searchText = searchText || '';
+                        if(searchText.length >= minLength) field.loadSuggestions(searchText, function(values){
+                            query.suggestions = values;
+                        });
+                    }, field.suggestionDebounce >= 0 ? field.suggestionDebounce : 350);
+                })(fields[i]);
+            }
         }
         fields.filterByName = filterByName;
 
         var q = newQuery.call({ fields:fields, types:Object.keys(types) },'AND'); // default logical is AND
-        q.append('AND');
-
         q.name = name;
-
-        // q.strictFields = false;
-        // q.onParse
-
+        q.onlyPredefinedFields = opts.onlyPredefinedFields;
+        
+        q.append('AND');
+        
         return q;
     }
     
@@ -5647,7 +5868,243 @@ angular.module('neQuery',['neLocal','neObject'])
     Query.fieldBehaviours = fieldBehaviours;
     
     return Query;
+}])
+.factory('neQueryTests', ['NeQuery','neObject', function(Query, object){
+    
+    return function(){
 
+        var q = new Query();
+
+        function testQuery(name, inputQuery, compareQuery){
+            var builtQuery = q.fill(inputQuery).build();
+            var isEqual = object.deepEqual(compareQuery || inputQuery, builtQuery, function(key){
+                return key==='$sort';
+            });
+            if(!isEqual) console.warn('Query test failed "' +name+ '", input query do not match built one', compareQuery || inputQuery, builtQuery);
+            else console.log('Query test "' +name+ '" - OK');
+        }
+
+        /*
+         * simple queries
+         */
+        testQuery('simple range query', { field1:{ $gte:1, $lte:2 } });
+        testQuery('simple and[1,2]', { field1:'value1', field2:'value2' });
+        testQuery('simple and[1,2] with $and operator', { $and:[{field1:'value1'}, {field2:'value2'} ] }, { field1:'value1', field2:'value2' });
+        testQuery('simple or[1,2] with $or operator', { $or:[{field1:'value1'}, {field2:'value2'} ] });
+
+        /*
+         * nested queries
+         */
+
+        // or[ and[1,2], or[1,2], and[1,2] ]
+        testQuery('or[ and[1,2], or[1,2], and[1,2] ]', { 
+            $and:[
+                { 
+                    $or:[
+                        { field1_or1: 'value1_or1' }, 
+                        { field2_or1: 'value2_or1' } 
+                    ]
+                },
+                { 
+                    $or:[
+                        { field1_or2: 'value1_or2' }, 
+                        { field2_or2: 'value2_or2' } 
+                    ]
+                }
+            ]
+        });
+
+        // or[ or[1,2], and[1,2], or[1,2] ]
+        testQuery('or[ or[1,2], and[1,2], or[1,2] ]', { 
+            $or:[
+                { 
+                    $or:[
+                        { field1_or1: 'value1_or1' }, 
+                        { field2_or1: 'value2_or1' } 
+                    ]
+                },
+                { 
+                    $and:[
+                        { field1_and1: 'value1_and1' }, 
+                        { field2_and1: 'value2_and1' } 
+                    ]
+                },
+                { 
+                    $or:[
+                        { field1_or2: 'value1_or2' }, 
+                        { field2_or2: 'value2_or2' } 
+                    ]
+                }
+            ]
+        },{ 
+            $or:[
+                { 
+                    $or:[
+                        { field1_or1: 'value1_or1' }, 
+                        { field2_or1: 'value2_or1' } 
+                    ]
+                },
+                { 
+                    field1_and1: 'value1_and1', 
+                    field2_and1: 'value2_and1'
+                },
+                { 
+                    $or:[
+                        { field1_or2: 'value1_or2' }, 
+                        { field2_or2: 'value2_or2' } 
+                    ]
+                }
+            ]
+        });
+
+        // and[ or[1,2], and[1,2], or[1,2] ]
+        testQuery('and[ or[1,2], and[1,2], or[1,2] ]', { 
+            $and:[
+                { 
+                    $or:[
+                        { field1_or1: 'value1_or1' }, 
+                        { field2_or1: 'value2_or1' } 
+                    ]
+                },
+                { 
+                    $and:[
+                        { field1_and1: 'value1_and1' }, 
+                        { field2_and1: 'value2_and1' } 
+                    ]
+                },
+                { 
+                    $or:[
+                        { field1_or2: 'value1_or2' }, 
+                        { field2_or2: 'value2_or2' } 
+                    ]
+                }
+            ]
+        },{ 
+            $and:[
+                { 
+                    $or:[
+                        { field1_or1: 'value1_or1' }, 
+                        { field2_or1: 'value2_or1' } 
+                    ]
+                },
+                { 
+                    field1_and1: 'value1_and1', 
+                    field2_and1: 'value2_and1'
+                },
+                { 
+                    $or:[
+                        { field1_or2: 'value1_or2' }, 
+                        { field2_or2: 'value2_or2' } 
+                    ]
+                }
+            ]
+        });
+
+        // and[ or[1,2], or[1,2] ]
+        testQuery('and[ or[1,2], or[1,2] ]', { 
+            $and:[
+                { 
+                    $or:[
+                        { field1_or1: 'value1_or1' }, 
+                        { field2_or1: 'value2_or1' } 
+                    ]
+                },
+                { 
+                    $or:[
+                        { field1_or2: 'value1_or2' }, 
+                        { field2_or2: 'value2_or2' } 
+                    ]
+                }
+            ]
+        });
+
+        // or[ and[1,2], and[1,2] ]
+        testQuery('or[ and[1,2], and[1,2] ]', { 
+            $or:[
+                { 
+                    $and:[
+                        { field1_and1: 'value1_and1' }, 
+                        { field2_and1: 'value2_and1' } 
+                    ]
+                },
+                { 
+                    $and:[
+                        { field1_and2: 'value1_and2' }, 
+                        { field2_and2: 'value2_and2' } 
+                    ]
+                }
+            ]
+        },{ 
+            $or:[
+                { field1_and1: 'value1_and1', field2_and1: 'value2_and1' },
+                { field1_and2: 'value1_and2', field2_and2: 'value2_and2' }
+            ]
+        });
+
+        /*
+         * nested, nested with ragne queries
+         */
+
+        // or[ or[1,range], and[range,1,2, or[1,2] ], or[range,range] ]
+        testQuery('or[ or[1,range], and[range,1,2], or[range,range] ]', { 
+            $or:[
+                { 
+                    $or:[
+                        { field1_or1: 'value1_or1' }, 
+                        { field2_or1: { $gt:1, $lt:100 } } 
+                    ]
+                },
+                { 
+                    $and:[
+                        { field1_and1: { $gt:1, $lt:100 } }, 
+                        { field1_and1: 'value1_and1' }, 
+                        { field2_and1: 'value2_and1' },
+                        { 
+                            $or:[
+                                { field1_and1_or: { $gte:1, $lte:100 } }, 
+                                { field2_and1_or: 'value2_and1_or' } 
+                            ]
+                        }
+                    ]
+                },
+                { 
+                    $or:[
+                        { field1_or2: { $gte:1, $lte:100 } }, 
+                        { field2_or2: { $gte:1, $lte:100 } } 
+                    ]
+                }
+            ]
+        },{ 
+            $or:[
+                { 
+                    $or:[
+                        { field1_or1: 'value1_or1' }, 
+                        { field2_or1: { $gt:1, $lt:100 } } 
+                    ]
+                },
+                { 
+                    $and:[
+                        { field1_and1: { $gt:1 } },
+                        { field1_and1: { $lt:100 } },
+                        { field1_and1: 'value1_and1' }, 
+                        { field2_and1: 'value2_and1' },
+                        { 
+                            $or:[
+                                { field1_and1_or: { $gte:1, $lte:100 } }, 
+                                { field2_and1_or: 'value2_and1_or' } 
+                            ]
+                        }
+                    ]
+                },
+                { 
+                    $or:[
+                        { field1_or2: { $gte:1, $lte:100 } }, 
+                        { field2_or2: { $gte:1, $lte:100 } } 
+                    ]
+                }
+            ]
+        });
+    };
 }]);
 /**
  *                                                  NE REST
@@ -5761,6 +6218,12 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
 .config(['$httpProvider', function($httpProvider) {
     // add default XHR header
     $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+}])
+.factory('NeResourceTransformators.dateStringsToDates', ['neObject', function(object){    
+    return object.dateStringsToDates;
+}])
+.factory('NeResourceTransformators.removePrefixedProps', ['neObject', function(object){
+    return object.removePrefixedProps;
 }])
 .factory('NeRestResource', ['$http',
                             '$timeout',
@@ -6098,7 +6561,10 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
         var fd = new FormData();
         
         for(var key in data) {
-            fd.append(key, data[key]);
+            if(data[key] instanceof Blob || data[key] instanceof File) {
+                fd.append(key, data[key], data[key].name);
+            }
+            else fd.append(key, data[key]);
         }
         
         function handleResponse(res, type) {
@@ -6252,19 +6718,9 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
         
         if(query.$page === 0) throw new Error('NeRestResource: query.$page is equal to zero, must be greater');
         
-        // replace default pagination props by custom if defined
-        if(pageKey !== '$page'){
-            query = object.deepSet(query, pageKey, query.$page);
-            delete query.$page;
-        }
-        if(limitKey !== '$limit'){
-            query = object.deepSet(query, limitKey, query.$limit);
-            delete query.$limit;
-        }
-        if(sortKey !== '$sort'){
-            query = object.deepSet(query, sortKey, query.$sort);
-            delete query.$sort;
-        }
+        // replace default pagination props by custom if defined in query
+        query = replacePaginationProps(query, pageKey, limitKey, sortKey, object);
+        if(data) data = replacePaginationProps(data, pageKey, limitKey, sortKey, object);
         
         var successCbs = [ successCb, cmdOpts.onSuccess, opts.onSuccess ];
         var errorCbs = [ errorCb, cmdOpts.onError, opts.onError ];
@@ -6287,6 +6743,22 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
         if(method === 'post-multipart' || method === 'upload') upload.call(resource, cmdName, query, httpOpts, successCbs, errorCbs, progressCbs);
         else $http(httpOpts).then(handleSuccess(query, opts, cmdName, successCbs), handleError(query, opts, cmdName, errorCbs));
     };
+                                
+    function replacePaginationProps(queryOrData, pageKey, limitKey, sortKey, object) {
+        if(pageKey !== '$page'){
+            queryOrData = object.deepSet(queryOrData, pageKey, queryOrData.$page);
+            delete queryOrData.$page;
+        }
+        if(limitKey !== '$limit'){
+            queryOrData = object.deepSet(queryOrData, limitKey, queryOrData.$limit);
+            delete queryOrData.$limit;
+        }
+        if(sortKey !== '$sort'){
+            queryOrData = object.deepSet(queryOrData, sortKey, queryOrData.$sort);
+            delete queryOrData.$sort;
+        }
+        return queryOrData;
+    }
     
     
     /*
@@ -6307,66 +6779,6 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
     
     return Resource;
     
-}])
-.factory('NeResourceTransformators.dateStringsToDates', [function(){
-    
-    // auto parse dates
-    var regexIso8601 = /^(\d{4}|\+\d{6})(?:-(\d{2})(?:-(\d{2})(?:T(\d{2}):(\d{2}):(\d{2})\.(\d{1,})(Z|([\-+])(\d{2}):(\d{2}))?)?)?)?$/;
-    var regexIsoJson = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/;
-    
-    function dateStringsToDates(input, useIsoJson) {
-        var value, match, milliseconds;
-        
-        // try to parse if input is string
-        if(typeof input === 'string' && (match = input.match(useIsoJson ? regexIsoJson : regexIso8601))) {
-            milliseconds = Date.parse(match[0]);
-            if (!isNaN(milliseconds)) {
-                input = new Date(milliseconds);
-            }
-            return input;
-        }
-        
-        // Ignore things that aren't objects
-        else if(typeof input !== 'object') return input;
-        
-        for(var key in input){
-            value = input[key];
-            
-            // Check for string properties which look like dates.
-            if(typeof value === 'string' && (match = value.match(useIsoJson ? regexIsoJson : regexIso8601))) {
-                milliseconds = Date.parse(match[0]);
-                if (!isNaN(milliseconds)) {
-                    input[key] = new Date(milliseconds);
-                }
-            }
-            else if (typeof value === 'object') {
-                // Recurse into object
-                dateStringsToDates(value, useIsoJson);
-            }
-        }        
-        return input;
-    }
-    
-    return dateStringsToDates;
-}])
-.factory('NeResourceTransformators.removePrefixedProps', [function(){
-    
-    function removePrefixedProps(input, prefix) {
-        
-        // Ignore things that aren't objects.
-        if(typeof input !== 'object') return input;
-        
-        for(var key in input) {
-            if(input.hasOwnProperty(key)) {
-                var value = input[key];
-                
-                if(key.indexOf(prefix)===0) delete input[key];
-                else if(typeof value === 'object') removePrefixedProps(value, prefix);
-            }
-        }
-    }
-    
-    return removePrefixedProps;
 }]);
 /**
  *                                                  NE STATE
@@ -6395,7 +6807,7 @@ angular.module('neState', ['ngCookies'])
 
             try {
                 if(encryptLocation) locationString = decryptString(locationString);
-                return angular.fromJson(locationString || '{}') || {};
+                return object.fromJson(locationString || '{}') || {};
             }
             catch(err){}
             return {};
@@ -6763,6 +7175,21 @@ angular.module('neTree',['neObject'])
                        '    </ul>' +
                        '    <div class="tree-backdrop" ng-show="tree.disabled"></div>' +
                        '</div>');
+    
+    $templateCache.put('neTree/tree-item-pagination.html',
+                       '<div ng-if="item.$expanded" class="tree-item-pagination" ng-class="{\'tree-item-pagination-border\':item.$children.length}">'+
+                       '    <div ng-if="item.$pagination && !item.$paginationDisabled" class="btn-group btn-group-xs">'+
+                       '        <button class="btn btn-light btn-xs" ng-click="tree.setPage(item, \'prev\')" ng-disabled="item.$prevDisabled">'+
+                       '            <i class="fa fa-backward"></i>'+
+                       '        </button>'+
+                       '        <button class="btn btn-light btn-xs" ng-click="tree.addPage(item)" ng-disabled="item.$nextDisabled">'+
+                       '            {{item.$pagination.page}} <span ng-if="item.$pagination.pagesCount">{{::\'of\'|translate}} {{item.$pagination.pagesCount}}</span>'+
+                       '        </button>'+
+                       '        <button class="btn btn-light btn-xs" ng-click="tree.setPage(item, \'next\')" ng-disabled="item.$nextDisabled">'+
+                       '            <i class="fa fa-forward"></i>'+
+                       '        </button>'+
+                       '    </div>'+
+                       '</div>');
 }])
 .directive('neTreeUpdateBlur', ['$timeout', function($timeout){
     return {
@@ -6837,6 +7264,15 @@ angular.module('neTree',['neObject'])
         link: function(scope, elm, attrs){
             scope.tree.itemTemplate = scope.tree.itemTemplate || 'neTree/item.html';
             //scope.$eval(attrs.treeview);
+        }
+    };
+}])
+.directive('neTreeItemPagination', [function(){    
+    return {
+        restrict:'EA',
+        templateUrl: 'neTree/tree-item-pagination.html',
+        link: function(scope, elm, attrs){
+
         }
     };
 }])
@@ -7256,6 +7692,7 @@ angular.module('neTree',['neObject'])
                 if(query.$sort) query.$sort = angular.merge({}, tree.defaultSort ,query.$sort);
                 
                 if(parent) parent.$query = query;
+                else delete query.$limit;
                 tree.disabled = true;
                 tree.getResourceMethod('find', parent)(query, function(items, pagination){
                     tree.fillItems(parent, items, pagination, loadMode);
@@ -8943,49 +9380,5126 @@ if (!Array.prototype.indexOf) {
         }
         return -1;
     };
-}/*
-* angular-ui-bootstrap
-* http://angular-ui.github.io/bootstrap/
+}
+// TODO: Text Color, Text BG Color
 
-* Version: 1.0.3 - 2016-01-11
-* License: MIT
-*/angular.module("ui.bootstrap", ["ui.bootstrap.tpls", "ui.bootstrap.collapse","ui.bootstrap.accordion","ui.bootstrap.alert","ui.bootstrap.buttons","ui.bootstrap.carousel","ui.bootstrap.dateparser","ui.bootstrap.isClass","ui.bootstrap.position","ui.bootstrap.datepicker","ui.bootstrap.debounce","ui.bootstrap.dropdown","ui.bootstrap.stackedMap","ui.bootstrap.modal","ui.bootstrap.paging","ui.bootstrap.pager","ui.bootstrap.pagination","ui.bootstrap.tooltip","ui.bootstrap.popover","ui.bootstrap.progressbar","ui.bootstrap.rating","ui.bootstrap.tabs","ui.bootstrap.timepicker","ui.bootstrap.typeahead"]);
-angular.module("ui.bootstrap.tpls", ["uib/template/accordion/accordion-group.html","uib/template/accordion/accordion.html","uib/template/alert/alert.html","uib/template/carousel/carousel.html","uib/template/carousel/slide.html","uib/template/datepicker/datepicker.html","uib/template/datepicker/day.html","uib/template/datepicker/month.html","uib/template/datepicker/popup.html","uib/template/datepicker/year.html","uib/template/modal/backdrop.html","uib/template/modal/window.html","uib/template/pager/pager.html","uib/template/pagination/pagination.html","uib/template/tooltip/tooltip-html-popup.html","uib/template/tooltip/tooltip-popup.html","uib/template/tooltip/tooltip-template-popup.html","uib/template/popover/popover-html.html","uib/template/popover/popover-template.html","uib/template/popover/popover.html","uib/template/progressbar/bar.html","uib/template/progressbar/progress.html","uib/template/progressbar/progressbar.html","uib/template/rating/rating.html","uib/template/tabs/tab.html","uib/template/tabs/tabset.html","uib/template/timepicker/timepicker.html","uib/template/typeahead/typeahead-match.html","uib/template/typeahead/typeahead-popup.html"]);
+angular.module('textAngular.ext', ['textAngularSetup', 'neModals'])
+.value('taOptions', {
+    forceTextAngularSanitize: true,
+    keyMappings : [],
+    toolbar: [
+        ['undo', 'redo'],
+        ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre', 'quote', 'table'],
+        ['bold', 'italics', 'underline', 'strikeThrough', 'ul', 'ol'],
+        ['color', 'bgColor', 'clear'],
+        ['justifyLeft','justifyCenter','justifyRight','justifyFull','indent','outdent'],
+        ['html', 'insertImage', 'insertLink', 'insertVideo'] // 'wordcount', 'charcount'
+    ],
+    classes: {
+        focussed: "focussed",
+        toolbar: "btn-toolbar",
+        toolbarGroup: "btn-group btn-group-xs",
+        toolbarButton: "btn btn-default",
+        toolbarButtonActive: "active",
+        disabled: "disabled",
+        textEditor: 'form-control',
+        htmlEditor: 'form-control'
+    },
+    defaultTagAttributes : {
+        a: {target:""}
+    },
+    setup: {
+        // wysiwyg mode
+        textEditorSetup: function($element){ /* Do some processing here */ },
+        // raw html
+        htmlEditorSetup: function($element){ /* Do some processing here */ }
+    },
+    defaultFileDropHandler: function(file, insertAction){
+//        var reader = new FileReader();
+//        if(file.type.substring(0, 5) === 'image'){
+//            reader.onload = function() {
+//                if(reader.result !== '') insertAction('insertImage', reader.result, true);
+//            };
+//
+//            reader.readAsDataURL(file);
+//            // NOTE: For async procedures return a promise and resolve it when the editor should update the model.
+//            return true;
+//        }
+        return false;
+    }
+})
+.run(['$templateCache', function($templateCache) {
+    $templateCache.put('textAngular/insert-link-modal.html',
+                       '<div>'+
+                       '    <div>'+
+                       '        <input type="text" class="form-control" ng-model="modal.link" placeholder="http://" />'+
+                       '    </div>'+
+                       '    <div class="text-right margin-top-lg">'+
+                       '        <button class="btn btn-default" ng-click="modal.close()">{{::\'Cancel\'|translate}}</button>'+
+                       '        <button class="btn btn-mini btn-primary" ng-disabled="!modal.link" ng-click="modal.insertLink(modal.link);modal.close()">{{::\'Insert\'|translate}}</button>'+
+                       '    </div>'+
+                       '</div>');
+    
+    
+    
+    $templateCache.put('textAngular/insert-table-modal.html',
+                       '<div>'+
+                       '    <div>'+
+                       '        <label>{{::\'Columns\'|translate}}</label><br>'+
+                       '        <input type="number" class="form-control" ng-model="modal.cols"><br>'+
+                       '        '+
+                       '        <label>{{::\'Rows\'|translate}}</label><br>'+
+                       '        <input type="number" class="form-control" ng-model="modal.rows">'+
+                       '    </div>'+
+                       '    <div class="text-right margin-top-lg">'+
+                       '        <button class="btn btn-default btn-mini" ng-click="modal.close()">{{::\'Cancel\'|translate}}</button>'+
+                       '        <button class="btn btn-mini btn-primary" ng-click="modal.insertTable(modal.cols || 2, modal.rows || 2);modal.close()">{{::\'Insert\'|translate}}</button>'+
+                       '    </div>'+
+                       '</div>');
+    
+    $templateCache.put('textAngular/change-color-dropdown.html',
+                       '<div class="btn-group" style="float:left;" uib-dropdown>'+
+                       '    <button class="btn btn-default btn-xs" uib-dropdown-toggle ng-click="storeSelection()" ng-disabled="isDisabled()">'+
+                       '        <i class="fa {{icon}}"></i><i class="fa fa-caret-down"></i>'+
+                       '    </button>'+
+                       '    <ul class="dropdown-menu">'+
+                       '        <li ng-repeat="c in colors" style="float:left;float:left;margin:2px;">'+
+                       '            <a href="" style="border:1px solid black;display:block;width:15px;height:15px;padding:0px;background-color:{{c}}"'+
+                       '               ng-click="setColor(c)">&nbsp;</a>'+
+                       '        </li>'+
+                       '    </ul>'+
+                       '</div>');
+}])
+.run(['$templateCache', '$window', 'taRegisterTool', 'taTranslations', 'taSelection', 'taToolFunctions', '$sanitize', 'taOptions','taTools','neModals', function($templateCache, $window, taRegisterTool, taTranslations, taSelection, taToolFunctions, $sanitize, taOptions, taTools, neModals){
+    
+    taTools.clear.iconclass = 'fa fa-eraser';
+    taTools.clear.action = function(){
+        this.$editor().wrapSelection('removeFormat', null);
+    };
+    
+    taTools.insertLink.action = function(deferred, restoreSelection){
+        var ta = this;
+
+        neModals.create({
+            id: 'textAngular.insertLink',
+            title: 'Insert Link',
+            templateUrl: 'textAngular/insert-link-modal.html',
+            removeOnClose: true,
+            link:'http://',
+            onClose: function(){
+                if(!this.inserted){
+                    restoreSelection();
+                    deferred.resolve();
+                }
+            },
+            insertLink: function(link){
+                this.inserted = true;
+                restoreSelection();
+                if(link && link !== '' && link !== 'http://') {
+                    ta.$editor().wrapSelection('createLink', link, true);
+                }
+                deferred.resolve();
+            }
+        });
+
+        return false;
+    };
+    
+    taTools.insertImage.action = function(deferred, restoreSelection){
+        var ta = this;
+
+        neModals.create({
+            id: 'textAngular.insertImage',
+            title: 'Insert Image',
+            templateUrl: 'textAngular/insert-link-modal.html',
+            removeOnClose: true,
+            link:'http://',
+            onClose: function(){
+                if(!this.inserted){
+                    restoreSelection();
+                    deferred.resolve();
+                }
+            },
+            insertLink: function(link){
+                this.inserted = true;
+                restoreSelection();
+                if(link && link !== '' && link !== 'http://') {
+                    ta.$editor().wrapSelection('insertImage', link, true);
+                }
+                deferred.resolve();
+            }
+        });
+
+        return false;
+    };
+    
+    taTools.insertVideo.action = function(deferred, restoreSelection){
+        
+        neModals.create({
+            id: 'textAngular.insertVideo',
+            title: 'Insert Youtube Video',
+            templateUrl: 'textAngular/insert-link-modal.html',
+            removeOnClose: true,
+            link:'https://',
+            onClose: function(){
+                if(!this.inserted){
+                    restoreSelection();
+                    deferred.resolve();
+                }
+            },
+            insertLink: function(link){
+                this.inserted = true;
+                var videoId;
+                restoreSelection();
+                
+                if(link && link !== '' && link !== 'https://') {
+                    videoId = taToolFunctions.extractYoutubeVideoId(link);
+                    if(videoId){
+                        var urlLink = "https://www.youtube.com/embed/" + videoId;
+                        var embed = '<img class="ta-insert-video" src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" ta-insert-video="' + urlLink + '" contenteditable="false" allowfullscreen="true" frameborder="0" />';
+                        ta.$editor().wrapSelection('insertHTML', embed, true);
+                    }
+                }
+                deferred.resolve();
+            }
+        });
+        
+        return false;
+    },
+    
+    taTools.insertLink.onElementSelect.action = function(event, $element, editorScope){
+        // setup the editor toolbar
+        // Credit to the work at http://hackerwins.github.io/summernote/ for this editbar logic
+        event.preventDefault();
+        editorScope.displayElements.popover.css('width', '436px');
+        var container = editorScope.displayElements.popoverContainer;
+        container.empty();
+        container.css('line-height', '28px');
+        var link = angular.element('<a href="' + $element.attr('href') + '" target="_blank">' + $element.attr('href') + '&nbsp;<i class="fa fa-mail-forward"></i></a>');
+        link.css({
+            'display': 'inline-block',
+            'max-width': '200px',
+            'overflow': 'hidden',
+            'text-overflow': 'ellipsis',
+            'white-space': 'nowrap',
+            'vertical-align': 'middle'
+        });
+        container.append(link);
+        var buttonGroup = angular.element('<div class="btn-group pull-right">');
+        var reLinkButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" tabindex="-1" unselectable="on" title="' + taTranslations.editLink.reLinkButton.tooltip + '"><i class="fa fa-edit icon-edit"></i></button>');
+        reLinkButton.on('click', function(event){
+            event.preventDefault();
+
+            neModals.create({
+                id: 'textAngular.insertLink',
+                title: 'Insert Link',
+                templateUrl: 'textAngular/insert-link-modal.html',
+                removeOnClose: true,
+                link: $element.attr('href'),
+                insertLink: function(link){
+                    if(link && link !== '' && link !== 'http://') {
+                        $element.attr('href', link);
+                        editorScope.updateTaBindtaTextElement();
+                    }
+                    editorScope.hidePopover();
+                }
+            });
+        });
+        buttonGroup.append(reLinkButton);
+        var targetToggle = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" tabindex="-1" unselectable="on"><i class="fa fa-external-link"></i></button>');
+        if($element.attr('target') === '_blank'){
+            targetToggle.addClass('active');
+        }
+        targetToggle.on('click', function(event){
+            event.preventDefault();
+            $element.attr('target', ($element.attr('target') === '_blank') ? '' : '_blank');
+            targetToggle.toggleClass('active');
+            editorScope.updateTaBindtaTextElement();
+        });
+        buttonGroup.append(targetToggle);
+        var unLinkButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" tabindex="-1" unselectable="on" title="' + taTranslations.editLink.unLinkButton.tooltip + '"><i class="fa fa-unlink icon-unlink"></i></button>');
+        // directly before this click event is fired a digest is fired off whereby the reference to $element is orphaned off
+        unLinkButton.on('click', function(event){
+            event.preventDefault();
+            $element.replaceWith($element.contents());
+            editorScope.updateTaBindtaTextElement();
+            editorScope.hidePopover();
+        });
+        buttonGroup.append(unLinkButton);
+        container.append(buttonGroup);
+        editorScope.showPopover($element);
+    };
+    
+    taRegisterTool('table', {
+        iconclass: 'fa fa-table',
+        tooltiptext: 'Table',
+        action: function(deferred, restoreSelection){
+            var ta = this;
+
+            neModals.create({
+                id: 'textAngular.insertTable',
+                title: 'Insert Table',
+                templateUrl: 'textAngular/insert-table-modal.html',
+                removeOnClose: true,
+                cols:2,
+                rows:2,
+                onClose: function(){
+                    console.warn('inserted', this.inserted);
+                    if(!this.inserted){
+                        restoreSelection();
+                        deferred.resolve();
+                    }
+                },
+                insertTable: function(cols, rows){
+                    this.inserted = true;
+                    restoreSelection();
+                    if(cols > 0 && rows > 0) {
+                        var tableHTML = createTableHTML(cols, rows);
+                        ta.$editor().wrapSelection('insertHTML', tableHTML, true);
+                    }
+                    deferred.resolve();
+                }
+            });
+
+            return false;
+        }
+    });
+    
+    function createTableHTML(cols, rows){
+        if ((rows > 0) && (cols > 0)) {
+            var tableHTML = '<table><thead><tr>';
+
+            for (var j=0; j < cols; j++) {
+                tableHTML += '<th>col'+ (j+1) +'</th>';
+            }
+            tableHTML += '</tr></thead><tbody>';
+
+            for (var i=0; i < rows; i++) {
+                tableHTML += '<tr>';
+                for (var j=0; j < cols; j++) {
+                    tableHTML += '<td>row'+ (i+1) +'</td>';
+                }
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</tbody></table>';
+            return tableHTML;
+        }
+    }
+    
+    var colors = ['#ffffff','#ffccc9','#ffce93','#fffc9e','#ffffc7','#9aff99','#96fffb','#cdffff','#cbcefb','#cfcfcf','#fd6864','#fe996b','#fffe65','#fcff2f','#67fd9a','#38fff8','#68fdff','#9698ed','#c0c0c0','#fe0000','#f8a102','#ffcc67','#f8ff00','#34ff34','#68cbd0','#34cdf9','#6665cd','#9b9b9b','#cb0000','#f56b00','#ffcb2f','#ffc702','#32cb00','#00d2cb','#3166ff','#6434fc','#656565','#9a0000','#ce6301','#cd9934','#999903','#009901','#329a9d','#3531ff','#6200c9','#343434','#680100','#963400','#986536','#646809','#036400','#34696d','#00009b','#303498','#000000','#330001','#643403','#663234','#343300','#013300','#003532','#010066','#340096'];
+    
+    taRegisterTool('color', {
+        display: $templateCache.get('textAngular/change-color-dropdown.html'),
+        class:' ',
+        icon:'fa-font',
+        colors: colors,
+        storeSelection: function(){
+            this.selection = $window.rangy.saveSelection();
+        },
+        setColor: function(color){
+            $window.rangy.restoreSelection(this.selection);
+            this.$editor().wrapSelection('foreColor', color);
+        },
+        action: function(){
+            return true;
+        }
+    });
+    
+    taRegisterTool('bgColor', {
+        display: $templateCache.get('textAngular/change-color-dropdown.html'),
+        class:' ',
+        icon:'fa-magic',
+        colors: colors,
+        storeSelection: function(){
+            this.selection = $window.rangy.saveSelection();
+        },
+        setColor: function(color){
+            $window.rangy.restoreSelection(this.selection);
+            this.$editor().wrapSelection('backColor', color);
+        },
+        action: function(){
+            return true;
+        }
+    });
+    
+}]);!function(a,b){b["true"]=a,function(b,c){"function"==typeof define&&define.amd?define(b):"undefined"!=typeof module&&"object"==typeof a?module.exports=b():c.rangy=b()}(function(){function a(a,b){var c=typeof a[b];return c==u||!(c!=t||!a[b])||"unknown"==c}function b(a,b){return!(typeof a[b]!=t||!a[b])}function c(a,b){return typeof a[b]!=v}function d(a){return function(b,c){for(var d=c.length;d--;)if(!a(b,c[d]))return!1;return!0}}function e(a){return a&&A(a,z)&&C(a,y)}function f(a){return b(a,"body")?a.body:a.getElementsByTagName("body")[0]}function g(b){typeof console!=v&&a(console,"log")&&console.log(b)}function h(a,b){F&&b?alert(a):g(a)}function i(a){H.initialized=!0,H.supported=!1,h("Rangy is not supported in this environment. Reason: "+a,H.config.alertOnFail)}function j(a){h("Rangy warning: "+a,H.config.alertOnWarn)}function k(a){return a.message||a.description||String(a)}function l(){if(F&&!H.initialized){var b,c=!1,d=!1;a(document,"createRange")&&(b=document.createRange(),A(b,x)&&C(b,w)&&(c=!0));var h=f(document);if(!h||"body"!=h.nodeName.toLowerCase())return void i("No body element found");if(h&&a(h,"createTextRange")&&(b=h.createTextRange(),e(b)&&(d=!0)),!c&&!d)return void i("Neither Range nor TextRange are available");H.initialized=!0,H.features={implementsDomRange:c,implementsTextRange:d};var j,l;for(var m in E)(j=E[m])instanceof p&&j.init(j,H);for(var n=0,o=K.length;o>n;++n)try{K[n](H)}catch(q){l="Rangy init listener threw an exception. Continuing. Detail: "+k(q),g(l)}}}function m(a,b,c){c&&(a+=" in module "+c.name),H.warn("DEPRECATED: "+a+" is deprecated. Please use "+b+" instead.")}function n(a,b,c,d){a[b]=function(){return m(b,c,d),a[c].apply(a,G.toArray(arguments))}}function o(a){a=a||window,l();for(var b=0,c=L.length;c>b;++b)L[b](a)}function p(a,b,c){this.name=a,this.dependencies=b,this.initialized=!1,this.supported=!1,this.initializer=c}function q(a,b,c){var d=new p(a,b,function(b){if(!b.initialized){b.initialized=!0;try{c(H,b),b.supported=!0}catch(d){var e="Module '"+a+"' failed to load: "+k(d);g(e),d.stack&&g(d.stack)}}});return E[a]=d,d}function r(){}function s(){}var t="object",u="function",v="undefined",w=["startContainer","startOffset","endContainer","endOffset","collapsed","commonAncestorContainer"],x=["setStart","setStartBefore","setStartAfter","setEnd","setEndBefore","setEndAfter","collapse","selectNode","selectNodeContents","compareBoundaryPoints","deleteContents","extractContents","cloneContents","insertNode","surroundContents","cloneRange","toString","detach"],y=["boundingHeight","boundingLeft","boundingTop","boundingWidth","htmlText","text"],z=["collapse","compareEndPoints","duplicate","moveToElementText","parentElement","select","setEndPoint","getBoundingClientRect"],A=d(a),B=d(b),C=d(c),D=[].forEach?function(a,b){a.forEach(b)}:function(a,b){for(var c=0,d=a.length;d>c;++c)b(a[c],c)},E={},F=typeof window!=v&&typeof document!=v,G={isHostMethod:a,isHostObject:b,isHostProperty:c,areHostMethods:A,areHostObjects:B,areHostProperties:C,isTextRange:e,getBody:f,forEach:D},H={version:"1.3.0",initialized:!1,isBrowser:F,supported:!0,util:G,features:{},modules:E,config:{alertOnFail:!1,alertOnWarn:!1,preferTextRange:!1,autoInitialize:typeof rangyAutoInitialize==v?!0:rangyAutoInitialize}};H.fail=i,H.warn=j;var I;({}).hasOwnProperty?(G.extend=I=function(a,b,c){var d,e;for(var f in b)b.hasOwnProperty(f)&&(d=a[f],e=b[f],c&&null!==d&&"object"==typeof d&&null!==e&&"object"==typeof e&&I(d,e,!0),a[f]=e);return b.hasOwnProperty("toString")&&(a.toString=b.toString),a},G.createOptions=function(a,b){var c={};return I(c,b),a&&I(c,a),c}):i("hasOwnProperty not supported"),F||i("Rangy can only run in a browser"),function(){var a;if(F){var b=document.createElement("div");b.appendChild(document.createElement("span"));var c=[].slice;try{1==c.call(b.childNodes,0)[0].nodeType&&(a=function(a){return c.call(a,0)})}catch(d){}}a||(a=function(a){for(var b=[],c=0,d=a.length;d>c;++c)b[c]=a[c];return b}),G.toArray=a}();var J;F&&(a(document,"addEventListener")?J=function(a,b,c){a.addEventListener(b,c,!1)}:a(document,"attachEvent")?J=function(a,b,c){a.attachEvent("on"+b,c)}:i("Document does not have required addEventListener or attachEvent method"),G.addListener=J);var K=[];G.deprecationNotice=m,G.createAliasForDeprecatedMethod=n,H.init=l,H.addInitListener=function(a){H.initialized?a(H):K.push(a)};var L=[];H.addShimListener=function(a){L.push(a)},F&&(H.shim=H.createMissingNativeApi=o,n(H,"createMissingNativeApi","shim")),p.prototype={init:function(){for(var a,b,c=this.dependencies||[],d=0,e=c.length;e>d;++d){if(b=c[d],a=E[b],!(a&&a instanceof p))throw new Error("required module '"+b+"' not found");if(a.init(),!a.supported)throw new Error("required module '"+b+"' not supported")}this.initializer(this)},fail:function(a){throw this.initialized=!0,this.supported=!1,new Error(a)},warn:function(a){H.warn("Module "+this.name+": "+a)},deprecationNotice:function(a,b){H.warn("DEPRECATED: "+a+" in module "+this.name+" is deprecated. Please use "+b+" instead")},createError:function(a){return new Error("Error in Rangy "+this.name+" module: "+a)}},H.createModule=function(a){var b,c;2==arguments.length?(b=arguments[1],c=[]):(b=arguments[2],c=arguments[1]);var d=q(a,c,b);H.initialized&&H.supported&&d.init()},H.createCoreModule=function(a,b,c){q(a,b,c)},H.RangePrototype=r,H.rangePrototype=new r,H.selectionPrototype=new s,H.createCoreModule("DomUtil",[],function(a,b){function c(a){var b;return typeof a.namespaceURI==F||null===(b=a.namespaceURI)||"http://www.w3.org/1999/xhtml"==b}function d(a){var b=a.parentNode;return 1==b.nodeType?b:null}function e(a){for(var b=0;a=a.previousSibling;)++b;return b}function f(a){switch(a.nodeType){case 7:case 10:return 0;case 3:case 8:return a.length;default:return a.childNodes.length}}function g(a,b){var c,d=[];for(c=a;c;c=c.parentNode)d.push(c);for(c=b;c;c=c.parentNode)if(K(d,c))return c;return null}function h(a,b,c){for(var d=c?b:b.parentNode;d;){if(d===a)return!0;d=d.parentNode}return!1}function i(a,b){return h(a,b,!0)}function j(a,b,c){for(var d,e=c?a:a.parentNode;e;){if(d=e.parentNode,d===b)return e;e=d}return null}function k(a){var b=a.nodeType;return 3==b||4==b||8==b}function l(a){if(!a)return!1;var b=a.nodeType;return 3==b||8==b}function m(a,b){var c=b.nextSibling,d=b.parentNode;return c?d.insertBefore(a,c):d.appendChild(a),a}function n(a,b,c){var d=a.cloneNode(!1);if(d.deleteData(0,b),a.deleteData(b,a.length-b),m(d,a),c)for(var f,g=0;f=c[g++];)f.node==a&&f.offset>b?(f.node=d,f.offset-=b):f.node==a.parentNode&&f.offset>e(a)&&++f.offset;return d}function o(a){if(9==a.nodeType)return a;if(typeof a.ownerDocument!=F)return a.ownerDocument;if(typeof a.document!=F)return a.document;if(a.parentNode)return o(a.parentNode);throw b.createError("getDocument: no document found for node")}function p(a){var c=o(a);if(typeof c.defaultView!=F)return c.defaultView;if(typeof c.parentWindow!=F)return c.parentWindow;throw b.createError("Cannot get a window object for node")}function q(a){if(typeof a.contentDocument!=F)return a.contentDocument;if(typeof a.contentWindow!=F)return a.contentWindow.document;throw b.createError("getIframeDocument: No Document object found for iframe element")}function r(a){if(typeof a.contentWindow!=F)return a.contentWindow;if(typeof a.contentDocument!=F)return a.contentDocument.defaultView;throw b.createError("getIframeWindow: No Window object found for iframe element")}function s(a){return a&&G.isHostMethod(a,"setTimeout")&&G.isHostObject(a,"document")}function t(a,b,c){var d;if(a?G.isHostProperty(a,"nodeType")?d=1==a.nodeType&&"iframe"==a.tagName.toLowerCase()?q(a):o(a):s(a)&&(d=a.document):d=document,!d)throw b.createError(c+"(): Parameter must be a Window object or DOM node");return d}function u(a){for(var b;b=a.parentNode;)a=b;return a}function v(a,c,d,f){var h,i,k,l,m;if(a==d)return c===f?0:f>c?-1:1;if(h=j(d,a,!0))return c<=e(h)?-1:1;if(h=j(a,d,!0))return e(h)<f?-1:1;if(i=g(a,d),!i)throw new Error("comparePoints error: nodes have no common ancestor");if(k=a===i?i:j(a,i,!0),l=d===i?i:j(d,i,!0),k===l)throw b.createError("comparePoints got to case 4 and childA and childB are the same!");for(m=i.firstChild;m;){if(m===k)return-1;if(m===l)return 1;m=m.nextSibling}}function w(a){var b;try{return b=a.parentNode,!1}catch(c){return!0}}function x(a){if(!a)return"[No node]";if(L&&w(a))return"[Broken node]";if(k(a))return'"'+a.data+'"';if(1==a.nodeType){var b=a.id?' id="'+a.id+'"':"";return"<"+a.nodeName+b+">[index:"+e(a)+",length:"+a.childNodes.length+"]["+(a.innerHTML||"[innerHTML not supported]").slice(0,25)+"]"}return a.nodeName}function y(a){for(var b,c=o(a).createDocumentFragment();b=a.firstChild;)c.appendChild(b);return c}function z(a,b,c){var d=H(a),e=a.createElement("div");e.contentEditable=""+!!c,b&&(e.innerHTML=b);var f=d.firstChild;return f?d.insertBefore(e,f):d.appendChild(e),e}function A(a){return a.parentNode.removeChild(a)}function B(a){this.root=a,this._next=a}function C(a){return new B(a)}function D(a,b){this.node=a,this.offset=b}function E(a){this.code=this[a],this.codeName=a,this.message="DOMException: "+this.codeName}var F="undefined",G=a.util,H=G.getBody;G.areHostMethods(document,["createDocumentFragment","createElement","createTextNode"])||b.fail("document missing a Node creation method"),G.isHostMethod(document,"getElementsByTagName")||b.fail("document missing getElementsByTagName method");var I=document.createElement("div");G.areHostMethods(I,["insertBefore","appendChild","cloneNode"]||!G.areHostObjects(I,["previousSibling","nextSibling","childNodes","parentNode"]))||b.fail("Incomplete Element implementation"),G.isHostProperty(I,"innerHTML")||b.fail("Element is missing innerHTML property");var J=document.createTextNode("test");G.areHostMethods(J,["splitText","deleteData","insertData","appendData","cloneNode"]||!G.areHostObjects(I,["previousSibling","nextSibling","childNodes","parentNode"])||!G.areHostProperties(J,["data"]))||b.fail("Incomplete Text Node implementation");var K=function(a,b){for(var c=a.length;c--;)if(a[c]===b)return!0;return!1},L=!1;!function(){var b=document.createElement("b");b.innerHTML="1";var c=b.firstChild;b.innerHTML="<br />",L=w(c),a.features.crashyTextNodes=L}();var M;typeof window.getComputedStyle!=F?M=function(a,b){return p(a).getComputedStyle(a,null)[b]}:typeof document.documentElement.currentStyle!=F?M=function(a,b){return a.currentStyle?a.currentStyle[b]:""}:b.fail("No means of obtaining computed style properties found"),B.prototype={_current:null,hasNext:function(){return!!this._next},next:function(){var a,b,c=this._current=this._next;if(this._current)if(a=c.firstChild)this._next=a;else{for(b=null;c!==this.root&&!(b=c.nextSibling);)c=c.parentNode;this._next=b}return this._current},detach:function(){this._current=this._next=this.root=null}},D.prototype={equals:function(a){return!!a&&this.node===a.node&&this.offset==a.offset},inspect:function(){return"[DomPosition("+x(this.node)+":"+this.offset+")]"},toString:function(){return this.inspect()}},E.prototype={INDEX_SIZE_ERR:1,HIERARCHY_REQUEST_ERR:3,WRONG_DOCUMENT_ERR:4,NO_MODIFICATION_ALLOWED_ERR:7,NOT_FOUND_ERR:8,NOT_SUPPORTED_ERR:9,INVALID_STATE_ERR:11,INVALID_NODE_TYPE_ERR:24},E.prototype.toString=function(){return this.message},a.dom={arrayContains:K,isHtmlNamespace:c,parentElement:d,getNodeIndex:e,getNodeLength:f,getCommonAncestor:g,isAncestorOf:h,isOrIsAncestorOf:i,getClosestAncestorIn:j,isCharacterDataNode:k,isTextOrCommentNode:l,insertAfter:m,splitDataNode:n,getDocument:o,getWindow:p,getIframeWindow:r,getIframeDocument:q,getBody:H,isWindow:s,getContentDocument:t,getRootContainer:u,comparePoints:v,isBrokenNode:w,inspectNode:x,getComputedStyleProperty:M,createTestElement:z,removeNode:A,fragmentFromNodeChildren:y,createIterator:C,DomPosition:D},a.DOMException=E}),H.createCoreModule("DomRange",["DomUtil"],function(a,b){function c(a,b){return 3!=a.nodeType&&(P(a,b.startContainer)||P(a,b.endContainer))}function d(a){return a.document||Q(a.startContainer)}function e(a){return W(a.startContainer)}function f(a){return new L(a.parentNode,O(a))}function g(a){return new L(a.parentNode,O(a)+1)}function h(a,b,c){var d=11==a.nodeType?a.firstChild:a;return N(b)?c==b.length?J.insertAfter(a,b):b.parentNode.insertBefore(a,0==c?b:S(b,c)):c>=b.childNodes.length?b.appendChild(a):b.insertBefore(a,b.childNodes[c]),d}function i(a,b,c){if(z(a),z(b),d(b)!=d(a))throw new M("WRONG_DOCUMENT_ERR");var e=R(a.startContainer,a.startOffset,b.endContainer,b.endOffset),f=R(a.endContainer,a.endOffset,b.startContainer,b.startOffset);return c?0>=e&&f>=0:0>e&&f>0}function j(a){for(var b,c,e,f=d(a.range).createDocumentFragment();c=a.next();){if(b=a.isPartiallySelectedSubtree(),c=c.cloneNode(!b),b&&(e=a.getSubtreeIterator(),c.appendChild(j(e)),e.detach()),10==c.nodeType)throw new M("HIERARCHY_REQUEST_ERR");f.appendChild(c)}return f}function k(a,b,c){var d,e;c=c||{stop:!1};for(var f,g;f=a.next();)if(a.isPartiallySelectedSubtree()){if(b(f)===!1)return void(c.stop=!0);if(g=a.getSubtreeIterator(),k(g,b,c),g.detach(),c.stop)return}else for(d=J.createIterator(f);e=d.next();)if(b(e)===!1)return void(c.stop=!0)}function l(a){for(var b;a.next();)a.isPartiallySelectedSubtree()?(b=a.getSubtreeIterator(),l(b),b.detach()):a.remove()}function m(a){for(var b,c,e=d(a.range).createDocumentFragment();b=a.next();){if(a.isPartiallySelectedSubtree()?(b=b.cloneNode(!1),c=a.getSubtreeIterator(),b.appendChild(m(c)),c.detach()):a.remove(),10==b.nodeType)throw new M("HIERARCHY_REQUEST_ERR");e.appendChild(b)}return e}function n(a,b,c){var d,e=!(!b||!b.length),f=!!c;e&&(d=new RegExp("^("+b.join("|")+")$"));var g=[];return k(new p(a,!1),function(b){if((!e||d.test(b.nodeType))&&(!f||c(b))){var h=a.startContainer;if(b!=h||!N(h)||a.startOffset!=h.length){var i=a.endContainer;b==i&&N(i)&&0==a.endOffset||g.push(b)}}}),g}function o(a){var b="undefined"==typeof a.getName?"Range":a.getName();return"["+b+"("+J.inspectNode(a.startContainer)+":"+a.startOffset+", "+J.inspectNode(a.endContainer)+":"+a.endOffset+")]"}function p(a,b){if(this.range=a,this.clonePartiallySelectedTextNodes=b,!a.collapsed){this.sc=a.startContainer,this.so=a.startOffset,this.ec=a.endContainer,this.eo=a.endOffset;var c=a.commonAncestorContainer;this.sc===this.ec&&N(this.sc)?(this.isSingleCharacterDataNode=!0,this._first=this._last=this._next=this.sc):(this._first=this._next=this.sc!==c||N(this.sc)?T(this.sc,c,!0):this.sc.childNodes[this.so],this._last=this.ec!==c||N(this.ec)?T(this.ec,c,!0):this.ec.childNodes[this.eo-1])}}function q(a){return function(b,c){for(var d,e=c?b:b.parentNode;e;){if(d=e.nodeType,V(a,d))return e;e=e.parentNode}return null}}function r(a,b){if(ea(a,b))throw new M("INVALID_NODE_TYPE_ERR")}function s(a,b){if(!V(b,a.nodeType))throw new M("INVALID_NODE_TYPE_ERR")}function t(a,b){if(0>b||b>(N(a)?a.length:a.childNodes.length))throw new M("INDEX_SIZE_ERR")}function u(a,b){if(ca(a,!0)!==ca(b,!0))throw new M("WRONG_DOCUMENT_ERR")}function v(a){if(da(a,!0))throw new M("NO_MODIFICATION_ALLOWED_ERR")}function w(a,b){if(!a)throw new M(b)}function x(a,b){return b<=(N(a)?a.length:a.childNodes.length)}function y(a){return!!a.startContainer&&!!a.endContainer&&!(X&&(J.isBrokenNode(a.startContainer)||J.isBrokenNode(a.endContainer)))&&W(a.startContainer)==W(a.endContainer)&&x(a.startContainer,a.startOffset)&&x(a.endContainer,a.endOffset)}function z(a){if(!y(a))throw new Error("Range error: Range is not valid. This usually happens after DOM mutation. Range: ("+a.inspect()+")")}function A(a,b){z(a);var c=a.startContainer,d=a.startOffset,e=a.endContainer,f=a.endOffset,g=c===e;N(e)&&f>0&&f<e.length&&S(e,f,b),N(c)&&d>0&&d<c.length&&(c=S(c,d,b),g?(f-=d,e=c):e==c.parentNode&&f>=O(c)&&f++,d=0),a.setStartAndEnd(c,d,e,f)}function B(a){z(a);var b=a.commonAncestorContainer.parentNode.cloneNode(!1);return b.appendChild(a.cloneContents()),b.innerHTML}function C(a){a.START_TO_START=ka,a.START_TO_END=la,a.END_TO_END=ma,a.END_TO_START=na,a.NODE_BEFORE=oa,a.NODE_AFTER=pa,a.NODE_BEFORE_AND_AFTER=qa,a.NODE_INSIDE=ra}function D(a){C(a),C(a.prototype)}function E(a,b){return function(){z(this);var c,d,e=this.startContainer,f=this.startOffset,h=this.commonAncestorContainer,i=new p(this,!0);e!==h&&(c=T(e,h,!0),d=g(c),e=d.node,f=d.offset),k(i,v),i.reset();var j=a(i);return i.detach(),b(this,e,f,e,f),j}}function F(b,d){function e(a,b){return function(c){s(c,Z),s(W(c),$);var d=(a?f:g)(c);(b?h:i)(this,d.node,d.offset)}}function h(a,b,c){var e=a.endContainer,f=a.endOffset;(b!==a.startContainer||c!==a.startOffset)&&((W(b)!=W(e)||1==R(b,c,e,f))&&(e=b,f=c),d(a,b,c,e,f))}function i(a,b,c){var e=a.startContainer,f=a.startOffset;(b!==a.endContainer||c!==a.endOffset)&&((W(b)!=W(e)||-1==R(b,c,e,f))&&(e=b,f=c),d(a,e,f,b,c))}var j=function(){};j.prototype=a.rangePrototype,b.prototype=new j,K.extend(b.prototype,{setStart:function(a,b){r(a,!0),t(a,b),h(this,a,b)},setEnd:function(a,b){r(a,!0),t(a,b),i(this,a,b)},setStartAndEnd:function(){var a=arguments,b=a[0],c=a[1],e=b,f=c;switch(a.length){case 3:f=a[2];break;case 4:e=a[2],f=a[3]}d(this,b,c,e,f)},setBoundary:function(a,b,c){this["set"+(c?"Start":"End")](a,b)},setStartBefore:e(!0,!0),setStartAfter:e(!1,!0),setEndBefore:e(!0,!1),setEndAfter:e(!1,!1),collapse:function(a){z(this),a?d(this,this.startContainer,this.startOffset,this.startContainer,this.startOffset):d(this,this.endContainer,this.endOffset,this.endContainer,this.endOffset)},selectNodeContents:function(a){r(a,!0),d(this,a,0,a,U(a))},selectNode:function(a){r(a,!1),s(a,Z);var b=f(a),c=g(a);d(this,b.node,b.offset,c.node,c.offset)},extractContents:E(m,d),deleteContents:E(l,d),canSurroundContents:function(){z(this),v(this.startContainer),v(this.endContainer);var a=new p(this,!0),b=a._first&&c(a._first,this)||a._last&&c(a._last,this);return a.detach(),!b},splitBoundaries:function(){A(this)},splitBoundariesPreservingPositions:function(a){A(this,a)},normalizeBoundaries:function(){z(this);var a,b=this.startContainer,c=this.startOffset,e=this.endContainer,f=this.endOffset,g=function(a){var b=a.nextSibling;b&&b.nodeType==a.nodeType&&(e=a,f=a.length,a.appendData(b.data),Y(b))},h=function(a){var d=a.previousSibling;if(d&&d.nodeType==a.nodeType){b=a;var g=a.length;if(c=d.length,a.insertData(0,d.data),Y(d),b==e)f+=c,e=b;else if(e==a.parentNode){var h=O(a);f==h?(e=a,f=g):f>h&&f--}}},i=!0;if(N(e))f==e.length?g(e):0==f&&(a=e.previousSibling,a&&a.nodeType==e.nodeType&&(f=a.length,b==e&&(i=!1),a.appendData(e.data),Y(e),e=a));else{if(f>0){var j=e.childNodes[f-1];j&&N(j)&&g(j)}i=!this.collapsed}if(i){if(N(b))0==c?h(b):c==b.length&&(a=b.nextSibling,a&&a.nodeType==b.nodeType&&(e==a&&(e=b,f+=b.length),b.appendData(a.data),Y(a)));else if(c<b.childNodes.length){var k=b.childNodes[c];k&&N(k)&&h(k)}}else b=e,c=f;d(this,b,c,e,f)},collapseToPoint:function(a,b){r(a,!0),t(a,b),this.setStartAndEnd(a,b)}}),D(b)}function G(a){a.collapsed=a.startContainer===a.endContainer&&a.startOffset===a.endOffset,a.commonAncestorContainer=a.collapsed?a.startContainer:J.getCommonAncestor(a.startContainer,a.endContainer)}function H(a,b,c,d,e){a.startContainer=b,a.startOffset=c,a.endContainer=d,a.endOffset=e,a.document=J.getDocument(b),G(a)}function I(a){this.startContainer=a,this.startOffset=0,this.endContainer=a,this.endOffset=0,this.document=a,G(this)}var J=a.dom,K=a.util,L=J.DomPosition,M=a.DOMException,N=J.isCharacterDataNode,O=J.getNodeIndex,P=J.isOrIsAncestorOf,Q=J.getDocument,R=J.comparePoints,S=J.splitDataNode,T=J.getClosestAncestorIn,U=J.getNodeLength,V=J.arrayContains,W=J.getRootContainer,X=a.features.crashyTextNodes,Y=J.removeNode;p.prototype={_current:null,_next:null,_first:null,_last:null,isSingleCharacterDataNode:!1,reset:function(){this._current=null,this._next=this._first},hasNext:function(){return!!this._next},next:function(){var a=this._current=this._next;return a&&(this._next=a!==this._last?a.nextSibling:null,N(a)&&this.clonePartiallySelectedTextNodes&&(a===this.ec&&(a=a.cloneNode(!0)).deleteData(this.eo,a.length-this.eo),this._current===this.sc&&(a=a.cloneNode(!0)).deleteData(0,this.so))),a},remove:function(){var a,b,c=this._current;!N(c)||c!==this.sc&&c!==this.ec?c.parentNode&&Y(c):(a=c===this.sc?this.so:0,b=c===this.ec?this.eo:c.length,a!=b&&c.deleteData(a,b-a))},isPartiallySelectedSubtree:function(){var a=this._current;return c(a,this.range)},getSubtreeIterator:function(){var a;if(this.isSingleCharacterDataNode)a=this.range.cloneRange(),a.collapse(!1);else{a=new I(d(this.range));var b=this._current,c=b,e=0,f=b,g=U(b);P(b,this.sc)&&(c=this.sc,e=this.so),P(b,this.ec)&&(f=this.ec,g=this.eo),H(a,c,e,f,g)}return new p(a,this.clonePartiallySelectedTextNodes)},detach:function(){this.range=this._current=this._next=this._first=this._last=this.sc=this.so=this.ec=this.eo=null}};var Z=[1,3,4,5,7,8,10],$=[2,9,11],_=[5,6,10,12],aa=[1,3,4,5,7,8,10,11],ba=[1,3,4,5,7,8],ca=q([9,11]),da=q(_),ea=q([6,10,12]),fa=document.createElement("style"),ga=!1;try{fa.innerHTML="<b>x</b>",ga=3==fa.firstChild.nodeType}catch(ha){}a.features.htmlParsingConforms=ga;var ia=ga?function(a){var b=this.startContainer,c=Q(b);if(!b)throw new M("INVALID_STATE_ERR");var d=null;return 1==b.nodeType?d=b:N(b)&&(d=J.parentElement(b)),d=null===d||"HTML"==d.nodeName&&J.isHtmlNamespace(Q(d).documentElement)&&J.isHtmlNamespace(d)?c.createElement("body"):d.cloneNode(!1),d.innerHTML=a,J.fragmentFromNodeChildren(d)}:function(a){var b=d(this),c=b.createElement("body");return c.innerHTML=a,J.fragmentFromNodeChildren(c)},ja=["startContainer","startOffset","endContainer","endOffset","collapsed","commonAncestorContainer"],ka=0,la=1,ma=2,na=3,oa=0,pa=1,qa=2,ra=3;K.extend(a.rangePrototype,{compareBoundaryPoints:function(a,b){z(this),u(this.startContainer,b.startContainer);var c,d,e,f,g=a==na||a==ka?"start":"end",h=a==la||a==ka?"start":"end";return c=this[g+"Container"],d=this[g+"Offset"],e=b[h+"Container"],f=b[h+"Offset"],R(c,d,e,f)},insertNode:function(a){if(z(this),s(a,aa),v(this.startContainer),P(a,this.startContainer))throw new M("HIERARCHY_REQUEST_ERR");var b=h(a,this.startContainer,this.startOffset);this.setStartBefore(b)},cloneContents:function(){z(this);var a,b;if(this.collapsed)return d(this).createDocumentFragment();if(this.startContainer===this.endContainer&&N(this.startContainer))return a=this.startContainer.cloneNode(!0),a.data=a.data.slice(this.startOffset,this.endOffset),b=d(this).createDocumentFragment(),b.appendChild(a),b;var c=new p(this,!0);return a=j(c),c.detach(),a},canSurroundContents:function(){z(this),v(this.startContainer),v(this.endContainer);var a=new p(this,!0),b=a._first&&c(a._first,this)||a._last&&c(a._last,this);return a.detach(),!b},surroundContents:function(a){if(s(a,ba),!this.canSurroundContents())throw new M("INVALID_STATE_ERR");var b=this.extractContents();if(a.hasChildNodes())for(;a.lastChild;)a.removeChild(a.lastChild);h(a,this.startContainer,this.startOffset),a.appendChild(b),this.selectNode(a)},cloneRange:function(){z(this);for(var a,b=new I(d(this)),c=ja.length;c--;)a=ja[c],b[a]=this[a];return b},toString:function(){z(this);var a=this.startContainer;if(a===this.endContainer&&N(a))return 3==a.nodeType||4==a.nodeType?a.data.slice(this.startOffset,this.endOffset):"";var b=[],c=new p(this,!0);return k(c,function(a){(3==a.nodeType||4==a.nodeType)&&b.push(a.data)}),c.detach(),b.join("")},compareNode:function(a){z(this);var b=a.parentNode,c=O(a);if(!b)throw new M("NOT_FOUND_ERR");var d=this.comparePoint(b,c),e=this.comparePoint(b,c+1);return 0>d?e>0?qa:oa:e>0?pa:ra},comparePoint:function(a,b){return z(this),w(a,"HIERARCHY_REQUEST_ERR"),u(a,this.startContainer),R(a,b,this.startContainer,this.startOffset)<0?-1:R(a,b,this.endContainer,this.endOffset)>0?1:0},createContextualFragment:ia,toHtml:function(){return B(this)},intersectsNode:function(a,b){if(z(this),W(a)!=e(this))return!1;var c=a.parentNode,d=O(a);if(!c)return!0;var f=R(c,d,this.endContainer,this.endOffset),g=R(c,d+1,this.startContainer,this.startOffset);return b?0>=f&&g>=0:0>f&&g>0},isPointInRange:function(a,b){return z(this),w(a,"HIERARCHY_REQUEST_ERR"),u(a,this.startContainer),R(a,b,this.startContainer,this.startOffset)>=0&&R(a,b,this.endContainer,this.endOffset)<=0},intersectsRange:function(a){return i(this,a,!1)},intersectsOrTouchesRange:function(a){return i(this,a,!0)},intersection:function(a){if(this.intersectsRange(a)){var b=R(this.startContainer,this.startOffset,a.startContainer,a.startOffset),c=R(this.endContainer,this.endOffset,a.endContainer,a.endOffset),d=this.cloneRange();return-1==b&&d.setStart(a.startContainer,a.startOffset),1==c&&d.setEnd(a.endContainer,a.endOffset),d}return null},union:function(a){if(this.intersectsOrTouchesRange(a)){var b=this.cloneRange();return-1==R(a.startContainer,a.startOffset,this.startContainer,this.startOffset)&&b.setStart(a.startContainer,a.startOffset),1==R(a.endContainer,a.endOffset,this.endContainer,this.endOffset)&&b.setEnd(a.endContainer,a.endOffset),b}throw new M("Ranges do not intersect")},containsNode:function(a,b){return b?this.intersectsNode(a,!1):this.compareNode(a)==ra},containsNodeContents:function(a){return this.comparePoint(a,0)>=0&&this.comparePoint(a,U(a))<=0},containsRange:function(a){var b=this.intersection(a);return null!==b&&a.equals(b)},containsNodeText:function(a){var b=this.cloneRange();b.selectNode(a);var c=b.getNodes([3]);if(c.length>0){b.setStart(c[0],0);var d=c.pop();return b.setEnd(d,d.length),this.containsRange(b)}return this.containsNodeContents(a)},getNodes:function(a,b){return z(this),n(this,a,b)},getDocument:function(){return d(this)},collapseBefore:function(a){this.setEndBefore(a),this.collapse(!1)},collapseAfter:function(a){this.setStartAfter(a),this.collapse(!0)},getBookmark:function(b){var c=d(this),e=a.createRange(c);b=b||J.getBody(c),e.selectNodeContents(b);var f=this.intersection(e),g=0,h=0;return f&&(e.setEnd(f.startContainer,f.startOffset),g=e.toString().length,h=g+f.toString().length),{start:g,end:h,containerNode:b}},moveToBookmark:function(a){var b=a.containerNode,c=0;this.setStart(b,0),this.collapse(!0);for(var d,e,f,g,h=[b],i=!1,j=!1;!j&&(d=h.pop());)if(3==d.nodeType)e=c+d.length,!i&&a.start>=c&&a.start<=e&&(this.setStart(d,a.start-c),i=!0),i&&a.end>=c&&a.end<=e&&(this.setEnd(d,a.end-c),j=!0),c=e;else for(g=d.childNodes,f=g.length;f--;)h.push(g[f])},getName:function(){return"DomRange"},equals:function(a){return I.rangesEqual(this,a)},isValid:function(){return y(this)},inspect:function(){return o(this)},detach:function(){}}),F(I,H),K.extend(I,{rangeProperties:ja,RangeIterator:p,copyComparisonConstants:D,createPrototypeRange:F,inspect:o,toHtml:B,getRangeDocument:d,rangesEqual:function(a,b){return a.startContainer===b.startContainer&&a.startOffset===b.startOffset&&a.endContainer===b.endContainer&&a.endOffset===b.endOffset}}),a.DomRange=I}),H.createCoreModule("WrappedRange",["DomRange"],function(a,b){var c,d,e=a.dom,f=a.util,g=e.DomPosition,h=a.DomRange,i=e.getBody,j=e.getContentDocument,k=e.isCharacterDataNode;if(a.features.implementsDomRange&&!function(){function d(a){for(var b,c=m.length;c--;)b=m[c],a[b]=a.nativeRange[b];a.collapsed=a.startContainer===a.endContainer&&a.startOffset===a.endOffset}function g(a,b,c,d,e){var f=a.startContainer!==b||a.startOffset!=c,g=a.endContainer!==d||a.endOffset!=e,h=!a.equals(a.nativeRange);(f||g||h)&&(a.setEnd(d,e),a.setStart(b,c))}var k,l,m=h.rangeProperties;c=function(a){if(!a)throw b.createError("WrappedRange: Range must be specified");this.nativeRange=a,d(this)},h.createPrototypeRange(c,g),k=c.prototype,k.selectNode=function(a){this.nativeRange.selectNode(a),d(this)},k.cloneContents=function(){return this.nativeRange.cloneContents()},k.surroundContents=function(a){this.nativeRange.surroundContents(a),d(this)},k.collapse=function(a){this.nativeRange.collapse(a),d(this)},k.cloneRange=function(){return new c(this.nativeRange.cloneRange())},k.refresh=function(){d(this)},k.toString=function(){return this.nativeRange.toString()};var n=document.createTextNode("test");i(document).appendChild(n);var o=document.createRange();o.setStart(n,0),o.setEnd(n,0);try{o.setStart(n,1),k.setStart=function(a,b){this.nativeRange.setStart(a,b),d(this)},k.setEnd=function(a,b){this.nativeRange.setEnd(a,b),d(this)},l=function(a){return function(b){this.nativeRange[a](b),d(this)}}}catch(p){k.setStart=function(a,b){try{this.nativeRange.setStart(a,b)}catch(c){this.nativeRange.setEnd(a,b),this.nativeRange.setStart(a,b)}d(this)},k.setEnd=function(a,b){try{this.nativeRange.setEnd(a,b)}catch(c){this.nativeRange.setStart(a,b),this.nativeRange.setEnd(a,b)}d(this)},l=function(a,b){return function(c){try{this.nativeRange[a](c)}catch(e){this.nativeRange[b](c),this.nativeRange[a](c)}d(this)}}}k.setStartBefore=l("setStartBefore","setEndBefore"),k.setStartAfter=l("setStartAfter","setEndAfter"),k.setEndBefore=l("setEndBefore","setStartBefore"),k.setEndAfter=l("setEndAfter","setStartAfter"),k.selectNodeContents=function(a){this.setStartAndEnd(a,0,e.getNodeLength(a))},o.selectNodeContents(n),o.setEnd(n,3);var q=document.createRange();q.selectNodeContents(n),q.setEnd(n,4),q.setStart(n,2),-1==o.compareBoundaryPoints(o.START_TO_END,q)&&1==o.compareBoundaryPoints(o.END_TO_START,q)?k.compareBoundaryPoints=function(a,b){return b=b.nativeRange||b,a==b.START_TO_END?a=b.END_TO_START:a==b.END_TO_START&&(a=b.START_TO_END),this.nativeRange.compareBoundaryPoints(a,b)}:k.compareBoundaryPoints=function(a,b){return this.nativeRange.compareBoundaryPoints(a,b.nativeRange||b)};var r=document.createElement("div");r.innerHTML="123";var s=r.firstChild,t=i(document);t.appendChild(r),o.setStart(s,1),o.setEnd(s,2),o.deleteContents(),"13"==s.data&&(k.deleteContents=function(){this.nativeRange.deleteContents(),d(this)},k.extractContents=function(){var a=this.nativeRange.extractContents();return d(this),a}),t.removeChild(r),t=null,f.isHostMethod(o,"createContextualFragment")&&(k.createContextualFragment=function(a){return this.nativeRange.createContextualFragment(a)}),i(document).removeChild(n),k.getName=function(){return"WrappedRange"},a.WrappedRange=c,a.createNativeRange=function(a){return a=j(a,b,"createNativeRange"),a.createRange()}}(),a.features.implementsTextRange){var l=function(a){var b=a.parentElement(),c=a.duplicate();c.collapse(!0);var d=c.parentElement();c=a.duplicate(),c.collapse(!1);var f=c.parentElement(),g=d==f?d:e.getCommonAncestor(d,f);return g==b?g:e.getCommonAncestor(b,g)},m=function(a){return 0==a.compareEndPoints("StartToEnd",a)},n=function(a,b,c,d,f){var h=a.duplicate();h.collapse(c);var i=h.parentElement();if(e.isOrIsAncestorOf(b,i)||(i=b),!i.canHaveHTML){var j=new g(i.parentNode,e.getNodeIndex(i));return{boundaryPosition:j,nodeInfo:{nodeIndex:j.offset,containerElement:j.node}}}var l=e.getDocument(i).createElement("span");l.parentNode&&e.removeNode(l);for(var m,n,o,p,q,r=c?"StartToStart":"StartToEnd",s=f&&f.containerElement==i?f.nodeIndex:0,t=i.childNodes.length,u=t,v=u;;){if(v==t?i.appendChild(l):i.insertBefore(l,i.childNodes[v]),h.moveToElementText(l),m=h.compareEndPoints(r,a),0==m||s==u)break;if(-1==m){if(u==s+1)break;s=v}else u=u==s+1?s:v;v=Math.floor((s+u)/2),i.removeChild(l)}if(q=l.nextSibling,-1==m&&q&&k(q)){h.setEndPoint(c?"EndToStart":"EndToEnd",a);var w;if(/[\r\n]/.test(q.data)){var x=h.duplicate(),y=x.text.replace(/\r\n/g,"\r").length;for(w=x.moveStart("character",y);-1==(m=x.compareEndPoints("StartToEnd",x));)w++,x.moveStart("character",1)}else w=h.text.length;p=new g(q,w)}else n=(d||!c)&&l.previousSibling,o=(d||c)&&l.nextSibling,p=o&&k(o)?new g(o,0):n&&k(n)?new g(n,n.data.length):new g(i,e.getNodeIndex(l));return e.removeNode(l),{boundaryPosition:p,nodeInfo:{nodeIndex:v,containerElement:i}}},o=function(a,b){var c,d,f,g,h=a.offset,j=e.getDocument(a.node),l=i(j).createTextRange(),m=k(a.node);return m?(c=a.node,d=c.parentNode):(g=a.node.childNodes,c=h<g.length?g[h]:null,d=a.node),f=j.createElement("span"),f.innerHTML="&#feff;",c?d.insertBefore(f,c):d.appendChild(f),l.moveToElementText(f),l.collapse(!b),d.removeChild(f),m&&l[b?"moveStart":"moveEnd"]("character",h),l};d=function(a){this.textRange=a,this.refresh()},d.prototype=new h(document),
+d.prototype.refresh=function(){var a,b,c,d=l(this.textRange);m(this.textRange)?b=a=n(this.textRange,d,!0,!0).boundaryPosition:(c=n(this.textRange,d,!0,!1),a=c.boundaryPosition,b=n(this.textRange,d,!1,!1,c.nodeInfo).boundaryPosition),this.setStart(a.node,a.offset),this.setEnd(b.node,b.offset)},d.prototype.getName=function(){return"WrappedTextRange"},h.copyComparisonConstants(d);var p=function(a){if(a.collapsed)return o(new g(a.startContainer,a.startOffset),!0);var b=o(new g(a.startContainer,a.startOffset),!0),c=o(new g(a.endContainer,a.endOffset),!1),d=i(h.getRangeDocument(a)).createTextRange();return d.setEndPoint("StartToStart",b),d.setEndPoint("EndToEnd",c),d};if(d.rangeToTextRange=p,d.prototype.toTextRange=function(){return p(this)},a.WrappedTextRange=d,!a.features.implementsDomRange||a.config.preferTextRange){var q=function(a){return a("return this;")()}(Function);"undefined"==typeof q.Range&&(q.Range=d),a.createNativeRange=function(a){return a=j(a,b,"createNativeRange"),i(a).createTextRange()},a.WrappedRange=d}}a.createRange=function(c){return c=j(c,b,"createRange"),new a.WrappedRange(a.createNativeRange(c))},a.createRangyRange=function(a){return a=j(a,b,"createRangyRange"),new h(a)},f.createAliasForDeprecatedMethod(a,"createIframeRange","createRange"),f.createAliasForDeprecatedMethod(a,"createIframeRangyRange","createRangyRange"),a.addShimListener(function(b){var c=b.document;"undefined"==typeof c.createRange&&(c.createRange=function(){return a.createRange(c)}),c=b=null})}),H.createCoreModule("WrappedSelection",["DomRange","WrappedRange"],function(a,b){function c(a){return"string"==typeof a?/^backward(s)?$/i.test(a):!!a}function d(a,c){if(a){if(C.isWindow(a))return a;if(a instanceof r)return a.win;var d=C.getContentDocument(a,b,c);return C.getWindow(d)}return window}function e(a){return d(a,"getWinSelection").getSelection()}function f(a){return d(a,"getDocSelection").document.selection}function g(a){var b=!1;return a.anchorNode&&(b=1==C.comparePoints(a.anchorNode,a.anchorOffset,a.focusNode,a.focusOffset)),b}function h(a,b,c){var d=c?"end":"start",e=c?"start":"end";a.anchorNode=b[d+"Container"],a.anchorOffset=b[d+"Offset"],a.focusNode=b[e+"Container"],a.focusOffset=b[e+"Offset"]}function i(a){var b=a.nativeSelection;a.anchorNode=b.anchorNode,a.anchorOffset=b.anchorOffset,a.focusNode=b.focusNode,a.focusOffset=b.focusOffset}function j(a){a.anchorNode=a.focusNode=null,a.anchorOffset=a.focusOffset=0,a.rangeCount=0,a.isCollapsed=!0,a._ranges.length=0}function k(b){var c;return b instanceof F?(c=a.createNativeRange(b.getDocument()),c.setEnd(b.endContainer,b.endOffset),c.setStart(b.startContainer,b.startOffset)):b instanceof G?c=b.nativeRange:J.implementsDomRange&&b instanceof C.getWindow(b.startContainer).Range&&(c=b),c}function l(a){if(!a.length||1!=a[0].nodeType)return!1;for(var b=1,c=a.length;c>b;++b)if(!C.isAncestorOf(a[0],a[b]))return!1;return!0}function m(a){var c=a.getNodes();if(!l(c))throw b.createError("getSingleElementFromRange: range "+a.inspect()+" did not consist of a single element");return c[0]}function n(a){return!!a&&"undefined"!=typeof a.text}function o(a,b){var c=new G(b);a._ranges=[c],h(a,c,!1),a.rangeCount=1,a.isCollapsed=c.collapsed}function p(b){if(b._ranges.length=0,"None"==b.docSelection.type)j(b);else{var c=b.docSelection.createRange();if(n(c))o(b,c);else{b.rangeCount=c.length;for(var d,e=L(c.item(0)),f=0;f<b.rangeCount;++f)d=a.createRange(e),d.selectNode(c.item(f)),b._ranges.push(d);b.isCollapsed=1==b.rangeCount&&b._ranges[0].collapsed,h(b,b._ranges[b.rangeCount-1],!1)}}}function q(a,c){for(var d=a.docSelection.createRange(),e=m(c),f=L(d.item(0)),g=M(f).createControlRange(),h=0,i=d.length;i>h;++h)g.add(d.item(h));try{g.add(e)}catch(j){throw b.createError("addRange(): Element within the specified Range could not be added to control selection (does it have layout?)")}g.select(),p(a)}function r(a,b,c){this.nativeSelection=a,this.docSelection=b,this._ranges=[],this.win=c,this.refresh()}function s(a){a.win=a.anchorNode=a.focusNode=a._ranges=null,a.rangeCount=a.anchorOffset=a.focusOffset=0,a.detached=!0}function t(a,b){for(var c,d,e=ba.length;e--;)if(c=ba[e],d=c.selection,"deleteAll"==b)s(d);else if(c.win==a)return"delete"==b?(ba.splice(e,1),!0):d;return"deleteAll"==b&&(ba.length=0),null}function u(a,c){for(var d,e=L(c[0].startContainer),f=M(e).createControlRange(),g=0,h=c.length;h>g;++g){d=m(c[g]);try{f.add(d)}catch(i){throw b.createError("setRanges(): Element within one of the specified Ranges could not be added to control selection (does it have layout?)")}}f.select(),p(a)}function v(a,b){if(a.win.document!=L(b))throw new H("WRONG_DOCUMENT_ERR")}function w(b){return function(c,d){var e;this.rangeCount?(e=this.getRangeAt(0),e["set"+(b?"Start":"End")](c,d)):(e=a.createRange(this.win.document),e.setStartAndEnd(c,d)),this.setSingleRange(e,this.isBackward())}}function x(a){var b=[],c=new I(a.anchorNode,a.anchorOffset),d=new I(a.focusNode,a.focusOffset),e="function"==typeof a.getName?a.getName():"Selection";if("undefined"!=typeof a.rangeCount)for(var f=0,g=a.rangeCount;g>f;++f)b[f]=F.inspect(a.getRangeAt(f));return"["+e+"(Ranges: "+b.join(", ")+")(anchor: "+c.inspect()+", focus: "+d.inspect()+"]"}a.config.checkSelectionRanges=!0;var y,z,A="boolean",B="number",C=a.dom,D=a.util,E=D.isHostMethod,F=a.DomRange,G=a.WrappedRange,H=a.DOMException,I=C.DomPosition,J=a.features,K="Control",L=C.getDocument,M=C.getBody,N=F.rangesEqual,O=E(window,"getSelection"),P=D.isHostObject(document,"selection");J.implementsWinGetSelection=O,J.implementsDocSelection=P;var Q=P&&(!O||a.config.preferTextRange);if(Q)y=f,a.isSelectionValid=function(a){var b=d(a,"isSelectionValid").document,c=b.selection;return"None"!=c.type||L(c.createRange().parentElement())==b};else{if(!O)return b.fail("Neither document.selection or window.getSelection() detected."),!1;y=e,a.isSelectionValid=function(){return!0}}a.getNativeSelection=y;var R=y();if(!R)return b.fail("Native selection was null (possibly issue 138?)"),!1;var S=a.createNativeRange(document),T=M(document),U=D.areHostProperties(R,["anchorNode","focusNode","anchorOffset","focusOffset"]);J.selectionHasAnchorAndFocus=U;var V=E(R,"extend");J.selectionHasExtend=V;var W=typeof R.rangeCount==B;J.selectionHasRangeCount=W;var X=!1,Y=!0,Z=V?function(b,c){var d=F.getRangeDocument(c),e=a.createRange(d);e.collapseToPoint(c.endContainer,c.endOffset),b.addRange(k(e)),b.extend(c.startContainer,c.startOffset)}:null;D.areHostMethods(R,["addRange","getRangeAt","removeAllRanges"])&&typeof R.rangeCount==B&&J.implementsDomRange&&!function(){var b=window.getSelection();if(b){for(var c=b.rangeCount,d=c>1,e=[],f=g(b),h=0;c>h;++h)e[h]=b.getRangeAt(h);var i=C.createTestElement(document,"",!1),j=i.appendChild(document.createTextNode("   ")),k=document.createRange();if(k.setStart(j,1),k.collapse(!0),b.removeAllRanges(),b.addRange(k),Y=1==b.rangeCount,b.removeAllRanges(),!d){var l=window.navigator.appVersion.match(/Chrome\/(.*?) /);if(l&&parseInt(l[1])>=36)X=!1;else{var m=k.cloneRange();k.setStart(j,0),m.setEnd(j,3),m.setStart(j,2),b.addRange(k),b.addRange(m),X=2==b.rangeCount}}for(C.removeNode(i),b.removeAllRanges(),h=0;c>h;++h)0==h&&f?Z?Z(b,e[h]):(a.warn("Rangy initialization: original selection was backwards but selection has been restored forwards because the browser does not support Selection.extend"),b.addRange(e[h])):b.addRange(e[h])}}(),J.selectionSupportsMultipleRanges=X,J.collapsedNonEditableSelectionsSupported=Y;var $,_=!1;T&&E(T,"createControlRange")&&($=T.createControlRange(),D.areHostProperties($,["item","add"])&&(_=!0)),J.implementsControlRange=_,z=U?function(a){return a.anchorNode===a.focusNode&&a.anchorOffset===a.focusOffset}:function(a){return a.rangeCount?a.getRangeAt(a.rangeCount-1).collapsed:!1};var aa;E(R,"getRangeAt")?aa=function(a,b){try{return a.getRangeAt(b)}catch(c){return null}}:U&&(aa=function(b){var c=L(b.anchorNode),d=a.createRange(c);return d.setStartAndEnd(b.anchorNode,b.anchorOffset,b.focusNode,b.focusOffset),d.collapsed!==this.isCollapsed&&d.setStartAndEnd(b.focusNode,b.focusOffset,b.anchorNode,b.anchorOffset),d}),r.prototype=a.selectionPrototype;var ba=[],ca=function(a){if(a&&a instanceof r)return a.refresh(),a;a=d(a,"getNativeSelection");var b=t(a),c=y(a),e=P?f(a):null;return b?(b.nativeSelection=c,b.docSelection=e,b.refresh()):(b=new r(c,e,a),ba.push({win:a,selection:b})),b};a.getSelection=ca,D.createAliasForDeprecatedMethod(a,"getIframeSelection","getSelection");var da=r.prototype;if(!Q&&U&&D.areHostMethods(R,["removeAllRanges","addRange"])){da.removeAllRanges=function(){this.nativeSelection.removeAllRanges(),j(this)};var ea=function(a,b){Z(a.nativeSelection,b),a.refresh()};W?da.addRange=function(b,d){if(_&&P&&this.docSelection.type==K)q(this,b);else if(c(d)&&V)ea(this,b);else{var e;X?e=this.rangeCount:(this.removeAllRanges(),e=0);var f=k(b).cloneRange();try{this.nativeSelection.addRange(f)}catch(g){}if(this.rangeCount=this.nativeSelection.rangeCount,this.rangeCount==e+1){if(a.config.checkSelectionRanges){var i=aa(this.nativeSelection,this.rangeCount-1);i&&!N(i,b)&&(b=new G(i))}this._ranges[this.rangeCount-1]=b,h(this,b,ha(this.nativeSelection)),this.isCollapsed=z(this)}else this.refresh()}}:da.addRange=function(a,b){c(b)&&V?ea(this,a):(this.nativeSelection.addRange(k(a)),this.refresh())},da.setRanges=function(a){if(_&&P&&a.length>1)u(this,a);else{this.removeAllRanges();for(var b=0,c=a.length;c>b;++b)this.addRange(a[b])}}}else{if(!(E(R,"empty")&&E(S,"select")&&_&&Q))return b.fail("No means of selecting a Range or TextRange was found"),!1;da.removeAllRanges=function(){try{if(this.docSelection.empty(),"None"!=this.docSelection.type){var a;if(this.anchorNode)a=L(this.anchorNode);else if(this.docSelection.type==K){var b=this.docSelection.createRange();b.length&&(a=L(b.item(0)))}if(a){var c=M(a).createTextRange();c.select(),this.docSelection.empty()}}}catch(d){}j(this)},da.addRange=function(b){this.docSelection.type==K?q(this,b):(a.WrappedTextRange.rangeToTextRange(b).select(),this._ranges[0]=b,this.rangeCount=1,this.isCollapsed=this._ranges[0].collapsed,h(this,b,!1))},da.setRanges=function(a){this.removeAllRanges();var b=a.length;b>1?u(this,a):b&&this.addRange(a[0])}}da.getRangeAt=function(a){if(0>a||a>=this.rangeCount)throw new H("INDEX_SIZE_ERR");return this._ranges[a].cloneRange()};var fa;if(Q)fa=function(b){var c;a.isSelectionValid(b.win)?c=b.docSelection.createRange():(c=M(b.win.document).createTextRange(),c.collapse(!0)),b.docSelection.type==K?p(b):n(c)?o(b,c):j(b)};else if(E(R,"getRangeAt")&&typeof R.rangeCount==B)fa=function(b){if(_&&P&&b.docSelection.type==K)p(b);else if(b._ranges.length=b.rangeCount=b.nativeSelection.rangeCount,b.rangeCount){for(var c=0,d=b.rangeCount;d>c;++c)b._ranges[c]=new a.WrappedRange(b.nativeSelection.getRangeAt(c));h(b,b._ranges[b.rangeCount-1],ha(b.nativeSelection)),b.isCollapsed=z(b)}else j(b)};else{if(!U||typeof R.isCollapsed!=A||typeof S.collapsed!=A||!J.implementsDomRange)return b.fail("No means of obtaining a Range or TextRange from the user's selection was found"),!1;fa=function(a){var b,c=a.nativeSelection;c.anchorNode?(b=aa(c,0),a._ranges=[b],a.rangeCount=1,i(a),a.isCollapsed=z(a)):j(a)}}da.refresh=function(a){var b=a?this._ranges.slice(0):null,c=this.anchorNode,d=this.anchorOffset;if(fa(this),a){var e=b.length;if(e!=this._ranges.length)return!0;if(this.anchorNode!=c||this.anchorOffset!=d)return!0;for(;e--;)if(!N(b[e],this._ranges[e]))return!0;return!1}};var ga=function(a,b){var c=a.getAllRanges();a.removeAllRanges();for(var d=0,e=c.length;e>d;++d)N(b,c[d])||a.addRange(c[d]);a.rangeCount||j(a)};_&&P?da.removeRange=function(a){if(this.docSelection.type==K){for(var b,c=this.docSelection.createRange(),d=m(a),e=L(c.item(0)),f=M(e).createControlRange(),g=!1,h=0,i=c.length;i>h;++h)b=c.item(h),b!==d||g?f.add(c.item(h)):g=!0;f.select(),p(this)}else ga(this,a)}:da.removeRange=function(a){ga(this,a)};var ha;!Q&&U&&J.implementsDomRange?(ha=g,da.isBackward=function(){return ha(this)}):ha=da.isBackward=function(){return!1},da.isBackwards=da.isBackward,da.toString=function(){for(var a=[],b=0,c=this.rangeCount;c>b;++b)a[b]=""+this._ranges[b];return a.join("")},da.collapse=function(b,c){v(this,b);var d=a.createRange(b);d.collapseToPoint(b,c),this.setSingleRange(d),this.isCollapsed=!0},da.collapseToStart=function(){if(!this.rangeCount)throw new H("INVALID_STATE_ERR");var a=this._ranges[0];this.collapse(a.startContainer,a.startOffset)},da.collapseToEnd=function(){if(!this.rangeCount)throw new H("INVALID_STATE_ERR");var a=this._ranges[this.rangeCount-1];this.collapse(a.endContainer,a.endOffset)},da.selectAllChildren=function(b){v(this,b);var c=a.createRange(b);c.selectNodeContents(b),this.setSingleRange(c)},da.deleteFromDocument=function(){if(_&&P&&this.docSelection.type==K){for(var a,b=this.docSelection.createRange();b.length;)a=b.item(0),b.remove(a),C.removeNode(a);this.refresh()}else if(this.rangeCount){var c=this.getAllRanges();if(c.length){this.removeAllRanges();for(var d=0,e=c.length;e>d;++d)c[d].deleteContents();this.addRange(c[e-1])}}},da.eachRange=function(a,b){for(var c=0,d=this._ranges.length;d>c;++c)if(a(this.getRangeAt(c)))return b},da.getAllRanges=function(){var a=[];return this.eachRange(function(b){a.push(b)}),a},da.setSingleRange=function(a,b){this.removeAllRanges(),this.addRange(a,b)},da.callMethodOnEachRange=function(a,b){var c=[];return this.eachRange(function(d){c.push(d[a].apply(d,b||[]))}),c},da.setStart=w(!0),da.setEnd=w(!1),a.rangePrototype.select=function(a){ca(this.getDocument()).setSingleRange(this,a)},da.changeEachRange=function(a){var b=[],c=this.isBackward();this.eachRange(function(c){a(c),b.push(c)}),this.removeAllRanges(),c&&1==b.length?this.addRange(b[0],"backward"):this.setRanges(b)},da.containsNode=function(a,b){return this.eachRange(function(c){return c.containsNode(a,b)},!0)||!1},da.getBookmark=function(a){return{backward:this.isBackward(),rangeBookmarks:this.callMethodOnEachRange("getBookmark",[a])}},da.moveToBookmark=function(b){for(var c,d,e=[],f=0;c=b.rangeBookmarks[f++];)d=a.createRange(this.win),d.moveToBookmark(c),e.push(d);b.backward?this.setSingleRange(e[0],"backward"):this.setRanges(e)},da.saveRanges=function(){return{backward:this.isBackward(),ranges:this.callMethodOnEachRange("cloneRange")}},da.restoreRanges=function(a){this.removeAllRanges();for(var b,c=0;b=a.ranges[c];++c)this.addRange(b,a.backward&&0==c)},da.toHtml=function(){var a=[];return this.eachRange(function(b){a.push(F.toHtml(b))}),a.join("")},J.implementsTextRange&&(da.getNativeTextRange=function(){var c;if(c=this.docSelection){var d=c.createRange();if(n(d))return d;throw b.createError("getNativeTextRange: selection is a control selection")}if(this.rangeCount>0)return a.WrappedTextRange.rangeToTextRange(this.getRangeAt(0));throw b.createError("getNativeTextRange: selection contains no range")}),da.getName=function(){return"WrappedSelection"},da.inspect=function(){return x(this)},da.detach=function(){t(this.win,"delete"),s(this)},r.detachAll=function(){t(null,"deleteAll")},r.inspect=x,r.isDirectionBackward=c,a.Selection=r,a.selectionPrototype=da,a.addShimListener(function(a){"undefined"==typeof a.getSelection&&(a.getSelection=function(){return ca(a)}),a=null})});var M=!1,N=function(a){M||(M=!0,!H.initialized&&H.config.autoInitialize&&l())};return F&&("complete"==document.readyState?N():(a(document,"addEventListener")&&document.addEventListener("DOMContentLoaded",N,!1),J(window,"load",N))),H},this),function(b,c){"function"==typeof define&&define.amd?define(["./rangy-core"],b):"undefined"!=typeof module&&"object"==typeof a?module.exports=b(require("rangy")):b(c.rangy)}(function(a){return a.createModule("SaveRestore",["WrappedRange"],function(a,b){function c(a,b){return(b||document).getElementById(a)}function d(a,b){var c,d="selectionBoundary_"+ +new Date+"_"+(""+Math.random()).slice(2),e=o.getDocument(a.startContainer),f=a.cloneRange();return f.collapse(b),c=e.createElement("span"),c.id=d,c.style.lineHeight="0",c.style.display="none",c.className="rangySelectionBoundary",c.appendChild(e.createTextNode(r)),f.insertNode(c),c}function e(a,d,e,f){var g=c(e,a);g?(d[f?"setStartBefore":"setEndBefore"](g),p(g)):b.warn("Marker element has been removed. Cannot restore selection.")}function f(a,b){return b.compareBoundaryPoints(a.START_TO_START,a)}function g(b,c){var e,f,g=a.DomRange.getRangeDocument(b),h=b.toString(),i=q(c);return b.collapsed?(f=d(b,!1),{document:g,markerId:f.id,collapsed:!0}):(f=d(b,!1),e=d(b,!0),{document:g,startMarkerId:e.id,endMarkerId:f.id,collapsed:!1,backward:i,toString:function(){return"original text: '"+h+"', new text: '"+b.toString()+"'"}})}function h(d,f){var g=d.document;"undefined"==typeof f&&(f=!0);var h=a.createRange(g);if(d.collapsed){var i=c(d.markerId,g);if(i){i.style.display="inline";var j=i.previousSibling;j&&3==j.nodeType?(p(i),h.collapseToPoint(j,j.length)):(h.collapseBefore(i),p(i))}else b.warn("Marker element has been removed. Cannot restore selection.")}else e(g,h,d.startMarkerId,!0),e(g,h,d.endMarkerId,!1);return f&&h.normalizeBoundaries(),h}function i(b,d){var e,h,i=[],j=q(d);b=b.slice(0),b.sort(f);for(var k=0,l=b.length;l>k;++k)i[k]=g(b[k],j);for(k=l-1;k>=0;--k)e=b[k],h=a.DomRange.getRangeDocument(e),e.collapsed?e.collapseAfter(c(i[k].markerId,h)):(e.setEndBefore(c(i[k].endMarkerId,h)),e.setStartAfter(c(i[k].startMarkerId,h)));return i}function j(c){if(!a.isSelectionValid(c))return b.warn("Cannot save selection. This usually happens when the selection is collapsed and the selection document has lost focus."),null;var d=a.getSelection(c),e=d.getAllRanges(),f=1==e.length&&d.isBackward(),g=i(e,f);return f?d.setSingleRange(e[0],f):d.setRanges(e),{win:c,rangeInfos:g,restored:!1}}function k(a){for(var b=[],c=a.length,d=c-1;d>=0;d--)b[d]=h(a[d],!0);return b}function l(b,c){if(!b.restored){var d=b.rangeInfos,e=a.getSelection(b.win),f=k(d),g=d.length;1==g&&c&&a.features.selectionHasExtend&&d[0].backward?(e.removeAllRanges(),e.addRange(f[0],!0)):e.setRanges(f),b.restored=!0}}function m(a,b){var d=c(b,a);d&&p(d)}function n(a){for(var b,c=a.rangeInfos,d=0,e=c.length;e>d;++d)b=c[d],b.collapsed?m(a.doc,b.markerId):(m(a.doc,b.startMarkerId),m(a.doc,b.endMarkerId))}var o=a.dom,p=o.removeNode,q=a.Selection.isDirectionBackward,r="\ufeff";a.util.extend(a,{saveRange:g,restoreRange:h,saveRanges:i,restoreRanges:k,saveSelection:j,restoreSelection:l,removeMarkerElement:m,removeMarkers:n})}),a},this)}({},function(){return this}());/**
+ * @license AngularJS v1.3.10
+ * (c) 2010-2014 Google, Inc. http://angularjs.org
+ * License: MIT
+ */
+(function(window, angular, undefined) {'use strict';
+
+var $sanitizeMinErr = angular.$$minErr('$sanitize');
+
+/**
+ * @ngdoc module
+ * @name ngSanitize
+ * @description
+ *
+ * # ngSanitize
+ *
+ * The `ngSanitize` module provides functionality to sanitize HTML.
+ *
+ *
+ * <div doc-module-components="ngSanitize"></div>
+ *
+ * See {@link ngSanitize.$sanitize `$sanitize`} for usage.
+ */
+
+/*
+ * HTML Parser By Misko Hevery (misko@hevery.com)
+ * based on:  HTML Parser By John Resig (ejohn.org)
+ * Original code by Erik Arvidsson, Mozilla Public License
+ * http://erik.eae.net/simplehtmlparser/simplehtmlparser.js
+ *
+ * // Use like so:
+ * htmlParser(htmlString, {
+ *     start: function(tag, attrs, unary) {},
+ *     end: function(tag) {},
+ *     chars: function(text) {},
+ *     comment: function(text) {}
+ * });
+ *
+ */
+
+
+/**
+ * @ngdoc service
+ * @name $sanitize
+ * @kind function
+ *
+ * @description
+ *   The input is sanitized by parsing the HTML into tokens. All safe tokens (from a whitelist) are
+ *   then serialized back to properly escaped html string. This means that no unsafe input can make
+ *   it into the returned string, however, since our parser is more strict than a typical browser
+ *   parser, it's possible that some obscure input, which would be recognized as valid HTML by a
+ *   browser, won't make it through the sanitizer. The input may also contain SVG markup.
+ *   The whitelist is configured using the functions `aHrefSanitizationWhitelist` and
+ *   `imgSrcSanitizationWhitelist` of {@link ng.$compileProvider `$compileProvider`}.
+ *
+ * @param {string} html HTML input.
+ * @returns {string} Sanitized HTML.
+ *
+ * @example
+   <example module="sanitizeExample" deps="angular-sanitize.js">
+   <file name="index.html">
+     <script>
+         angular.module('sanitizeExample', ['ngSanitize'])
+           .controller('ExampleController', ['$scope', '$sce', function($scope, $sce) {
+             $scope.snippet =
+               '<p style="color:blue">an html\n' +
+               '<em onmouseover="this.textContent=\'PWN3D!\'">click here</em>\n' +
+               'snippet</p>';
+             $scope.deliberatelyTrustDangerousSnippet = function() {
+               return $sce.trustAsHtml($scope.snippet);
+             };
+           }]);
+     </script>
+     <div ng-controller="ExampleController">
+        Snippet: <textarea ng-model="snippet" cols="60" rows="3"></textarea>
+       <table>
+         <tr>
+           <td>Directive</td>
+           <td>How</td>
+           <td>Source</td>
+           <td>Rendered</td>
+         </tr>
+         <tr id="bind-html-with-sanitize">
+           <td>ng-bind-html</td>
+           <td>Automatically uses $sanitize</td>
+           <td><pre>&lt;div ng-bind-html="snippet"&gt;<br/>&lt;/div&gt;</pre></td>
+           <td><div ng-bind-html="snippet"></div></td>
+         </tr>
+         <tr id="bind-html-with-trust">
+           <td>ng-bind-html</td>
+           <td>Bypass $sanitize by explicitly trusting the dangerous value</td>
+           <td>
+           <pre>&lt;div ng-bind-html="deliberatelyTrustDangerousSnippet()"&gt;
+&lt;/div&gt;</pre>
+           </td>
+           <td><div ng-bind-html="deliberatelyTrustDangerousSnippet()"></div></td>
+         </tr>
+         <tr id="bind-default">
+           <td>ng-bind</td>
+           <td>Automatically escapes</td>
+           <td><pre>&lt;div ng-bind="snippet"&gt;<br/>&lt;/div&gt;</pre></td>
+           <td><div ng-bind="snippet"></div></td>
+         </tr>
+       </table>
+       </div>
+   </file>
+   <file name="protractor.js" type="protractor">
+     it('should sanitize the html snippet by default', function() {
+       expect(element(by.css('#bind-html-with-sanitize div')).getInnerHtml()).
+         toBe('<p>an html\n<em>click here</em>\nsnippet</p>');
+     });
+
+     it('should inline raw snippet if bound to a trusted value', function() {
+       expect(element(by.css('#bind-html-with-trust div')).getInnerHtml()).
+         toBe("<p style=\"color:blue\">an html\n" +
+              "<em onmouseover=\"this.textContent='PWN3D!'\">click here</em>\n" +
+              "snippet</p>");
+     });
+
+     it('should escape snippet without any filter', function() {
+       expect(element(by.css('#bind-default div')).getInnerHtml()).
+         toBe("&lt;p style=\"color:blue\"&gt;an html\n" +
+              "&lt;em onmouseover=\"this.textContent='PWN3D!'\"&gt;click here&lt;/em&gt;\n" +
+              "snippet&lt;/p&gt;");
+     });
+
+     it('should update', function() {
+       element(by.model('snippet')).clear();
+       element(by.model('snippet')).sendKeys('new <b onclick="alert(1)">text</b>');
+       expect(element(by.css('#bind-html-with-sanitize div')).getInnerHtml()).
+         toBe('new <b>text</b>');
+       expect(element(by.css('#bind-html-with-trust div')).getInnerHtml()).toBe(
+         'new <b onclick="alert(1)">text</b>');
+       expect(element(by.css('#bind-default div')).getInnerHtml()).toBe(
+         "new &lt;b onclick=\"alert(1)\"&gt;text&lt;/b&gt;");
+     });
+   </file>
+   </example>
+ */
+function $SanitizeProvider() {
+  this.$get = ['$$sanitizeUri', function($$sanitizeUri) {
+    return function(html) {
+      if (typeof arguments[1] != 'undefined') {
+        arguments[1].version = 'taSanitize';
+      }
+      var buf = [];
+      htmlParser(html, htmlSanitizeWriter(buf, function(uri, isImage) {
+        return !/^unsafe/.test($$sanitizeUri(uri, isImage));
+      }));
+      return buf.join('');
+    };
+  }];
+}
+
+function sanitizeText(chars) {
+  var buf = [];
+  var writer = htmlSanitizeWriter(buf, angular.noop);
+  writer.chars(chars);
+  return buf.join('');
+}
+
+
+// Regular Expressions for parsing tags and attributes
+var START_TAG_REGEXP =
+       /^<((?:[a-zA-Z])[\w:-]*)((?:\s+[\w:-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)\s*(>?)/,
+  END_TAG_REGEXP = /^<\/\s*([\w:-]+)[^>]*>/,
+  ATTR_REGEXP = /([\w:-]+)(?:\s*=\s*(?:(?:"((?:[^"])*)")|(?:'((?:[^'])*)')|([^>\s]+)))?/g,
+  BEGIN_TAG_REGEXP = /^</,
+  BEGING_END_TAGE_REGEXP = /^<\//,
+  COMMENT_REGEXP = /<!--(.*?)-->/g,
+  SINGLE_COMMENT_REGEXP = /(^<!--.*?-->)/,
+  DOCTYPE_REGEXP = /<!DOCTYPE([^>]*?)>/i,
+  CDATA_REGEXP = /<!\[CDATA\[(.*?)]]>/g,
+  SURROGATE_PAIR_REGEXP = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
+  // Match everything outside of normal chars and " (quote character)
+  NON_ALPHANUMERIC_REGEXP = /([^\#-~| |!])/g,
+  WHITE_SPACE_REGEXP = /^(\s+)/;
+
+
+// Good source of info about elements and attributes
+// http://dev.w3.org/html5/spec/Overview.html#semantics
+// http://simon.html5.org/html-elements
+
+// Safe Void Elements - HTML5
+// http://dev.w3.org/html5/spec/Overview.html#void-elements
+var voidElements = makeMap("area,br,col,hr,img,wbr,input");
+
+// Elements that you can, intentionally, leave open (and which close themselves)
+// http://dev.w3.org/html5/spec/Overview.html#optional-tags
+var optionalEndTagBlockElements = makeMap("colgroup,dd,dt,li,p,tbody,td,tfoot,th,thead,tr"),
+    optionalEndTagInlineElements = makeMap("rp,rt"),
+    optionalEndTagElements = angular.extend({},
+                                            optionalEndTagInlineElements,
+                                            optionalEndTagBlockElements);
+
+// Safe Block Elements - HTML5
+var blockElements = angular.extend({}, optionalEndTagBlockElements, makeMap("address,article," +
+        "aside,blockquote,caption,center,del,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5," +
+        "h6,header,hgroup,hr,ins,map,menu,nav,ol,pre,script,section,table,ul"));
+
+// Inline Elements - HTML5
+var inlineElements = angular.extend({}, optionalEndTagInlineElements, makeMap("a,abbr,acronym,b," +
+        "bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s," +
+        "samp,small,span,strike,strong,sub,sup,time,tt,u,var"));
+
+// SVG Elements
+// https://wiki.whatwg.org/wiki/Sanitization_rules#svg_Elements
+var svgElements = makeMap("animate,animateColor,animateMotion,animateTransform,circle,defs," +
+        "desc,ellipse,font-face,font-face-name,font-face-src,g,glyph,hkern,image,linearGradient," +
+        "line,marker,metadata,missing-glyph,mpath,path,polygon,polyline,radialGradient,rect,set," +
+        "stop,svg,switch,text,title,tspan,use");
+
+// Special Elements (can contain anything)
+var specialElements = makeMap("script,style");
+
+var validElements = angular.extend({},
+                                   voidElements,
+                                   blockElements,
+                                   inlineElements,
+                                   optionalEndTagElements,
+                                   svgElements);
+
+//Attributes that have href and hence need to be sanitized
+var uriAttrs = makeMap("background,cite,href,longdesc,src,usemap,xlink:href");
+
+var htmlAttrs = makeMap('abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,'+
+    'color,cols,colspan,compact,coords,dir,face,headers,height,hreflang,hspace,'+
+    'id,ismap,lang,language,nohref,nowrap,rel,rev,rows,rowspan,rules,'+
+    'scope,scrolling,shape,size,span,start,summary,target,title,type,'+
+    'valign,value,vspace,width');
+
+// SVG attributes (without "id" and "name" attributes)
+// https://wiki.whatwg.org/wiki/Sanitization_rules#svg_Attributes
+var svgAttrs = makeMap('accent-height,accumulate,additive,alphabetic,arabic-form,ascent,' +
+    'attributeName,attributeType,baseProfile,bbox,begin,by,calcMode,cap-height,class,color,' +
+    'color-rendering,content,cx,cy,d,dx,dy,descent,display,dur,end,fill,fill-rule,font-family,' +
+    'font-size,font-stretch,font-style,font-variant,font-weight,from,fx,fy,g1,g2,glyph-name,' +
+    'gradientUnits,hanging,height,horiz-adv-x,horiz-origin-x,ideographic,k,keyPoints,' +
+    'keySplines,keyTimes,lang,marker-end,marker-mid,marker-start,markerHeight,markerUnits,' +
+    'markerWidth,mathematical,max,min,offset,opacity,orient,origin,overline-position,' +
+    'overline-thickness,panose-1,path,pathLength,points,preserveAspectRatio,r,refX,refY,' +
+    'repeatCount,repeatDur,requiredExtensions,requiredFeatures,restart,rotate,rx,ry,slope,stemh,' +
+    'stemv,stop-color,stop-opacity,strikethrough-position,strikethrough-thickness,stroke,' +
+    'stroke-dasharray,stroke-dashoffset,stroke-linecap,stroke-linejoin,stroke-miterlimit,' +
+    'stroke-opacity,stroke-width,systemLanguage,target,text-anchor,to,transform,type,u1,u2,' +
+    'underline-position,underline-thickness,unicode,unicode-range,units-per-em,values,version,' +
+    'viewBox,visibility,width,widths,x,x-height,x1,x2,xlink:actuate,xlink:arcrole,xlink:role,' +
+    'xlink:show,xlink:title,xlink:type,xml:base,xml:lang,xml:space,xmlns,xmlns:xlink,y,y1,y2,' +
+    'zoomAndPan');
+
+var validAttrs = angular.extend({},
+                                uriAttrs,
+                                svgAttrs,
+                                htmlAttrs);
+
+function makeMap(str) {
+  var obj = {}, items = str.split(','), i;
+  for (i = 0; i < items.length; i++) obj[items[i]] = true;
+  return obj;
+}
+
+
+/**
+ * @example
+ * htmlParser(htmlString, {
+ *     start: function(tag, attrs, unary) {},
+ *     end: function(tag) {},
+ *     chars: function(text) {},
+ *     comment: function(text) {}
+ * });
+ *
+ * @param {string} html string
+ * @param {object} handler
+ */
+function htmlParser(html, handler) {
+  if (typeof html !== 'string') {
+    if (html === null || typeof html === 'undefined') {
+      html = '';
+    } else {
+      html = '' + html;
+    }
+  }
+  var index, chars, match, stack = [], last = html, text;
+  stack.last = function() { return stack[ stack.length - 1 ]; };
+
+  while (html) {
+    text = '';
+    chars = true;
+
+    // Make sure we're not in a script or style element
+    if (!stack.last() || !specialElements[ stack.last() ]) {
+
+      // White space
+      if (WHITE_SPACE_REGEXP.test(html)) {
+        match = html.match(WHITE_SPACE_REGEXP);
+
+        if (match) {
+          var mat = match[0];
+          if (handler.whitespace) handler.whitespace(match[0]);
+          html = html.replace(match[0], '');
+          chars = false;
+        }
+      //Comment
+      } else if (SINGLE_COMMENT_REGEXP.test(html)) {
+        match = html.match(SINGLE_COMMENT_REGEXP);
+
+        if (match) {
+          if (handler.comment) handler.comment(match[1]);
+          html = html.replace(match[0], '');
+          chars = false;
+        }
+      // DOCTYPE
+      } else if (DOCTYPE_REGEXP.test(html)) {
+        match = html.match(DOCTYPE_REGEXP);
+
+        if (match) {
+          html = html.replace(match[0], '');
+          chars = false;
+        }
+      // end tag
+      } else if (BEGING_END_TAGE_REGEXP.test(html)) {
+        match = html.match(END_TAG_REGEXP);
+
+        if (match) {
+          html = html.substring(match[0].length);
+          match[0].replace(END_TAG_REGEXP, parseEndTag);
+          chars = false;
+        }
+
+      // start tag
+      } else if (BEGIN_TAG_REGEXP.test(html)) {
+        match = html.match(START_TAG_REGEXP);
+
+        if (match) {
+          // We only have a valid start-tag if there is a '>'.
+          if (match[4]) {
+            html = html.substring(match[0].length);
+            match[0].replace(START_TAG_REGEXP, parseStartTag);
+          }
+          chars = false;
+        } else {
+          // no ending tag found --- this piece should be encoded as an entity.
+          text += '<';
+          html = html.substring(1);
+        }
+      }
+
+      if (chars) {
+        index = html.indexOf("<");
+
+        text += index < 0 ? html : html.substring(0, index);
+        html = index < 0 ? "" : html.substring(index);
+
+        if (handler.chars) handler.chars(decodeEntities(text));
+      }
+
+    } else {
+      html = html.replace(new RegExp("([^]*)<\\s*\\/\\s*" + stack.last() + "[^>]*>", 'i'),
+        function(all, text) {
+          text = text.replace(COMMENT_REGEXP, "$1").replace(CDATA_REGEXP, "$1");
+
+          if (handler.chars) handler.chars(decodeEntities(text));
+
+          return "";
+      });
+
+      parseEndTag("", stack.last());
+    }
+
+    if (html == last) {
+      throw $sanitizeMinErr('badparse', "The sanitizer was unable to parse the following block " +
+                                        "of html: {0}", html);
+    }
+    last = html;
+  }
+
+  // Clean up any remaining tags
+  parseEndTag();
+
+  function parseStartTag(tag, tagName, rest, unary) {
+    tagName = angular.lowercase(tagName);
+    if (blockElements[ tagName ]) {
+      while (stack.last() && inlineElements[ stack.last() ]) {
+        parseEndTag("", stack.last());
+      }
+    }
+
+    if (optionalEndTagElements[ tagName ] && stack.last() == tagName) {
+      parseEndTag("", tagName);
+    }
+
+    unary = voidElements[ tagName ] || !!unary;
+
+    if (!unary)
+      stack.push(tagName);
+
+    var attrs = {};
+
+    rest.replace(ATTR_REGEXP,
+      function(match, name, doubleQuotedValue, singleQuotedValue, unquotedValue) {
+        var value = doubleQuotedValue
+          || singleQuotedValue
+          || unquotedValue
+          || '';
+
+        attrs[name] = decodeEntities(value);
+    });
+    if (handler.start) handler.start(tagName, attrs, unary);
+  }
+
+  function parseEndTag(tag, tagName) {
+    var pos = 0, i;
+    tagName = angular.lowercase(tagName);
+    if (tagName)
+      // Find the closest opened tag of the same type
+      for (pos = stack.length - 1; pos >= 0; pos--)
+        if (stack[ pos ] == tagName)
+          break;
+
+    if (pos >= 0) {
+      // Close all the open elements, up the stack
+      for (i = stack.length - 1; i >= pos; i--)
+        if (handler.end) handler.end(stack[ i ]);
+
+      // Remove the open elements from the stack
+      stack.length = pos;
+    }
+  }
+}
+
+var hiddenPre=document.createElement("pre");
+var spaceRe = /^(\s*)([\s\S]*?)(\s*)$/;
+/**
+ * decodes all entities into regular string
+ * @param value
+ * @returns {string} A string with decoded entities.
+ */
+function decodeEntities(value) {
+  if (!value) { return ''; }
+
+  // Note: IE8 does not preserve spaces at the start/end of innerHTML
+  // so we must capture them and reattach them afterward
+  var parts = spaceRe.exec(value);
+  var spaceBefore = parts[1];
+  var spaceAfter = parts[3];
+  var content = parts[2];
+  if (content) {
+    hiddenPre.innerHTML=content.replace(/</g,"&lt;");
+    // innerText depends on styling as it doesn't display hidden elements.
+    // Therefore, it's better to use textContent not to cause unnecessary
+    // reflows. However, IE<9 don't support textContent so the innerText
+    // fallback is necessary.
+    content = 'textContent' in hiddenPre ?
+      hiddenPre.textContent : hiddenPre.innerText;
+  }
+  return spaceBefore + content + spaceAfter;
+}
+
+/**
+ * Escapes all potentially dangerous characters, so that the
+ * resulting string can be safely inserted into attribute or
+ * element text.
+ * @param value
+ * @returns {string} escaped text
+ */
+function encodeEntities(value) {
+  return value.
+    replace(/&/g, '&amp;').
+    replace(SURROGATE_PAIR_REGEXP, function(value) {
+      var hi = value.charCodeAt(0);
+      var low = value.charCodeAt(1);
+      return '&#' + (((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000) + ';';
+    }).
+    replace(NON_ALPHANUMERIC_REGEXP, function(value) {
+      // unsafe chars are: \u0000-\u001f \u007f-\u009f \u00ad \u0600-\u0604 \u070f \u17b4 \u17b5 \u200c-\u200f \u2028-\u202f \u2060-\u206f \ufeff \ufff0-\uffff from jslint.com/lint.html
+      // decimal values are: 0-31, 127-159, 173, 1536-1540, 1807, 6068, 6069, 8204-8207, 8232-8239, 8288-8303, 65279, 65520-65535
+      var c = value.charCodeAt(0);
+      // if unsafe character encode
+      if(c <= 159 ||
+        c == 173 ||
+        (c >= 1536 && c <= 1540) ||
+        c == 1807 ||
+        c == 6068 ||
+        c == 6069 ||
+        (c >= 8204 && c <= 8207) ||
+        (c >= 8232 && c <= 8239) ||
+        (c >= 8288 && c <= 8303) ||
+        c == 65279 ||
+        (c >= 65520 && c <= 65535)) return '&#' + c + ';';
+      return value; // avoids multilingual issues
+    }).
+    replace(/</g, '&lt;').
+    replace(/>/g, '&gt;');
+}
+
+var trim = (function() {
+  // native trim is way faster: http://jsperf.com/angular-trim-test
+  // but IE doesn't have it... :-(
+  // TODO: we should move this into IE/ES5 polyfill
+  if (!String.prototype.trim) {
+    return function(value) {
+      return angular.isString(value) ? value.replace(/^\s\s*/, '').replace(/\s\s*$/, '') : value;
+    };
+  }
+  return function(value) {
+    return angular.isString(value) ? value.trim() : value;
+  };
+})();
+
+// Custom logic for accepting certain style options only - textAngular
+// Currently allows only the color, background-color, text-align, float, width and height attributes
+// all other attributes should be easily done through classes.
+function validStyles(styleAttr){
+	var result = '';
+	var styleArray = styleAttr.split(';');
+	angular.forEach(styleArray, function(value){
+		var v = value.split(':');
+		if(v.length == 2){
+			var key = trim(angular.lowercase(v[0]));
+			var value = trim(angular.lowercase(v[1]));
+			if(
+				(key === 'color' || key === 'background-color') && (
+					value.match(/^rgb\([0-9%,\. ]*\)$/i)
+					|| value.match(/^rgba\([0-9%,\. ]*\)$/i)
+					|| value.match(/^hsl\([0-9%,\. ]*\)$/i)
+					|| value.match(/^hsla\([0-9%,\. ]*\)$/i)
+					|| value.match(/^#[0-9a-f]{3,6}$/i)
+					|| value.match(/^[a-z]*$/i)
+				)
+			||
+				key === 'text-align' && (
+					value === 'left'
+					|| value === 'right'
+					|| value === 'center'
+					|| value === 'justify'
+				)
+			||
+                key === 'text-decoration' && (
+                    value === 'underline'
+                    || value === 'line-through'
+                )
+            || key === 'font-weight' && (
+                    value === 'bold'
+                )
+            ||
+				key === 'float' && (
+					value === 'left'
+					|| value === 'right'
+					|| value === 'none'
+				)
+			||
+				(key === 'width' || key === 'height') && (
+					value.match(/[0-9\.]*(px|em|rem|%)/)
+				)
+			|| // Reference #520
+				(key === 'direction' && value.match(/^ltr|rtl|initial|inherit$/))
+			) result += key + ': ' + value + ';';
+		}
+	});
+	return result;
+}
+
+// this function is used to manually allow specific attributes on specific tags with certain prerequisites
+function validCustomTag(tag, attrs, lkey, value){
+	// catch the div placeholder for the iframe replacement
+    if (tag === 'img' && attrs['ta-insert-video']){
+        if(lkey === 'ta-insert-video' || lkey === 'allowfullscreen' || lkey === 'frameborder' || (lkey === 'contenteditable' && value === 'false')) return true;
+    }
+    return false;
+}
+
+/**
+ * create an HTML/XML writer which writes to buffer
+ * @param {Array} buf use buf.jain('') to get out sanitized html string
+ * @returns {object} in the form of {
+ *     start: function(tag, attrs, unary) {},
+ *     end: function(tag) {},
+ *     chars: function(text) {},
+ *     comment: function(text) {}
+ * }
+ */
+function htmlSanitizeWriter(buf, uriValidator) {
+  var ignore = false;
+  var out = angular.bind(buf, buf.push);
+  return {
+    start: function(tag, attrs, unary) {
+      tag = angular.lowercase(tag);
+      if (!ignore && specialElements[tag]) {
+        ignore = tag;
+      }
+      if (!ignore && validElements[tag] === true) {
+        out('<');
+        out(tag);
+        angular.forEach(attrs, function(value, key) {
+          var lkey=angular.lowercase(key);
+          var isImage=(tag === 'img' && lkey === 'src') || (lkey === 'background');
+          if ((lkey === 'style' && (value = validStyles(value)) !== '') || validCustomTag(tag, attrs, lkey, value) || validAttrs[lkey] === true &&
+            (uriAttrs[lkey] !== true || uriValidator(value, isImage))) {
+            out(' ');
+            out(key);
+            out('="');
+            out(encodeEntities(value));
+            out('"');
+          }
+        });
+        out(unary ? '/>' : '>');
+      }
+    },
+    comment: function (com) {
+      out(com);
+    },
+    whitespace: function (ws) {
+      out(encodeEntities(ws));
+    },
+    end: function(tag) {
+        tag = angular.lowercase(tag);
+        if (!ignore && validElements[tag] === true) {
+          out('</');
+          out(tag);
+          out('>');
+        }
+        if (tag == ignore) {
+          ignore = false;
+        }
+      },
+    chars: function(chars) {
+        if (!ignore) {
+          out(encodeEntities(chars));
+        }
+      }
+  };
+}
+
+
+// define ngSanitize module and register $sanitize service
+angular.module('ngSanitize', []).provider('$sanitize', $SanitizeProvider);
+
+/* global sanitizeText: false */
+
+/**
+ * @ngdoc filter
+ * @name linky
+ * @kind function
+ *
+ * @description
+ * Finds links in text input and turns them into html links. Supports http/https/ftp/mailto and
+ * plain email address links.
+ *
+ * Requires the {@link ngSanitize `ngSanitize`} module to be installed.
+ *
+ * @param {string} text Input text.
+ * @param {string} target Window (_blank|_self|_parent|_top) or named frame to open links in.
+ * @returns {string} Html-linkified text.
+ *
+ * @usage
+   <span ng-bind-html="linky_expression | linky"></span>
+ *
+ * @example
+   <example module="linkyExample" deps="angular-sanitize.js">
+     <file name="index.html">
+       <script>
+         angular.module('linkyExample', ['ngSanitize'])
+           .controller('ExampleController', ['$scope', function($scope) {
+             $scope.snippet =
+               'Pretty text with some links:\n'+
+               'http://angularjs.org/,\n'+
+               'mailto:us@somewhere.org,\n'+
+               'another@somewhere.org,\n'+
+               'and one more: ftp://127.0.0.1/.';
+             $scope.snippetWithTarget = 'http://angularjs.org/';
+           }]);
+       </script>
+       <div ng-controller="ExampleController">
+       Snippet: <textarea ng-model="snippet" cols="60" rows="3"></textarea>
+       <table>
+         <tr>
+           <td>Filter</td>
+           <td>Source</td>
+           <td>Rendered</td>
+         </tr>
+         <tr id="linky-filter">
+           <td>linky filter</td>
+           <td>
+             <pre>&lt;div ng-bind-html="snippet | linky"&gt;<br>&lt;/div&gt;</pre>
+           </td>
+           <td>
+             <div ng-bind-html="snippet | linky"></div>
+           </td>
+         </tr>
+         <tr id="linky-target">
+          <td>linky target</td>
+          <td>
+            <pre>&lt;div ng-bind-html="snippetWithTarget | linky:'_blank'"&gt;<br>&lt;/div&gt;</pre>
+          </td>
+          <td>
+            <div ng-bind-html="snippetWithTarget | linky:'_blank'"></div>
+          </td>
+         </tr>
+         <tr id="escaped-html">
+           <td>no filter</td>
+           <td><pre>&lt;div ng-bind="snippet"&gt;<br>&lt;/div&gt;</pre></td>
+           <td><div ng-bind="snippet"></div></td>
+         </tr>
+       </table>
+     </file>
+     <file name="protractor.js" type="protractor">
+       it('should linkify the snippet with urls', function() {
+         expect(element(by.id('linky-filter')).element(by.binding('snippet | linky')).getText()).
+             toBe('Pretty text with some links: http://angularjs.org/, us@somewhere.org, ' +
+                  'another@somewhere.org, and one more: ftp://127.0.0.1/.');
+         expect(element.all(by.css('#linky-filter a')).count()).toEqual(4);
+       });
+
+       it('should not linkify snippet without the linky filter', function() {
+         expect(element(by.id('escaped-html')).element(by.binding('snippet')).getText()).
+             toBe('Pretty text with some links: http://angularjs.org/, mailto:us@somewhere.org, ' +
+                  'another@somewhere.org, and one more: ftp://127.0.0.1/.');
+         expect(element.all(by.css('#escaped-html a')).count()).toEqual(0);
+       });
+
+       it('should update', function() {
+         element(by.model('snippet')).clear();
+         element(by.model('snippet')).sendKeys('new http://link.');
+         expect(element(by.id('linky-filter')).element(by.binding('snippet | linky')).getText()).
+             toBe('new http://link.');
+         expect(element.all(by.css('#linky-filter a')).count()).toEqual(1);
+         expect(element(by.id('escaped-html')).element(by.binding('snippet')).getText())
+             .toBe('new http://link.');
+       });
+
+       it('should work with the target property', function() {
+        expect(element(by.id('linky-target')).
+            element(by.binding("snippetWithTarget | linky:'_blank'")).getText()).
+            toBe('http://angularjs.org/');
+        expect(element(by.css('#linky-target a')).getAttribute('target')).toEqual('_blank');
+       });
+     </file>
+   </example>
+ */
+angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
+  var LINKY_URL_REGEXP =
+        /((ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"”’]/,
+      MAILTO_REGEXP = /^mailto:/;
+
+  return function(text, target) {
+    if (!text) return text;
+    var match;
+    var raw = text;
+    var html = [];
+    var url;
+    var i;
+    while ((match = raw.match(LINKY_URL_REGEXP))) {
+      // We can not end in these as they are sometimes found at the end of the sentence
+      url = match[0];
+      // if we did not match ftp/http/www/mailto then assume mailto
+      if (!match[2] && !match[4]) {
+        url = (match[3] ? 'http://' : 'mailto:') + url;
+      }
+      i = match.index;
+      addText(raw.substr(0, i));
+      addLink(url, match[0].replace(MAILTO_REGEXP, ''));
+      raw = raw.substring(i + match[0].length);
+    }
+    addText(raw);
+    return $sanitize(html.join(''));
+
+    function addText(text) {
+      if (!text) {
+        return;
+      }
+      html.push(sanitizeText(text));
+    }
+
+    function addLink(url, text) {
+      html.push('<a ');
+      if (angular.isDefined(target)) {
+        html.push('target="',
+                  target,
+                  '" ');
+      }
+      html.push('href="',
+                url.replace(/"/g, '&quot;'),
+                '">');
+      addText(text);
+      html.push('</a>');
+    }
+  };
+}]);
+
+
+})(window, window.angular);
+/*
+@license textAngular
+Author : Austin Anderson
+License : 2013 MIT
+Version 1.5.0
+
+See README.md or https://github.com/fraywing/textAngular/wiki for requirements and use.
+*/
+
+/*
+Commonjs package manager support (eg componentjs).
+*/
+
+/* istanbul ignore next:  */
+'undefined'!=typeof module&&'undefined'!=typeof exports&&module.exports===exports&&(module.exports='textAngular');
+
+(function(){ // encapsulate all variables so they don't become global vars
+"use strict";
+// IE version detection - http://stackoverflow.com/questions/4169160/javascript-ie-detection-why-not-use-simple-conditional-comments
+// We need this as IE sometimes plays funny tricks with the contenteditable.
+// ----------------------------------------------------------
+// If you're not in IE (or IE version is less than 5) then:
+// ie === undefined
+// If you're in IE (>=5) then you can determine which version:
+// ie === 7; // IE7
+// Thus, to detect IE:
+// if (ie) {}
+// And to detect the version:
+// ie === 6 // IE6
+// ie > 7 // IE8, IE9, IE10 ...
+// ie < 9 // Anything less than IE9
+// ----------------------------------------------------------
+/* istanbul ignore next: untestable browser check */
+var _browserDetect = {
+	ie: (function(){
+		var undef,
+			v = 3,
+			div = document.createElement('div'),
+			all = div.getElementsByTagName('i');
+
+		while (
+			div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',
+			all[0]
+		);
+
+		return v > 4 ? v : undef;
+	}()),
+	webkit: /AppleWebKit\/([\d.]+)/i.test(navigator.userAgent)
+};
+
+// fix a webkit bug, see: https://gist.github.com/shimondoodkin/1081133
+// this is set true when a blur occurs as the blur of the ta-bind triggers before the click
+var globalContentEditableBlur = false;
+/* istanbul ignore next: Browser Un-Focus fix for webkit */
+if(_browserDetect.webkit) {
+	document.addEventListener("mousedown", function(_event){
+		var e = _event || window.event;
+		var curelement = e.target;
+		if(globalContentEditableBlur && curelement !== null){
+			var isEditable = false;
+			var tempEl = curelement;
+			while(tempEl !== null && tempEl.tagName.toLowerCase() !== 'html' && !isEditable){
+				isEditable = tempEl.contentEditable === 'true';
+				tempEl = tempEl.parentNode;
+			}
+			if(!isEditable){
+				document.getElementById('textAngular-editableFix-010203040506070809').setSelectionRange(0, 0); // set caret focus to an element that handles caret focus correctly.
+				curelement.focus(); // focus the wanted element.
+				if (curelement.select) {
+					curelement.select(); // use select to place cursor for input elements.
+				}
+			}
+		}
+		globalContentEditableBlur = false;
+	}, false); // add global click handler
+	angular.element(document).ready(function () {
+		angular.element(document.body).append(angular.element('<input id="textAngular-editableFix-010203040506070809" class="ta-hidden-input" aria-hidden="true" unselectable="on" tabIndex="-1">'));
+	});
+}
+
+// Gloabl to textAngular REGEXP vars for block and list elements.
+
+var BLOCKELEMENTS = /^(address|article|aside|audio|blockquote|canvas|dd|div|dl|fieldset|figcaption|figure|footer|form|h1|h2|h3|h4|h5|h6|header|hgroup|hr|noscript|ol|output|p|pre|section|table|tfoot|ul|video)$/i;
+var LISTELEMENTS = /^(ul|li|ol)$/i;
+var VALIDELEMENTS = /^(address|article|aside|audio|blockquote|canvas|dd|div|dl|fieldset|figcaption|figure|footer|form|h1|h2|h3|h4|h5|h6|header|hgroup|hr|noscript|ol|output|p|pre|section|table|tfoot|ul|video|li)$/i;
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim#Compatibility
+/* istanbul ignore next: trim shim for older browsers */
+if (!String.prototype.trim) {
+	String.prototype.trim = function () {
+		return this.replace(/^\s+|\s+$/g, '');
+	};
+}
+
+/*
+	Custom stylesheet for the placeholders rules.
+	Credit to: http://davidwalsh.name/add-rules-stylesheets
+*/
+var sheet, addCSSRule, removeCSSRule, _addCSSRule, _removeCSSRule, _getRuleIndex;
+/* istanbul ignore else: IE <8 test*/
+if(_browserDetect.ie > 8 || _browserDetect.ie === undefined){
+	var _sheets = document.styleSheets;
+	/* istanbul ignore next: preference for stylesheet loaded externally */
+	for(var i = 0; i < _sheets.length; i++){
+		if(_sheets[i].media.length === 0 || _sheets[i].media.mediaText.match(/(all|screen)/ig)){
+			if(_sheets[i].href){
+				if(_sheets[i].href.match(/textangular\.(min\.|)css/ig)){
+					sheet = _sheets[i];
+					break;
+				}
+			}
+		}
+	}
+	/* istanbul ignore next: preference for stylesheet loaded externally */
+	if(!sheet){
+		// this sheet is used for the placeholders later on.
+		sheet = (function() {
+			// Create the <style> tag
+			var style = document.createElement("style");
+			/* istanbul ignore else : WebKit hack :( */
+			if(_browserDetect.webkit) style.appendChild(document.createTextNode(""));
+
+			// Add the <style> element to the page, add as first so the styles can be overridden by custom stylesheets
+			document.getElementsByTagName('head')[0].appendChild(style);
+
+			return style.sheet;
+		})();
+	}
+
+	// use as: addCSSRule("header", "float: left");
+	addCSSRule = function(selector, rules) {
+		return _addCSSRule(sheet, selector, rules);
+	};
+	_addCSSRule = function(_sheet, selector, rules){
+		var insertIndex;
+		var insertedRule;
+		// This order is important as IE 11 has both cssRules and rules but they have different lengths - cssRules is correct, rules gives an error in IE 11
+		/* istanbul ignore next: browser catches */
+		if(_sheet.cssRules) insertIndex = Math.max(_sheet.cssRules.length - 1, 0);
+		else if(_sheet.rules) insertIndex = Math.max(_sheet.rules.length - 1, 0);
+
+		/* istanbul ignore else: untestable IE option */
+		if(_sheet.insertRule) {
+			_sheet.insertRule(selector + "{" + rules + "}", insertIndex);
+		}
+		else {
+			_sheet.addRule(selector, rules, insertIndex);
+		}
+		/* istanbul ignore next: browser catches */
+		if(sheet.rules) insertedRule = sheet.rules[insertIndex];
+		else if(sheet.cssRules) insertedRule = sheet.cssRules[insertIndex];
+		// return the inserted stylesheet rule
+		return insertedRule;
+	};
+
+	_getRuleIndex = function(rule, rules) {
+		var i, ruleIndex;
+		for (i=0; i < rules.length; i++) {
+			/* istanbul ignore else: check for correct rule */
+			if (rules[i].cssText === rule.cssText) {
+				ruleIndex = i;
+				break;
+			}
+		}
+		return ruleIndex;
+	};
+
+	removeCSSRule = function(rule){
+		_removeCSSRule(sheet, rule);
+	};
+	/* istanbul ignore next: tests are browser specific */
+	_removeCSSRule = function(sheet, rule){
+		var rules = sheet.cssRules || sheet.rules;
+		if(!rules || rules.length === 0) return;
+		var ruleIndex = _getRuleIndex(rule, rules);
+		if(sheet.removeRule){
+			sheet.removeRule(ruleIndex);
+		}else{
+			sheet.deleteRule(ruleIndex);
+		}
+	};
+}
+
+angular.module('textAngular.factories', [])
+.factory('taBrowserTag', [function(){
+	return function(tag){
+		/* istanbul ignore next: ie specific test */
+		if(!tag) return (_browserDetect.ie <= 8)? 'P' : 'p';
+		else if(tag === '') return (_browserDetect.ie === undefined)? 'div' : (_browserDetect.ie <= 8)? 'P' : 'p';
+		else return (_browserDetect.ie <= 8)? tag.toUpperCase() : tag;
+	};
+}]).factory('taApplyCustomRenderers', ['taCustomRenderers', 'taDOM', function(taCustomRenderers, taDOM){
+	return function(val){
+		var element = angular.element('<div></div>');
+		element[0].innerHTML = val;
+
+		angular.forEach(taCustomRenderers, function(renderer){
+			var elements = [];
+			// get elements based on what is defined. If both defined do secondary filter in the forEach after using selector string
+			if(renderer.selector && renderer.selector !== '')
+				elements = element.find(renderer.selector);
+			/* istanbul ignore else: shouldn't fire, if it does we're ignoring everything */
+			else if(renderer.customAttribute && renderer.customAttribute !== '')
+				elements = taDOM.getByAttribute(element, renderer.customAttribute);
+			// process elements if any found
+			angular.forEach(elements, function(_element){
+				_element = angular.element(_element);
+				if(renderer.selector && renderer.selector !== '' && renderer.customAttribute && renderer.customAttribute !== ''){
+					if(_element.attr(renderer.customAttribute) !== undefined) renderer.renderLogic(_element);
+				} else renderer.renderLogic(_element);
+			});
+		});
+
+		return element[0].innerHTML;
+	};
+}]).factory('taFixChrome', function(){
+	// get whaterever rubbish is inserted in chrome
+	// should be passed an html string, returns an html string
+	var taFixChrome = function(html){
+		if(!html || !angular.isString(html) || html.length <= 0) return html;
+		// grab all elements with a style attibute
+		var spanMatch = /<([^>\/]+?)style=("([^"]+)"|'([^']+)')([^>]*)>/ig;
+		var match, styleVal, newTag, finalHtml = '', lastIndex = 0;
+		while(match = spanMatch.exec(html)){
+			// one of the quoted values ' or "
+			/* istanbul ignore next: quotations match */
+			styleVal = match[3] || match[4];
+			// test for chrome inserted junk
+			if(styleVal && styleVal.match(/line-height: 1.[0-9]{3,12};|color: inherit; line-height: 1.1;/i)){
+				// replace original tag with new tag
+				styleVal = styleVal.replace(/( |)font-family: inherit;|( |)line-height: 1.[0-9]{3,12};|( |)color: inherit;/ig, '');
+				newTag = '<' + match[1].trim();
+				if(styleVal.trim().length > 0) newTag += ' style=' + match[2].substring(0,1) + styleVal + match[2].substring(0,1);
+				newTag += match[5].trim() + ">";
+				finalHtml += html.substring(lastIndex, match.index) + newTag;
+				lastIndex = match.index + match[0].length;
+			}
+		}
+		finalHtml += html.substring(lastIndex);
+		// only replace when something has changed, else we get focus problems on inserting lists
+		if(lastIndex > 0){
+			// replace all empty strings
+			return finalHtml.replace(/<span\s?>(.*?)<\/span>(<br(\/|)>|)/ig, '$1');
+		} else return html;
+	};
+	return taFixChrome;
+}).factory('taSanitize', ['$sanitize', function taSanitizeFactory($sanitize){
+
+	var convert_infos = [
+		{
+			property: 'font-weight',
+			values: [ 'bold' ],
+			tag: 'b'
+		},
+		{
+			property: 'font-style',
+			values: [ 'italic' ],
+			tag: 'i'
+		}
+	];
+	
+	var styleMatch = [];
+	for(var i = 0; i < convert_infos.length; i++){
+		var _partialStyle = '(' + convert_infos[i].property + ':\\s*(';
+		for(var j = 0; j < convert_infos[i].values.length; j++){
+			/* istanbul ignore next: not needed to be tested yet */
+			if(j > 0) _partialStyle += '|';
+			_partialStyle += convert_infos[i].values[j];
+		}
+		_partialStyle += ');)';
+		styleMatch.push(_partialStyle);
+	}
+	var styleRegexString = '(' + styleMatch.join('|') + ')';
+	
+	function wrapNested(html, wrapTag) {
+		var depth = 0;
+		var lastIndex = 0;
+		var match;
+		var tagRegex = /<[^>]*>/ig;
+		while(match = tagRegex.exec(html)){
+			lastIndex = match.index;
+			if(match[0].substr(1, 1) === '/'){
+				if(depth === 0) break;
+				else depth--;
+			}else depth++;
+		}
+		return wrapTag +
+			html.substring(0, lastIndex) +
+			// get the start tags reversed - this is safe as we construct the strings with no content except the tags
+			angular.element(wrapTag)[0].outerHTML.substring(wrapTag.length) +
+			html.substring(lastIndex);
+	}
+	
+	function transformLegacyStyles(html){
+		if(!html || !angular.isString(html) || html.length <= 0) return html;
+		var i;
+		var styleElementMatch = /<([^>\/]+?)style=("([^"]+)"|'([^']+)')([^>]*)>/ig;
+		var match, subMatch, styleVal, newTag, lastNewTag = '', newHtml, finalHtml = '', lastIndex = 0;
+		while(match = styleElementMatch.exec(html)){
+			// one of the quoted values ' or "
+			/* istanbul ignore next: quotations match */
+			styleVal = match[3] || match[4];
+			var styleRegex = new RegExp(styleRegexString, 'i');
+			// test for style values to change
+			if(angular.isString(styleVal) && styleRegex.test(styleVal)){
+				// remove build tag list
+				newTag = '';
+				// init regex here for exec
+				var styleRegexExec = new RegExp(styleRegexString, 'ig');
+				// find relevand tags and build a string of them
+				while(subMatch = styleRegexExec.exec(styleVal)){
+					for(i = 0; i < convert_infos.length; i++){
+						if(!!subMatch[(i*2) + 2]){
+							newTag += '<' + convert_infos[i].tag + '>';
+						}
+					}
+				}
+				// recursively find more legacy styles in html before this tag and after the previous match (if any)
+				newHtml = transformLegacyStyles(html.substring(lastIndex, match.index));
+				// build up html
+				if(lastNewTag.length > 0){
+					finalHtml += wrapNested(newHtml, lastNewTag);
+				}else finalHtml += newHtml;
+				// grab the style val without the transformed values
+				styleVal = styleVal.replace(new RegExp(styleRegexString, 'ig'), '');
+				// build the html tag
+				finalHtml += '<' + match[1].trim();
+				if(styleVal.length > 0) finalHtml += ' style="' + styleVal + '"';
+				finalHtml += match[5] + '>';
+				// update the start index to after this tag
+				lastIndex = match.index + match[0].length;
+				lastNewTag = newTag;
+			}
+		}
+		if(lastNewTag.length > 0){
+			finalHtml += wrapNested(html.substring(lastIndex), lastNewTag);
+		}
+		else finalHtml += html.substring(lastIndex);
+		return finalHtml;
+	}
+	
+	function transformLegacyAttributes(html){
+		if(!html || !angular.isString(html) || html.length <= 0) return html;
+		// replace all align='...' tags with text-align attributes
+		var attrElementMatch = /<([^>\/]+?)align=("([^"]+)"|'([^']+)')([^>]*)>/ig;
+		var match, finalHtml = '', lastIndex = 0;
+		// match all attr tags
+		while(match = attrElementMatch.exec(html)){
+			// add all html before this tag
+			finalHtml += html.substring(lastIndex, match.index);
+			// record last index after this tag
+			lastIndex = match.index + match[0].length;
+			// construct tag without the align attribute
+			var newTag = '<' + match[1] + match[5];
+			// add the style attribute
+			if(/style=("([^"]+)"|'([^']+)')/ig.test(newTag)){
+				/* istanbul ignore next: quotations match */
+				newTag = newTag.replace(/style=("([^"]+)"|'([^']+)')/i, 'style="$2$3 text-align:' + (match[3] || match[4]) + ';"');
+			}else{
+				/* istanbul ignore next: quotations match */
+				newTag += ' style="text-align:' + (match[3] || match[4]) + ';"';
+			}
+			newTag += '>';
+			// add to html
+			finalHtml += newTag;
+		}
+		// return with remaining html
+		return finalHtml + html.substring(lastIndex);
+	}
+	
+	return function taSanitize(unsafe, oldsafe, ignore){
+		// unsafe html should NEVER built into a DOM object via angular.element. This allows XSS to be inserted and run.
+		if ( !ignore ) {
+			try {
+				unsafe = transformLegacyStyles(unsafe);
+			} catch (e) {
+			}
+		}
+
+		// unsafe and oldsafe should be valid HTML strings
+		// any exceptions (lets say, color for example) should be made here but with great care
+		// setup unsafe element for modification
+		unsafe = transformLegacyAttributes(unsafe);
+		
+		var safe;
+		try {
+			safe = $sanitize(unsafe);
+			// do this afterwards, then the $sanitizer should still throw for bad markup
+			if(ignore) safe = unsafe;
+		} catch (e){
+			safe = oldsafe || '';
+		}
+		
+		// Do processing for <pre> tags, removing tabs and return carriages outside of them
+		
+		var _preTags = safe.match(/(<pre[^>]*>.*?<\/pre[^>]*>)/ig);
+		var processedSafe = safe.replace(/(&#(9|10);)*/ig, '');
+		var re = /<pre[^>]*>.*?<\/pre[^>]*>/ig;
+		var index = 0;
+		var lastIndex = 0;
+		var origTag;
+		safe = '';
+		while((origTag = re.exec(processedSafe)) !== null && index < _preTags.length){
+			safe += processedSafe.substring(lastIndex, origTag.index) + _preTags[index];
+			lastIndex = origTag.index + origTag[0].length;
+			index++;
+		}
+		return safe + processedSafe.substring(lastIndex);
+	};
+}]).factory('taToolExecuteAction', ['$q', '$log', function($q, $log){
+	// this must be called on a toolScope or instance
+	return function(editor){
+		if(editor !== undefined) this.$editor = function(){ return editor; };
+		var deferred = $q.defer(),
+			promise = deferred.promise,
+			_editor = this.$editor();
+		// pass into the action the deferred function and also the function to reload the current selection if rangy available
+		var result;
+		try{
+			result = this.action(deferred, _editor.startAction());
+			// We set the .finally callback here to make sure it doesn't get executed before any other .then callback.
+			promise['finally'](function(){
+				_editor.endAction.call(_editor);
+			});
+		}catch(exc){
+			$log.error(exc);
+		}
+		if(result || result === undefined){
+			// if true or undefined is returned then the action has finished. Otherwise the deferred action will be resolved manually.
+			deferred.resolve();
+		}
+	};
+}]);
+angular.module('textAngular.DOM', ['textAngular.factories'])
+.factory('taExecCommand', ['taSelection', 'taBrowserTag', '$document', function(taSelection, taBrowserTag, $document){
+	var listToDefault = function(listElement, defaultWrap){
+		var $target, i;
+		// if all selected then we should remove the list
+		// grab all li elements and convert to taDefaultWrap tags
+		var children = listElement.find('li');
+		for(i = children.length - 1; i >= 0; i--){
+			$target = angular.element('<' + defaultWrap + '>' + children[i].innerHTML + '</' + defaultWrap + '>');
+			listElement.after($target);
+		}
+		listElement.remove();
+		taSelection.setSelectionToElementEnd($target[0]);
+	};
+	var selectLi = function(liElement){
+		if(/(<br(|\/)>)$/i.test(liElement.innerHTML.trim())) taSelection.setSelectionBeforeElement(angular.element(liElement).find("br")[0]);
+		else taSelection.setSelectionToElementEnd(liElement);
+	};
+	var listToList = function(listElement, newListTag){
+		var $target = angular.element('<' + newListTag + '>' + listElement[0].innerHTML + '</' + newListTag + '>');
+		listElement.after($target);
+		listElement.remove();
+		selectLi($target.find('li')[0]);
+	};
+	var childElementsToList = function(elements, listElement, newListTag){
+		var html = '';
+		for(var i = 0; i < elements.length; i++){
+			html += '<' + taBrowserTag('li') + '>' + elements[i].innerHTML + '</' + taBrowserTag('li') + '>';
+		}
+		var $target = angular.element('<' + newListTag + '>' + html + '</' + newListTag + '>');
+		listElement.after($target);
+		listElement.remove();
+		selectLi($target.find('li')[0]);
+	};
+	return function(taDefaultWrap, topNode){
+		taDefaultWrap = taBrowserTag(taDefaultWrap);
+		return function(command, showUI, options, defaultTagAttributes){
+			var i, $target, html, _nodes, next, optionsTagName, selectedElement;
+			var defaultWrapper = angular.element('<' + taDefaultWrap + '>');
+			try{
+				selectedElement = taSelection.getSelectionElement();
+			}catch(e){}
+			var $selected = angular.element(selectedElement);
+			if(selectedElement !== undefined){
+				var tagName = selectedElement.tagName.toLowerCase();
+				if(command.toLowerCase() === 'insertorderedlist' || command.toLowerCase() === 'insertunorderedlist'){
+					var selfTag = taBrowserTag((command.toLowerCase() === 'insertorderedlist')? 'ol' : 'ul');
+					if(tagName === selfTag){
+						// if all selected then we should remove the list
+						// grab all li elements and convert to taDefaultWrap tags
+						return listToDefault($selected, taDefaultWrap);
+					}else if(tagName === 'li' && $selected.parent()[0].tagName.toLowerCase() === selfTag && $selected.parent().children().length === 1){
+						// catch for the previous statement if only one li exists
+						return listToDefault($selected.parent(), taDefaultWrap);
+					}else if(tagName === 'li' && $selected.parent()[0].tagName.toLowerCase() !== selfTag && $selected.parent().children().length === 1){
+						// catch for the previous statement if only one li exists
+						return listToList($selected.parent(), selfTag);
+					}else if(tagName.match(BLOCKELEMENTS) && !$selected.hasClass('ta-bind')){
+						// if it's one of those block elements we have to change the contents
+						// if it's a ol/ul we are changing from one to the other
+						if(tagName === 'ol' || tagName === 'ul'){
+							return listToList($selected, selfTag);
+						}else{
+							var childBlockElements = false;
+							angular.forEach($selected.children(), function(elem){
+								if(elem.tagName.match(BLOCKELEMENTS)) {
+									childBlockElements = true;
+								}
+							});
+							if(childBlockElements){
+								return childElementsToList($selected.children(), $selected, selfTag);
+							}else{
+								return childElementsToList([angular.element('<div>' + selectedElement.innerHTML + '</div>')[0]], $selected, selfTag);
+							}
+						}
+					}else if(tagName.match(BLOCKELEMENTS)){
+						// if we get here then all the contents of the ta-bind are selected
+						_nodes = taSelection.getOnlySelectedElements();
+						if(_nodes.length === 0){
+							// here is if there is only text in ta-bind ie <div ta-bind>test content</div>
+							$target = angular.element('<' + selfTag + '><li>' + selectedElement.innerHTML + '</li></' + selfTag + '>');
+							$selected.html('');
+							$selected.append($target);
+						}else if(_nodes.length === 1 && (_nodes[0].tagName.toLowerCase() === 'ol' || _nodes[0].tagName.toLowerCase() === 'ul')){
+							if(_nodes[0].tagName.toLowerCase() === selfTag){
+								// remove
+								return listToDefault(angular.element(_nodes[0]), taDefaultWrap);
+							}else{
+								return listToList(angular.element(_nodes[0]), selfTag);
+							}
+						}else{
+							html = '';
+							var $nodes = [];
+							for(i = 0; i < _nodes.length; i++){
+								/* istanbul ignore else: catch for real-world can't make it occur in testing */
+								if(_nodes[i].nodeType !== 3){
+									var $n = angular.element(_nodes[i]);
+									/* istanbul ignore if: browser check only, phantomjs doesn't return children nodes but chrome at least does */
+									if(_nodes[i].tagName.toLowerCase() === 'li') continue;
+									else if(_nodes[i].tagName.toLowerCase() === 'ol' || _nodes[i].tagName.toLowerCase() === 'ul'){
+										html += $n[0].innerHTML; // if it's a list, add all it's children
+									}else if(_nodes[i].tagName.toLowerCase() === 'span' && (_nodes[i].childNodes[0].tagName.toLowerCase() === 'ol' || _nodes[i].childNodes[0].tagName.toLowerCase() === 'ul')){
+										html += $n[0].childNodes[0].innerHTML; // if it's a list, add all it's children
+									}else{
+										html += '<' + taBrowserTag('li') + '>' + $n[0].innerHTML + '</' + taBrowserTag('li') + '>';
+									}
+									$nodes.unshift($n);
+								}
+							}
+							$target = angular.element('<' + selfTag + '>' + html + '</' + selfTag + '>');
+							$nodes.pop().replaceWith($target);
+							angular.forEach($nodes, function($node){ $node.remove(); });
+						}
+						taSelection.setSelectionToElementEnd($target[0]);
+						return;
+					}
+				}else if(command.toLowerCase() === 'formatblock'){
+					optionsTagName = options.toLowerCase().replace(/[<>]/ig, '');
+					if(optionsTagName.trim() === 'default') {
+						optionsTagName = taDefaultWrap;
+						options = '<' + taDefaultWrap + '>';
+					}
+					if(tagName === 'li') $target = $selected.parent();
+					else $target = $selected;
+					// find the first blockElement
+					while(!$target[0].tagName || !$target[0].tagName.match(BLOCKELEMENTS) && !$target.parent().attr('contenteditable')){
+						$target = $target.parent();
+						/* istanbul ignore next */
+						tagName = ($target[0].tagName || '').toLowerCase();
+					}
+					if(tagName === optionsTagName){
+						// $target is wrap element
+						_nodes = $target.children();
+						var hasBlock = false;
+						for(i = 0; i < _nodes.length; i++){
+							hasBlock = hasBlock || _nodes[i].tagName.match(BLOCKELEMENTS);
+						}
+						if(hasBlock){
+							$target.after(_nodes);
+							next = $target.next();
+							$target.remove();
+							$target = next;
+						}else{
+							defaultWrapper.append($target[0].childNodes);
+							$target.after(defaultWrapper);
+							$target.remove();
+							$target = defaultWrapper;
+						}
+					}else if($target.parent()[0].tagName.toLowerCase() === optionsTagName && !$target.parent().hasClass('ta-bind')){
+						//unwrap logic for parent
+						var blockElement = $target.parent();
+						var contents = blockElement.contents();
+						for(i = 0; i < contents.length; i ++){
+							/* istanbul ignore next: can't test - some wierd thing with how phantomjs works */
+							if(blockElement.parent().hasClass('ta-bind') && contents[i].nodeType === 3){
+								defaultWrapper = angular.element('<' + taDefaultWrap + '>');
+								defaultWrapper[0].innerHTML = contents[i].outerHTML;
+								contents[i] = defaultWrapper[0];
+							}
+							blockElement.parent()[0].insertBefore(contents[i], blockElement[0]);
+						}
+						blockElement.remove();
+					}else if(tagName.match(LISTELEMENTS)){
+						// wrapping a list element
+						$target.wrap(options);
+					}else{
+						// default wrap behaviour
+						_nodes = taSelection.getOnlySelectedElements();
+						if(_nodes.length === 0) _nodes = [$target[0]];
+						// find the parent block element if any of the nodes are inline or text
+						for(i = 0; i < _nodes.length; i++){
+							if(_nodes[i].nodeType === 3 || !_nodes[i].tagName.match(BLOCKELEMENTS)){
+								while(_nodes[i].nodeType === 3 || !_nodes[i].tagName || !_nodes[i].tagName.match(BLOCKELEMENTS)){
+									_nodes[i] = _nodes[i].parentNode;
+								}
+							}
+						}
+						if(angular.element(_nodes[0]).hasClass('ta-bind')){
+							$target = angular.element(options);
+							$target[0].innerHTML = _nodes[0].innerHTML;
+							_nodes[0].innerHTML = $target[0].outerHTML;
+						}else if(optionsTagName === 'blockquote'){
+							// blockquotes wrap other block elements
+							html = '';
+							for(i = 0; i < _nodes.length; i++){
+								html += _nodes[i].outerHTML;
+							}
+							$target = angular.element(options);
+							$target[0].innerHTML = html;
+							_nodes[0].parentNode.insertBefore($target[0],_nodes[0]);
+							for(i = _nodes.length - 1; i >= 0; i--){
+								/* istanbul ignore else:  */
+								if(_nodes[i].parentNode) _nodes[i].parentNode.removeChild(_nodes[i]);
+							}
+						}
+						else {
+							// regular block elements replace other block elements
+							for(i = 0; i < _nodes.length; i++){
+								$target = angular.element(options);
+								$target[0].innerHTML = _nodes[i].innerHTML;
+								_nodes[i].parentNode.insertBefore($target[0],_nodes[i]);
+								_nodes[i].parentNode.removeChild(_nodes[i]);
+							}
+						}
+					}
+					taSelection.setSelectionToElementEnd($target[0]);
+					return;
+				}else if(command.toLowerCase() === 'createlink'){
+					var tagBegin = '<a href="' + options + '" target="' +
+							(defaultTagAttributes.a.target ? defaultTagAttributes.a.target : '') +
+							'">',
+						tagEnd = '</a>',
+						_selection = taSelection.getSelection();
+					if(_selection.collapsed){
+						// insert text at selection, then select then just let normal exec-command run
+						taSelection.insertHtml(tagBegin + options + tagEnd, topNode);
+					}else if(rangy.getSelection().getRangeAt(0).canSurroundContents()){
+						var node = angular.element(tagBegin + tagEnd)[0];
+						rangy.getSelection().getRangeAt(0).surroundContents(node);
+					}
+					return;
+				}else if(command.toLowerCase() === 'inserthtml'){
+					taSelection.insertHtml(options, topNode);
+					return;
+				}
+			}
+			try{
+				$document[0].execCommand(command, showUI, options);
+			}catch(e){}
+		};
+	};
+}]).service('taSelection', ['$window', '$document', 'taDOM',
+/* istanbul ignore next: all browser specifics and PhantomJS dosen't seem to support half of it */
+function($window, $document, taDOM){
+	// need to dereference the document else the calls don't work correctly
+	var _document = $document[0];
+	var rangy = $window.rangy;
+	var brException = function (element, offset) {
+		/* check if selection is a BR element at the beginning of a container. If so, get
+		* the parentNode instead.
+		* offset should be zero in this case. Otherwise, return the original
+		* element.
+		*/
+		if (element.tagName && element.tagName.match(/^br$/i) && offset === 0 && !element.previousSibling) {
+            return {
+                element: element.parentNode,
+                offset: 0
+            };
+		} else {
+			return {
+				element: element,
+				offset: offset
+			};
+		}
+	};
+	var api = {
+		getSelection: function(){
+			var range = rangy.getSelection().getRangeAt(0);
+			var container = range.commonAncestorContainer;
+			var selection = {
+				start: brException(range.startContainer, range.startOffset),
+				end: brException(range.endContainer, range.endOffset),
+				collapsed: range.collapsed
+			};
+			// Check if the container is a text node and return its parent if so
+			container = container.nodeType === 3 ? container.parentNode : container;
+			if (container.parentNode === selection.start.element ||
+				container.parentNode === selection.end.element) {
+				selection.container = container.parentNode;
+			} else {
+				selection.container = container;
+			}
+			return selection;
+		},
+		getOnlySelectedElements: function(){
+			var range = rangy.getSelection().getRangeAt(0);
+			var container = range.commonAncestorContainer;
+			// Check if the container is a text node and return its parent if so
+			container = container.nodeType === 3 ? container.parentNode : container;
+			return range.getNodes([1], function(node){
+				return node.parentNode === container;
+			});
+		},
+		// Some basic selection functions
+		getSelectionElement: function () {
+			return api.getSelection().container;
+		},
+		setSelection: function(el, start, end){
+			var range = rangy.createRange();
+			
+			range.setStart(el, start);
+			range.setEnd(el, end);
+			
+			rangy.getSelection().setSingleRange(range);
+		},
+		setSelectionBeforeElement: function (el){
+			var range = rangy.createRange();
+			
+			range.selectNode(el);
+			range.collapse(true);
+			
+			rangy.getSelection().setSingleRange(range);
+		},
+		setSelectionAfterElement: function (el){
+			var range = rangy.createRange();
+			
+			range.selectNode(el);
+			range.collapse(false);
+			
+			rangy.getSelection().setSingleRange(range);
+		},
+		setSelectionToElementStart: function (el){
+			var range = rangy.createRange();
+			
+			range.selectNodeContents(el);
+			range.collapse(true);
+			
+			rangy.getSelection().setSingleRange(range);
+		},
+		setSelectionToElementEnd: function (el){
+			var range = rangy.createRange();
+			
+			range.selectNodeContents(el);
+			range.collapse(false);
+			if(el.childNodes && el.childNodes[el.childNodes.length - 1] && el.childNodes[el.childNodes.length - 1].nodeName === 'br'){
+				range.startOffset = range.endOffset = range.startOffset - 1;
+			}
+			rangy.getSelection().setSingleRange(range);
+		},
+		// from http://stackoverflow.com/questions/6690752/insert-html-at-caret-in-a-contenteditable-div
+		// topNode is the contenteditable normally, all manipulation MUST be inside this.
+		insertHtml: function(html, topNode){
+			var parent, secondParent, _childI, nodes, i, lastNode, _tempFrag;
+			var element = angular.element("<div>" + html + "</div>");
+			var range = rangy.getSelection().getRangeAt(0);
+			var frag = _document.createDocumentFragment();
+			var children = element[0].childNodes;
+			var isInline = true;
+			
+			if(children.length > 0){
+				// NOTE!! We need to do the following:
+				// check for blockelements - if they exist then we have to split the current element in half (and all others up to the closest block element) and insert all children in-between.
+				// If there are no block elements, or there is a mixture we need to create textNodes for the non wrapped text (we don't want them spans messing up the picture).
+				nodes = [];
+				for(_childI = 0; _childI < children.length; _childI++){
+					if(!(
+						(children[_childI].nodeName.toLowerCase() === 'p' && children[_childI].innerHTML.trim() === '') || // empty p element
+						(children[_childI].nodeType === 3 && children[_childI].nodeValue.trim() === '') // empty text node
+					)){
+						isInline = isInline && !BLOCKELEMENTS.test(children[_childI].nodeName);
+						nodes.push(children[_childI]);
+					}
+				}
+				for(var _n = 0; _n < nodes.length; _n++) lastNode = frag.appendChild(nodes[_n]);
+				if(!isInline && range.collapsed && /^(|<br(|\/)>)$/i.test(range.startContainer.innerHTML)) range.selectNode(range.startContainer);
+			}else{
+				isInline = true;
+				// paste text of some sort
+				lastNode = frag = _document.createTextNode(html);
+			}
+			
+			// Other Edge case - selected data spans multiple blocks.
+			if(isInline){
+				range.deleteContents();
+			}else{ // not inline insert
+				if(range.collapsed && range.startContainer !== topNode){
+					if(range.startContainer.innerHTML && range.startContainer.innerHTML.match(/^<[^>]*>$/i)){
+						// this log is to catch when innerHTML is something like `<img ...>`
+						parent = range.startContainer;
+						if(range.startOffset === 1){
+							// before single tag
+							range.setStartAfter(parent);
+							range.setEndAfter(parent);
+						}else{
+							// after single tag
+							range.setStartBefore(parent);
+							range.setEndBefore(parent);
+						}
+					}else{
+						// split element into 2 and insert block element in middle
+						if(range.startContainer.nodeType === 3 && range.startContainer.parentNode !== topNode){ // if text node
+							parent = range.startContainer.parentNode;
+							secondParent = parent.cloneNode();
+							// split the nodes into two lists - before and after, splitting the node with the selection into 2 text nodes.
+							taDOM.splitNodes(parent.childNodes, parent, secondParent, range.startContainer, range.startOffset);
+							
+							// Escape out of the inline tags like b
+							while(!VALIDELEMENTS.test(parent.nodeName)){
+								angular.element(parent).after(secondParent);
+								parent = parent.parentNode;
+								var _lastSecondParent = secondParent;
+								secondParent = parent.cloneNode();
+								// split the nodes into two lists - before and after, splitting the node with the selection into 2 text nodes.
+								taDOM.splitNodes(parent.childNodes, parent, secondParent, _lastSecondParent);
+							}
+						}else{
+							parent = range.startContainer;
+							secondParent = parent.cloneNode();
+							taDOM.splitNodes(parent.childNodes, parent, secondParent, undefined, undefined, range.startOffset);
+						}
+						
+						angular.element(parent).after(secondParent);
+						// put cursor to end of inserted content
+						range.setStartAfter(parent);
+						range.setEndAfter(parent);
+						
+						if(/^(|<br(|\/)>)$/i.test(parent.innerHTML.trim())){
+							range.setStartBefore(parent);
+							range.setEndBefore(parent);
+							angular.element(parent).remove();
+						}
+						if(/^(|<br(|\/)>)$/i.test(secondParent.innerHTML.trim())) angular.element(secondParent).remove();
+						if(parent.nodeName.toLowerCase() === 'li'){
+							_tempFrag = _document.createDocumentFragment();
+							for(i = 0; i < frag.childNodes.length; i++){
+								element = angular.element('<li>');
+								taDOM.transferChildNodes(frag.childNodes[i], element[0]);
+								taDOM.transferNodeAttributes(frag.childNodes[i], element[0]);
+								_tempFrag.appendChild(element[0]);
+							}
+							frag = _tempFrag;
+							if(lastNode){
+								lastNode = frag.childNodes[frag.childNodes.length - 1];
+								lastNode = lastNode.childNodes[lastNode.childNodes.length - 1];
+							}
+						}
+					}
+				}else{
+					range.deleteContents();
+				}
+			}
+			
+			range.insertNode(frag);
+			if(lastNode){
+				api.setSelectionToElementEnd(lastNode);
+			}
+		}
+	};
+	return api;
+}]).service('taDOM', function(){
+	var taDOM = {
+		// recursive function that returns an array of angular.elements that have the passed attribute set on them
+		getByAttribute: function(element, attribute){
+			var resultingElements = [];
+			var childNodes = element.children();
+			if(childNodes.length){
+				angular.forEach(childNodes, function(child){
+					resultingElements = resultingElements.concat(taDOM.getByAttribute(angular.element(child), attribute));
+				});
+			}
+			if(element.attr(attribute) !== undefined) resultingElements.push(element);
+			return resultingElements;
+		},
+		
+		transferChildNodes: function(source, target){
+			// clear out target
+			target.innerHTML = '';
+			while(source.childNodes.length > 0) target.appendChild(source.childNodes[0]);
+			return target;
+		},
+		
+		splitNodes: function(nodes, target1, target2, splitNode, subSplitIndex, splitIndex){
+			if(!splitNode && isNaN(splitIndex)) throw new Error('taDOM.splitNodes requires a splitNode or splitIndex');
+			var startNodes = document.createDocumentFragment();
+			var endNodes = document.createDocumentFragment();
+			var index = 0;
+			
+			while(nodes.length > 0 && (isNaN(splitIndex) || splitIndex !== index) && nodes[0] !== splitNode){
+				startNodes.appendChild(nodes[0]); // this removes from the nodes array (if proper childNodes object.
+				index++;
+			}
+			
+			if(!isNaN(subSplitIndex) && subSplitIndex >= 0 && nodes[0]){
+				startNodes.appendChild(document.createTextNode(nodes[0].nodeValue.substring(0, subSplitIndex)));
+				nodes[0].nodeValue = nodes[0].nodeValue.substring(subSplitIndex);
+			}
+			while(nodes.length > 0) endNodes.appendChild(nodes[0]);
+			
+			taDOM.transferChildNodes(startNodes, target1);
+			taDOM.transferChildNodes(endNodes, target2);
+		},
+		
+		transferNodeAttributes: function(source, target){
+			for(var i = 0; i < source.attributes.length; i++) target.setAttribute(source.attributes[i].name, source.attributes[i].value);
+			return target;
+		}
+	};
+	return taDOM;
+});
+angular.module('textAngular.validators', [])
+.directive('taMaxText', function(){
+	return {
+		restrict: 'A',
+		require: 'ngModel',
+		link: function(scope, elem, attrs, ctrl){
+			var max = parseInt(scope.$eval(attrs.taMaxText));
+			if (isNaN(max)){
+				throw('Max text must be an integer');
+			}
+			attrs.$observe('taMaxText', function(value){
+				max = parseInt(value);
+				if (isNaN(max)){
+					throw('Max text must be an integer');
+				}
+				if (ctrl.$dirty){
+					ctrl.$validate();
+				}
+			});
+			ctrl.$validators.taMaxText = function(viewValue){
+				var source = angular.element('<div/>');
+				source.html(viewValue);
+				return source.text().length <= max;
+			};
+		}
+	};
+}).directive('taMinText', function(){
+	return {
+		restrict: 'A',
+		require: 'ngModel',
+		link: function(scope, elem, attrs, ctrl){
+			var min = parseInt(scope.$eval(attrs.taMinText));
+			if (isNaN(min)){
+				throw('Min text must be an integer');
+			}
+			attrs.$observe('taMinText', function(value){
+				min = parseInt(value);
+				if (isNaN(min)){
+					throw('Min text must be an integer');
+				}
+				if (ctrl.$dirty){
+					ctrl.$validate();
+				}
+			});
+			ctrl.$validators.taMinText = function(viewValue){
+				var source = angular.element('<div/>');
+				source.html(viewValue);
+				return !source.text().length || source.text().length >= min;
+			};
+		}
+	};
+});
+angular.module('textAngular.taBind', ['textAngular.factories', 'textAngular.DOM'])
+.service('_taBlankTest', [function(){
+	var INLINETAGS_NONBLANK = /<(a|abbr|acronym|bdi|bdo|big|cite|code|del|dfn|img|ins|kbd|label|map|mark|q|ruby|rp|rt|s|samp|time|tt|var)[^>]*(>|$)/i;
+	return function(_defaultTest){
+		return function(_blankVal){
+			if(!_blankVal) return true;
+			// find first non-tag match - ie start of string or after tag that is not whitespace
+			var _firstMatch = /(^[^<]|>)[^<]/i.exec(_blankVal);
+			var _firstTagIndex;
+			if(!_firstMatch){
+				// find the end of the first tag removing all the
+				// Don't do a global replace as that would be waaayy too long, just replace the first 4 occurences should be enough
+				_blankVal = _blankVal.toString().replace(/="[^"]*"/i, '').replace(/="[^"]*"/i, '').replace(/="[^"]*"/i, '').replace(/="[^"]*"/i, '');
+				_firstTagIndex = _blankVal.indexOf('>');
+			}else{
+				_firstTagIndex = _firstMatch.index;
+			}
+			_blankVal = _blankVal.trim().substring(_firstTagIndex, _firstTagIndex + 100);
+			// check for no tags entry
+			if(/^[^<>]+$/i.test(_blankVal)) return false;
+			// this regex is to match any number of whitespace only between two tags
+			if (_blankVal.length === 0 || _blankVal === _defaultTest || /^>(\s|&nbsp;)*<\/[^>]+>$/ig.test(_blankVal)) return true;
+			// this regex tests if there is a tag followed by some optional whitespace and some text after that
+			else if (/>\s*[^\s<]/i.test(_blankVal) || INLINETAGS_NONBLANK.test(_blankVal)) return false;
+			else return true;
+		};
+	};
+}])
+.directive('taButton', [function(){
+	return {
+		link: function(scope, element, attrs){
+			element.attr('unselectable', 'on');
+			element.on('mousedown', function(e, eventData){
+				/* istanbul ignore else: this is for catching the jqLite testing*/
+				if(eventData) angular.extend(e, eventData);
+				// this prevents focusout from firing on the editor when clicking toolbar buttons
+				e.preventDefault();
+				return false;
+			});
+		}
+	};
+}])
+.directive('taBind', [
+		'taSanitize', '$timeout', '$window', '$document', 'taFixChrome', 'taBrowserTag',
+		'taSelection', 'taSelectableElements', 'taApplyCustomRenderers', 'taOptions',
+		'_taBlankTest', '$parse', 'taDOM', 'textAngularManager',
+		function(
+			taSanitize, $timeout, $window, $document, taFixChrome, taBrowserTag,
+			taSelection, taSelectableElements, taApplyCustomRenderers, taOptions,
+			_taBlankTest, $parse, taDOM, textAngularManager){
+	// Uses for this are textarea or input with ng-model and ta-bind='text'
+	// OR any non-form element with contenteditable="contenteditable" ta-bind="html|text" ng-model
+	return {
+		priority: 2, // So we override validators correctly
+		require: ['ngModel','?ngModelOptions'],
+		link: function(scope, element, attrs, controller){
+			var ngModel = controller[0];
+			var ngModelOptions = controller[1] || {};
+			// the option to use taBind on an input or textarea is required as it will sanitize all input into it correctly.
+			var _isContentEditable = element.attr('contenteditable') !== undefined && element.attr('contenteditable');
+			var _isInputFriendly = _isContentEditable || element[0].tagName.toLowerCase() === 'textarea' || element[0].tagName.toLowerCase() === 'input';
+			var _isReadonly = false;
+			var _focussed = false;
+			var _skipRender = false;
+			var _disableSanitizer = attrs.taUnsafeSanitizer || taOptions.disableSanitizer;
+			var _lastKey;
+			// see http://www.javascripter.net/faq/keycodes.htm for good information
+			// NOTE Mute On|Off 173 (Opera MSIE Safari Chrome) 181 (Firefox)
+			// BLOCKED_KEYS are special keys...
+			// Tab, pause/break, CapsLock, Esc, Page Up, End, Home,
+			// Left arrow, Up arrow, Right arrow, Down arrow, Insert, Delete,
+			// f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12
+			// NumLock, ScrollLock
+			var BLOCKED_KEYS = /^(9|19|20|27|33|34|35|36|37|38|39|40|45|112|113|114|115|116|117|118|119|120|121|122|123|144|145)$/i;
+			// UNDO_TRIGGER_KEYS - spaces, enter, delete, backspace, all punctuation
+			// Backspace, Enter, Space, Delete, (; :) (Firefox), (= +) (Firefox),
+			// Numpad +, Numpad -, (; :), (= +),
+			// (, <), (- _), (. >), (/ ?), (` ~), ([ {), (\ |), (] }), (' ")
+			// NOTE - Firefox: 173 = (- _) -- adding this to UNDO_TRIGGER_KEYS
+			var UNDO_TRIGGER_KEYS = /^(8|13|32|46|59|61|107|109|173|186|187|188|189|190|191|192|219|220|221|222)$/i;
+			var _pasteHandler;
+
+			// defaults to the paragraph element, but we need the line-break or it doesn't allow you to type into the empty element
+			// non IE is '<p><br/></p>', ie is '<p></p>' as for once IE gets it correct...
+			var _defaultVal, _defaultTest;
+
+			var _CTRL_KEY = 0x0001;
+			var _META_KEY = 0x0002;
+			var _ALT_KEY = 0x0004;
+			var _SHIFT_KEY = 0x0008;
+			// map events to special keys...
+			// mappings is an array of maps from events to specialKeys as declared in textAngularSetup
+			var _keyMappings = [
+				//		ctrl/command + z
+				{
+					specialKey: 'UndoKey',
+					forbiddenModifiers: _ALT_KEY + _SHIFT_KEY,
+					mustHaveModifiers: [_META_KEY + _CTRL_KEY],
+					keyCode: 90
+				},
+				//		ctrl/command + shift + z
+				{
+					specialKey: 'RedoKey',
+					forbiddenModifiers: _ALT_KEY,
+					mustHaveModifiers: [_META_KEY + _CTRL_KEY, _SHIFT_KEY],
+					keyCode: 90
+				},
+				//		ctrl/command + y
+				{
+					specialKey: 'RedoKey',
+					forbiddenModifiers: _ALT_KEY + _SHIFT_KEY,
+					mustHaveModifiers: [_META_KEY + _CTRL_KEY],
+					keyCode: 89
+				},
+				//		TabKey
+				{
+					specialKey: 'TabKey',
+					forbiddenModifiers: _META_KEY + _SHIFT_KEY + _ALT_KEY + _CTRL_KEY,
+					mustHaveModifiers: [],
+					keyCode: 9
+				},
+				//		shift + TabKey
+				{
+					specialKey: 'ShiftTabKey',
+					forbiddenModifiers: _META_KEY + _ALT_KEY + _CTRL_KEY,
+					mustHaveModifiers: [_SHIFT_KEY],
+					keyCode: 9
+				}
+			];
+			function _mapKeys(event) {
+				var specialKey;
+				_keyMappings.forEach(function (map){
+					if (map.keyCode === event.keyCode) {
+						var netModifiers = (event.metaKey ? _META_KEY: 0) +
+							(event.ctrlKey ? _CTRL_KEY: 0) +
+							(event.shiftKey ? _SHIFT_KEY: 0) +
+							(event.altKey ? _ALT_KEY: 0);
+						if (map.forbiddenModifiers & netModifiers) return;
+						if (map.mustHaveModifiers.every(function (modifier) { return netModifiers & modifier; })){
+							specialKey = map.specialKey;
+						}
+					}
+				});
+				return specialKey;
+			}
+
+			// set the default to be a paragraph value
+			if(attrs.taDefaultWrap === undefined) attrs.taDefaultWrap = 'p';
+			/* istanbul ignore next: ie specific test */
+			if(attrs.taDefaultWrap === ''){
+				_defaultVal = '';
+				_defaultTest = (_browserDetect.ie === undefined)? '<div><br></div>' : (_browserDetect.ie >= 11)? '<p><br></p>' : (_browserDetect.ie <= 8)? '<P>&nbsp;</P>' : '<p>&nbsp;</p>';
+			}else{
+				_defaultVal = (_browserDetect.ie === undefined || _browserDetect.ie >= 11)?
+					'<' + attrs.taDefaultWrap + '><br></' + attrs.taDefaultWrap + '>' :
+					(_browserDetect.ie <= 8)?
+						'<' + attrs.taDefaultWrap.toUpperCase() + '></' + attrs.taDefaultWrap.toUpperCase() + '>' :
+						'<' + attrs.taDefaultWrap + '></' + attrs.taDefaultWrap + '>';
+				_defaultTest = (_browserDetect.ie === undefined || _browserDetect.ie >= 11)?
+					'<' + attrs.taDefaultWrap + '><br></' + attrs.taDefaultWrap + '>' :
+					(_browserDetect.ie <= 8)?
+						'<' + attrs.taDefaultWrap.toUpperCase() + '>&nbsp;</' + attrs.taDefaultWrap.toUpperCase() + '>' :
+						'<' + attrs.taDefaultWrap + '>&nbsp;</' + attrs.taDefaultWrap + '>';
+			}
+
+			/* istanbul ignore else */
+			if(!ngModelOptions.$options) ngModelOptions.$options = {}; // ng-model-options support
+
+			var _blankTest = _taBlankTest(_defaultTest);
+
+			var _ensureContentWrapped = function(value) {
+				if (_blankTest(value)) return value;
+				var domTest = angular.element("<div>" + value + "</div>");
+				//console.log('domTest.children().length():', domTest.children().length);
+				if (domTest.children().length === 0) {
+					value = "<" + attrs.taDefaultWrap + ">" + value + "</" + attrs.taDefaultWrap + ">";
+				} else {
+					var _children = domTest[0].childNodes;
+					var i;
+					var _foundBlockElement = false;
+					for (i = 0; i < _children.length; i++) {
+						if (_foundBlockElement = _children[i].nodeName.toLowerCase().match(BLOCKELEMENTS)) break;
+					}
+					if (!_foundBlockElement) {
+						value = "<" + attrs.taDefaultWrap + ">" + value + "</" + attrs.taDefaultWrap + ">";
+					}
+					else{
+						value = "";
+						for(i = 0; i < _children.length; i++){
+							var node = _children[i];
+							var nodeName = node.nodeName.toLowerCase();
+							//console.log(nodeName);
+							if(nodeName === '#comment') {
+								value += '<!--' + node.nodeValue + '-->';
+							} else if(nodeName === '#text') {
+								// determine if this is all whitespace, if so, we will leave it as it is.
+								// otherwise, we will wrap it as it is
+								var text = node.textContent;
+								if (!text.trim()) {
+									// just whitespace
+									value += text;
+								} else {
+									// not pure white space so wrap in <p>...</p> or whatever attrs.taDefaultWrap is set to.
+									value += "<" + attrs.taDefaultWrap + ">" + text + "</" + attrs.taDefaultWrap + ">";
+								}
+							} else if(!nodeName.match(BLOCKELEMENTS)){
+								/* istanbul ignore  next: Doesn't seem to trigger on tests */
+								var _subVal = (node.outerHTML || node.nodeValue);
+								/* istanbul ignore else: Doesn't seem to trigger on tests, is tested though */
+								if(_subVal.trim() !== '')
+									value += "<" + attrs.taDefaultWrap + ">" + _subVal + "</" + attrs.taDefaultWrap + ">";
+								else value += _subVal;
+							} else {
+								value += node.outerHTML;
+							}
+						}
+					}
+				}
+				//console.log(value);
+				return value;
+			};
+
+			if(attrs.taPaste) _pasteHandler = $parse(attrs.taPaste);
+
+			element.addClass('ta-bind');
+
+			var _undoKeyupTimeout;
+
+			scope['$undoManager' + (attrs.id || '')] = ngModel.$undoManager = {
+				_stack: [],
+				_index: 0,
+				_max: 1000,
+				push: function(value){
+					if((typeof value === "undefined" || value === null) ||
+						((typeof this.current() !== "undefined" && this.current() !== null) && value === this.current())) return value;
+					if(this._index < this._stack.length - 1){
+						this._stack = this._stack.slice(0,this._index+1);
+					}
+					this._stack.push(value);
+					if(_undoKeyupTimeout) $timeout.cancel(_undoKeyupTimeout);
+					if(this._stack.length > this._max) this._stack.shift();
+					this._index = this._stack.length - 1;
+					return value;
+				},
+				undo: function(){
+					return this.setToIndex(this._index-1);
+				},
+				redo: function(){
+					return this.setToIndex(this._index+1);
+				},
+				setToIndex: function(index){
+					if(index < 0 || index > this._stack.length - 1){
+						return undefined;
+					}
+					this._index = index;
+					return this.current();
+				},
+				current: function(){
+					return this._stack[this._index];
+				}
+			};
+
+			var _redoUndoTimeout;
+			var _undo = scope['$undoTaBind' + (attrs.id || '')] = function(){
+				/* istanbul ignore else: can't really test it due to all changes being ignored as well in readonly */
+				if(!_isReadonly && _isContentEditable){
+					var content = ngModel.$undoManager.undo();
+					if(typeof content !== "undefined" && content !== null){
+						_setInnerHTML(content);
+						_setViewValue(content, false);
+						if(_redoUndoTimeout) $timeout.cancel(_redoUndoTimeout);
+						_redoUndoTimeout = $timeout(function(){
+							element[0].focus();
+							taSelection.setSelectionToElementEnd(element[0]);
+						}, 1);
+					}
+				}
+			};
+
+			var _redo = scope['$redoTaBind' + (attrs.id || '')] = function(){
+				/* istanbul ignore else: can't really test it due to all changes being ignored as well in readonly */
+				if(!_isReadonly && _isContentEditable){
+					var content = ngModel.$undoManager.redo();
+					if(typeof content !== "undefined" && content !== null){
+						_setInnerHTML(content);
+						_setViewValue(content, false);
+						/* istanbul ignore next */
+						if(_redoUndoTimeout) $timeout.cancel(_redoUndoTimeout);
+						_redoUndoTimeout = $timeout(function(){
+							element[0].focus();
+							taSelection.setSelectionToElementEnd(element[0]);
+						}, 1);
+					}
+				}
+			};
+
+			// in here we are undoing the converts used elsewhere to prevent the < > and & being displayed when they shouldn't in the code.
+			var _compileHtml = function(){
+				if(_isContentEditable) return element[0].innerHTML;
+				if(_isInputFriendly) return element.val();
+				throw ('textAngular Error: attempting to update non-editable taBind');
+			};
+
+			var _setViewValue = function(_val, triggerUndo, skipRender){
+				_skipRender = skipRender || false;
+				if(typeof triggerUndo === "undefined" || triggerUndo === null) triggerUndo = true && _isContentEditable; // if not contentEditable then the native undo/redo is fine
+				if(typeof _val === "undefined" || _val === null) _val = _compileHtml();
+				if(_blankTest(_val)){
+					// this avoids us from tripping the ng-pristine flag if we click in and out with out typing
+					if(ngModel.$viewValue !== '') ngModel.$setViewValue('');
+					if(triggerUndo && ngModel.$undoManager.current() !== '') ngModel.$undoManager.push('');
+				}else{
+					_reApplyOnSelectorHandlers();
+					if(ngModel.$viewValue !== _val){
+						ngModel.$setViewValue(_val);
+						if(triggerUndo) ngModel.$undoManager.push(_val);
+					}
+				}
+				ngModel.$render();
+			};
+
+			//used for updating when inserting wrapped elements
+			scope['updateTaBind' + (attrs.id || '')] = function(){
+				if(!_isReadonly) _setViewValue(undefined, undefined, true);
+			};
+
+			// catch DOM XSS via taSanitize
+			// Sanitizing both ways is identical
+			var _sanitize = function(unsafe){
+				return (ngModel.$oldViewValue = taSanitize(taFixChrome(unsafe), ngModel.$oldViewValue, _disableSanitizer));
+			};
+
+			// trigger the validation calls
+			if(element.attr('required')) ngModel.$validators.required = function(modelValue, viewValue) {
+				return !_blankTest(modelValue || viewValue);
+			};
+			// parsers trigger from the above keyup function or any other time that the viewValue is updated and parses it for storage in the ngModel
+			ngModel.$parsers.push(_sanitize);
+			ngModel.$parsers.unshift(_ensureContentWrapped);
+			// because textAngular is bi-directional (which is awesome) we need to also sanitize values going in from the server
+			ngModel.$formatters.push(_sanitize);
+			ngModel.$formatters.unshift(_ensureContentWrapped);
+			ngModel.$formatters.unshift(function(value){
+				return ngModel.$undoManager.push(value || '');
+			});
+
+			//this code is used to update the models when data is entered/deleted
+			if(_isInputFriendly){
+				scope.events = {};
+				if(!_isContentEditable){
+					// if a textarea or input just add in change and blur handlers, everything else is done by angulars input directive
+					element.on('change blur', scope.events.change = scope.events.blur = function(){
+						if(!_isReadonly) ngModel.$setViewValue(_compileHtml());
+					});
+
+					element.on('keydown', scope.events.keydown = function(event, eventData){
+						/* istanbul ignore else: this is for catching the jqLite testing*/
+						if(eventData) angular.extend(event, eventData);
+						// Reference to http://stackoverflow.com/questions/6140632/how-to-handle-tab-in-textarea
+						/* istanbul ignore else: otherwise normal functionality */
+						if(event.keyCode === 9){ // tab was pressed
+							// get caret position/selection
+							var start = this.selectionStart;
+							var end = this.selectionEnd;
+
+							var value = element.val();
+							if(event.shiftKey){
+								// find \t
+								var _linebreak = value.lastIndexOf('\n', start), _tab = value.lastIndexOf('\t', start);
+								if(_tab !== -1 && _tab >= _linebreak){
+									// set textarea value to: text before caret + tab + text after caret
+									element.val(value.substring(0, _tab) + value.substring(_tab + 1));
+
+									// put caret at right position again (add one for the tab)
+									this.selectionStart = this.selectionEnd = start - 1;
+								}
+							}else{
+								// set textarea value to: text before caret + tab + text after caret
+								element.val(value.substring(0, start) + "\t" + value.substring(end));
+
+								// put caret at right position again (add one for the tab)
+								this.selectionStart = this.selectionEnd = start + 1;
+							}
+							// prevent the focus lose
+							event.preventDefault();
+						}
+					});
+
+					var _repeat = function(string, n){
+						var result = '';
+						for(var _n = 0; _n < n; _n++) result += string;
+						return result;
+					};
+
+					// add a forEach function that will work on a NodeList, etc..
+					var forEach = function (array, callback, scope) {
+						for (var i= 0; i<array.length; i++) {
+							callback.call(scope, i, array[i]);
+						}
+					};
+
+					// handle <ul> or <ol> nodes
+					var recursiveListFormat = function(listNode, tablevel){
+						var _html = '';
+						var _subnodes = listNode.childNodes;
+						tablevel++;
+						// tab out and add the <ul> or <ol> html piece
+						_html += _repeat('\t', tablevel-1) + listNode.outerHTML.substring(0, 4);
+						forEach(_subnodes, function (index, node) {
+							/* istanbul ignore next: browser catch */
+							var nodeName = node.nodeName.toLowerCase();
+							if (nodeName === '#comment') {
+								_html += '<!--' + node.nodeValue + '-->';
+								return;
+							}
+							if (nodeName === '#text') {
+								_html += node.textContent;
+								return;
+							}
+							/* istanbul ignore next: not tested, and this was original code -- so not wanting to possibly cause an issue, leaving it... */
+							if(!node.outerHTML) {
+								// no html to add
+								return;
+							}
+							if(nodeName === 'ul' || nodeName === 'ol') {
+								_html += '\n' + recursiveListFormat(node, tablevel);
+							}
+							else {
+								// no reformatting within this subnode, so just do the tabing...
+								_html += '\n' + _repeat('\t', tablevel) + node.outerHTML;
+							}
+						});
+						// now add on the </ol> or </ul> piece
+						_html += '\n' + _repeat('\t', tablevel-1) + listNode.outerHTML.substring(listNode.outerHTML.lastIndexOf('<'));
+						return _html;
+					};
+					// handle formating of something like:
+					// <ol><!--First comment-->
+					//  <li>Test Line 1<!--comment test list 1--></li>
+					//    <ul><!--comment ul-->
+					//      <li>Nested Line 1</li>
+					//        <!--comment between nested lines--><li>Nested Line 2</li>
+					//    </ul>
+					//  <li>Test Line 3</li>
+					// </ol>
+					ngModel.$formatters.unshift(function(htmlValue){
+						// tabulate the HTML so it looks nicer
+						//
+						// first get a list of the nodes...
+						// we do this by using the element parser...
+						//
+						// doing this -- which is simpiler -- breaks our tests...
+						//var _nodes=angular.element(htmlValue);
+						var _nodes = angular.element('<div>' + htmlValue + '</div>')[0].childNodes;
+						if(_nodes.length > 0){
+							// do the reformatting of the layout...
+							htmlValue = '';
+							forEach(_nodes, function (index, node) {
+								var nodeName = node.nodeName.toLowerCase();
+								if (nodeName === '#comment') {
+									htmlValue += '<!--' + node.nodeValue + '-->';
+									return;
+								}
+								if (nodeName === '#text') {
+									htmlValue += node.textContent;
+									return;
+								}
+								/* istanbul ignore next: not tested, and this was original code -- so not wanting to possibly cause an issue, leaving it... */
+								if(!node.outerHTML)
+								{
+									// nothing to format!
+									return;
+								}
+								if(htmlValue.length > 0) {
+									// we aready have some content, so drop to a new line
+									htmlValue += '\n';
+								}
+								if(nodeName === 'ul' || nodeName === 'ol') {
+									// okay a set of list stuff we want to reformat in a nested way
+									htmlValue += '' + recursiveListFormat(node, 0);
+								}
+								else {
+									// just use the original without any additional formating
+									htmlValue += '' + node.outerHTML;
+								}
+							});
+						}
+						return htmlValue;
+					});
+				}else{
+					// all the code specific to contenteditable divs
+					var _processingPaste = false;
+					/* istanbul ignore next: phantom js cannot test this for some reason */
+					var processpaste = function(text) {
+						/* istanbul ignore else: don't care if nothing pasted */
+						if(text && text.trim().length){
+							// test paste from word/microsoft product
+							if(text.match(/class=["']*Mso(Normal|List)/i) || text.match(/content=["']*Word.Document/i)){
+								var textFragment = text.match(/<!--StartFragment-->([\s\S]*?)<!--EndFragment-->/i);
+								if(!textFragment) textFragment = text;
+								else textFragment = textFragment[1];
+								textFragment = textFragment.replace(/<o:p>[\s\S]*?<\/o:p>/ig, '').replace(/class=(["']|)MsoNormal(["']|)/ig, '');
+								var dom = angular.element("<div>" + textFragment + "</div>");
+								var targetDom = angular.element("<div></div>");
+								var _list = {
+									element: null,
+									lastIndent: [],
+									lastLi: null,
+									isUl: false
+								};
+								_list.lastIndent.peek = function(){
+									var n = this.length;
+									if (n>0) return this[n-1];
+								};
+								var _resetList = function(isUl){
+									_list.isUl = isUl;
+									_list.element = angular.element(isUl ? "<ul>" : "<ol>");
+									_list.lastIndent = [];
+									_list.lastIndent.peek = function(){
+										var n = this.length;
+										if (n>0) return this[n-1];
+									};
+									_list.lastLevelMatch = null;
+								};
+								for(var i = 0; i <= dom[0].childNodes.length; i++){
+									if(!dom[0].childNodes[i] || dom[0].childNodes[i].nodeName === "#text"){
+										continue;
+									} else {
+										var tagName = dom[0].childNodes[i].tagName.toLowerCase();
+										if(tagName !== "p" && tagName !== "h1" && tagName !== "h2" && tagName !== "h3" && tagName !== "h4" && tagName !== "h5" && tagName !== "h6"){
+											continue;
+										}
+									}
+									var el = angular.element(dom[0].childNodes[i]);
+									var _listMatch = (el.attr('class') || '').match(/MsoList(Bullet|Number|Paragraph)(CxSp(First|Middle|Last)|)/i);
+
+									if(_listMatch){
+										if(el[0].childNodes.length < 2 || el[0].childNodes[1].childNodes.length < 1){
+											continue;
+										}
+										var isUl = _listMatch[1].toLowerCase() === "bullet" || (_listMatch[1].toLowerCase() !== "number" && !(/^[^0-9a-z<]*[0-9a-z]+[^0-9a-z<>]</i.test(el[0].childNodes[1].innerHTML) || /^[^0-9a-z<]*[0-9a-z]+[^0-9a-z<>]</i.test(el[0].childNodes[1].childNodes[0].innerHTML)));
+										var _indentMatch = (el.attr('style') || '').match(/margin-left:([\-\.0-9]*)/i);
+										var indent = parseFloat((_indentMatch)?_indentMatch[1]:0);
+										var _levelMatch = (el.attr('style') || '').match(/mso-list:l([0-9]+) level([0-9]+) lfo[0-9+]($|;)/i);
+										// prefers the mso-list syntax
+
+										if(_levelMatch && _levelMatch[2]) indent = parseInt(_levelMatch[2]);
+
+										if ((_levelMatch && (!_list.lastLevelMatch || _levelMatch[1] !== _list.lastLevelMatch[1])) || !_listMatch[3] || _listMatch[3].toLowerCase() === "first" || (_list.lastIndent.peek() === null) || (_list.isUl !== isUl && _list.lastIndent.peek() === indent)) {
+											_resetList(isUl);
+											targetDom.append(_list.element);
+										} else if (_list.lastIndent.peek() != null && _list.lastIndent.peek() < indent){
+											_list.element = angular.element(isUl ? "<ul>" : "<ol>");
+											_list.lastLi.append(_list.element);
+										} else if (_list.lastIndent.peek() != null && _list.lastIndent.peek() > indent){
+											while(_list.lastIndent.peek() != null && _list.lastIndent.peek() > indent){
+												if(_list.element.parent()[0].tagName.toLowerCase() === 'li'){
+													_list.element = _list.element.parent();
+													continue;
+												}else if(/[uo]l/i.test(_list.element.parent()[0].tagName.toLowerCase())){
+													_list.element = _list.element.parent();
+												}else{ // else it's it should be a sibling
+													break;
+												}
+												_list.lastIndent.pop();
+											}
+											_list.isUl = _list.element[0].tagName.toLowerCase() === "ul";
+											if (isUl !== _list.isUl) {
+												_resetList(isUl);
+												targetDom.append(_list.element);
+											}
+										}
+
+										_list.lastLevelMatch = _levelMatch;
+										if(indent !== _list.lastIndent.peek()) _list.lastIndent.push(indent);
+										_list.lastLi = angular.element("<li>");
+										_list.element.append(_list.lastLi);
+										_list.lastLi.html(el.html().replace(/<!(--|)\[if !supportLists\](--|)>[\s\S]*?<!(--|)\[endif\](--|)>/ig, ''));
+										el.remove();
+									}else{
+										_resetList(false);
+										targetDom.append(el);
+									}
+								}
+								var _unwrapElement = function(node){
+									node = angular.element(node);
+									for(var _n = node[0].childNodes.length - 1; _n >= 0; _n--) node.after(node[0].childNodes[_n]);
+									node.remove();
+								};
+
+								angular.forEach(targetDom.find('span'), function(node){
+									node.removeAttribute('lang');
+									if(node.attributes.length <= 0) _unwrapElement(node);
+								});
+								angular.forEach(targetDom.find('font'), _unwrapElement);
+								text = targetDom.html();
+							}else{
+								// remove unnecessary chrome insert
+								text = text.replace(/<(|\/)meta[^>]*?>/ig, '');
+								if(text.match(/<[^>]*?(ta-bind)[^>]*?>/)){
+									// entire text-angular or ta-bind has been pasted, REMOVE AT ONCE!!
+									if(text.match(/<[^>]*?(text-angular)[^>]*?>/)){
+										var _el = angular.element("<div>" + text + "</div>");
+										_el.find('textarea').remove();
+										var binds = taDOM.getByAttribute(_el, 'ta-bind');
+										for(var _b = 0; _b < binds.length; _b++){
+											var _target = binds[_b][0].parentNode.parentNode;
+											for(var _c = 0; _c < binds[_b][0].childNodes.length; _c++){
+												_target.parentNode.insertBefore(binds[_b][0].childNodes[_c], _target);
+											}
+											_target.parentNode.removeChild(_target);
+										}
+										text = _el.html().replace('<br class="Apple-interchange-newline">', '');
+									}
+								}else if(text.match(/^<span/)){
+									// in case of pasting only a span - chrome paste, remove them. THis is just some wierd formatting
+									// if we remove the '<span class="Apple-converted-space"> </span>' here we destroy the spacing
+									// on paste from even ourselves!
+									if (!text.match(/<span class=(\"Apple-converted-space\"|\'Apple-converted-space\')>.<\/span>/ig)) {
+										text = text.replace(/<(|\/)span[^>]*?>/ig, '');
+									}
+								}
+								// Webkit on Apple tags
+								text = text.replace(/<br class="Apple-interchange-newline"[^>]*?>/ig, '').replace(/<span class="Apple-converted-space">( |&nbsp;)<\/span>/ig, '&nbsp;');
+							}
+
+							if (/<li(\s.*)?>/i.test(text) && /(<ul(\s.*)?>|<ol(\s.*)?>).*<li(\s.*)?>/i.test(text) === false) {
+								// insert missing parent of li element
+								text = text.replace(/<li(\s.*)?>.*<\/li(\s.*)?>/i, '<ul>$&</ul>');
+							}
+
+							// parse whitespace from plaintext input, starting with preceding spaces that get stripped on paste
+							text = text.replace(/^[ |\u00A0]+/gm, function (match) {
+								var result = '';
+								for (var i = 0; i < match.length; i++) {
+									result += '&nbsp;';
+								}
+								return result;
+							}).replace(/\n|\r\n|\r/g, '<br />').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+
+							if(_pasteHandler) text = _pasteHandler(scope, {$html: text}) || text;
+
+							text = taSanitize(text, '', _disableSanitizer);
+
+							taSelection.insertHtml(text, element[0]);
+							$timeout(function(){
+								ngModel.$setViewValue(_compileHtml());
+								_processingPaste = false;
+								element.removeClass('processing-paste');
+							}, 0);
+						}else{
+							_processingPaste = false;
+							element.removeClass('processing-paste');
+						}
+					};
+
+					element.on('paste', scope.events.paste = function(e, eventData){
+						/* istanbul ignore else: this is for catching the jqLite testing*/
+						if(eventData) angular.extend(e, eventData);
+						if(_isReadonly || _processingPaste){
+							e.stopPropagation();
+							e.preventDefault();
+							return false;
+						}
+
+						// Code adapted from http://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser/6804718#6804718
+						_processingPaste = true;
+						element.addClass('processing-paste');
+						var pastedContent;
+						var clipboardData = (e.originalEvent || e).clipboardData;
+						if (clipboardData && clipboardData.getData && clipboardData.types.length > 0) {// Webkit - get data from clipboard, put into editdiv, cleanup, then cancel event
+							var _types = "";
+							for(var _t = 0; _t < clipboardData.types.length; _t++){
+								_types += " " + clipboardData.types[_t];
+							}
+							/* istanbul ignore next: browser tests */
+							if (/text\/html/i.test(_types)) {
+								pastedContent = clipboardData.getData('text/html');
+							} else if (/text\/plain/i.test(_types)) {
+								pastedContent = clipboardData.getData('text/plain');
+							}
+
+							processpaste(pastedContent);
+							e.stopPropagation();
+							e.preventDefault();
+							return false;
+						} else {// Everything else - empty editdiv and allow browser to paste content into it, then cleanup
+							var _savedSelection = $window.rangy.saveSelection(),
+								_tempDiv = angular.element('<div class="ta-hidden-input" contenteditable="true"></div>');
+							$document.find('body').append(_tempDiv);
+							_tempDiv[0].focus();
+							$timeout(function(){
+								// restore selection
+								$window.rangy.restoreSelection(_savedSelection);
+								processpaste(_tempDiv[0].innerHTML);
+								element[0].focus();
+								_tempDiv.remove();
+							}, 0);
+						}
+					});
+					element.on('cut', scope.events.cut = function(e){
+						// timeout to next is needed as otherwise the paste/cut event has not finished actually changing the display
+						if(!_isReadonly) $timeout(function(){
+							ngModel.$setViewValue(_compileHtml());
+						}, 0);
+						else e.preventDefault();
+					});
+
+					element.on('keydown', scope.events.keydown = function(event, eventData){
+						/* istanbul ignore else: this is for catching the jqLite testing*/
+						if(eventData) angular.extend(event, eventData);
+						event.specialKey = _mapKeys(event);
+						var userSpecialKey;
+						/* istanbul ignore next: difficult to test */
+						taOptions.keyMappings.forEach(function (mapping) {
+							if (event.specialKey === mapping.commandKeyCode) {
+								// taOptions has remapped this binding... so
+								// we disable our own
+								event.specialKey = undefined;
+							}
+							if (mapping.testForKey(event)) {
+								userSpecialKey = mapping.commandKeyCode;
+							}
+							if ((mapping.commandKeyCode === 'UndoKey') || (mapping.commandKeyCode === 'RedoKey')) {
+								// this is necessary to fully stop the propagation.
+								if (!mapping.enablePropagation) {
+									event.preventDefault();
+								}
+							}
+						});
+						/* istanbul ignore next: difficult to test */
+						if (typeof userSpecialKey !== 'undefined') {
+							event.specialKey = userSpecialKey;
+						}
+						/* istanbul ignore next: difficult to test as can't seem to select */
+						if ((typeof event.specialKey !== 'undefined') && (
+								event.specialKey !== 'UndoKey' || event.specialKey !== 'RedoKey'
+							)) {
+							event.preventDefault();
+							textAngularManager.sendKeyCommand(scope, event);
+						}
+						/* istanbul ignore else: readonly check */
+						if(!_isReadonly){
+							if (event.specialKey==='UndoKey') {
+								_undo();
+								event.preventDefault();
+							}
+							if (event.specialKey==='RedoKey') {
+								_redo();
+								event.preventDefault();
+							}
+							/* istanbul ignore next: difficult to test as can't seem to select */
+							if(event.keyCode === 13 && !event.shiftKey){
+								var contains = function(a, obj) {
+									for (var i = 0; i < a.length; i++) {
+										if (a[i] === obj) {
+											return true;
+										}
+									}
+									return false;
+								};
+								var $selection;
+								var selection = taSelection.getSelectionElement();
+								if(!selection.tagName.match(VALIDELEMENTS)) return;
+								var _new = angular.element(_defaultVal);
+								// if we are in the last element of a blockquote, or ul or ol and the element is blank
+								// we need to pull the element outside of the said type
+								var moveOutsideElements = ['blockquote', 'ul', 'ol'];
+								if (contains(moveOutsideElements, selection.parentNode.tagName.toLowerCase())) {
+									if (/^<br(|\/)>$/i.test(selection.innerHTML.trim()) && !selection.nextSibling) {
+										// if last element is blank, pull element outside.
+										$selection = angular.element(selection);
+										var _parent = $selection.parent();
+										_parent.after(_new);
+										$selection.remove();
+										if (_parent.children().length === 0) _parent.remove();
+										taSelection.setSelectionToElementStart(_new[0]);
+										event.preventDefault();
+									}
+									if (/^<[^>]+><br(|\/)><\/[^>]+>$/i.test(selection.innerHTML.trim())) {
+										$selection = angular.element(selection);
+										$selection.after(_new);
+										$selection.remove();
+										taSelection.setSelectionToElementStart(_new[0]);
+										event.preventDefault();
+									}
+								}
+							}
+						}
+					});
+					var _keyupTimeout;
+					element.on('keyup', scope.events.keyup = function(event, eventData){
+						/* istanbul ignore else: this is for catching the jqLite testing*/
+						if(eventData) angular.extend(event, eventData);
+						/* istanbul ignore next: FF specific bug fix */
+						if (event.keyCode === 9) {
+							var _selection = taSelection.getSelection();
+							if(_selection.start.element === element[0] && element.children().length) taSelection.setSelectionToElementStart(element.children()[0]);
+							return;
+						}
+						if(_undoKeyupTimeout) $timeout.cancel(_undoKeyupTimeout);
+						if(!_isReadonly && !BLOCKED_KEYS.test(event.keyCode)){
+							// if enter - insert new taDefaultWrap, if shift+enter insert <br/>
+							if(_defaultVal !== '' && event.keyCode === 13){
+								if(!event.shiftKey){
+									// new paragraph, br should be caught correctly
+									var selection = taSelection.getSelectionElement();
+									while(!selection.tagName.match(VALIDELEMENTS) && selection !== element[0]){
+										selection = selection.parentNode;
+									}
+
+									if(selection.tagName.toLowerCase() !== attrs.taDefaultWrap && selection.tagName.toLowerCase() !== 'li' && (selection.innerHTML.trim() === '' || selection.innerHTML.trim() === '<br>')){
+										var _new = angular.element(_defaultVal);
+										angular.element(selection).replaceWith(_new);
+										taSelection.setSelectionToElementStart(_new[0]);
+									}
+								}
+							}
+							var val = _compileHtml();
+							if(_defaultVal !== '' && val.trim() === ''){
+								_setInnerHTML(_defaultVal);
+								taSelection.setSelectionToElementStart(element.children()[0]);
+							}else if(val.substring(0, 1) !== '<' && attrs.taDefaultWrap !== ''){
+								/* we no longer do this, since there can be comments here and white space
+								var _savedSelection = $window.rangy.saveSelection();
+								val = _compileHtml();
+								val = "<" + attrs.taDefaultWrap + ">" + val + "</" + attrs.taDefaultWrap + ">";
+								_setInnerHTML(val);
+								$window.rangy.restoreSelection(_savedSelection);
+								*/
+							}
+							var triggerUndo = _lastKey !== event.keyCode && UNDO_TRIGGER_KEYS.test(event.keyCode);
+							if(_keyupTimeout) $timeout.cancel(_keyupTimeout);
+							_keyupTimeout = $timeout(function() {
+								_setViewValue(val, triggerUndo, true);
+							}, ngModelOptions.$options.debounce || 400);
+							if(!triggerUndo) _undoKeyupTimeout = $timeout(function(){ ngModel.$undoManager.push(val); }, 250);
+							_lastKey = event.keyCode;
+						}
+					});
+
+					element.on('blur', scope.events.blur = function(){
+						_focussed = false;
+						/* istanbul ignore else: if readonly don't update model */
+						if(!_isReadonly){
+							_setViewValue(undefined, undefined, true);
+						}else{
+							_skipRender = true; // don't redo the whole thing, just check the placeholder logic
+							ngModel.$render();
+						}
+					});
+
+					// Placeholders not supported on ie 8 and below
+					if(attrs.placeholder && (_browserDetect.ie > 8 || _browserDetect.ie === undefined)){
+						var rule;
+						if(attrs.id) rule = addCSSRule('#' + attrs.id + '.placeholder-text:before', 'content: "' + attrs.placeholder + '"');
+						else throw('textAngular Error: An unique ID is required for placeholders to work');
+
+						scope.$on('$destroy', function(){
+							removeCSSRule(rule);
+						});
+					}
+
+					element.on('focus', scope.events.focus = function(){
+						_focussed = true;
+						element.removeClass('placeholder-text');
+						_reApplyOnSelectorHandlers();
+					});
+
+					element.on('mouseup', scope.events.mouseup = function(){
+						var _selection = taSelection.getSelection();
+						if(_selection.start.element === element[0] && element.children().length) taSelection.setSelectionToElementStart(element.children()[0]);
+					});
+
+					// prevent propagation on mousedown in editor, see #206
+					element.on('mousedown', scope.events.mousedown = function(event, eventData){
+						/* istanbul ignore else: this is for catching the jqLite testing*/
+						if(eventData) angular.extend(event, eventData);
+						event.stopPropagation();
+					});
+				}
+			}
+
+			var selectorClickHandler = function(event){
+				// emit the element-select event, pass the element
+				scope.$emit('ta-element-select', this);
+				event.preventDefault();
+				return false;
+			};
+			var fileDropHandler = function(event, eventData){
+				/* istanbul ignore else: this is for catching the jqLite testing*/
+				if(eventData) angular.extend(event, eventData);
+				// emit the drop event, pass the element, preventing should be done elsewhere
+				if(!dropFired && !_isReadonly){
+					dropFired = true;
+					var dataTransfer;
+					if(event.originalEvent) dataTransfer = event.originalEvent.dataTransfer;
+					else dataTransfer = event.dataTransfer;
+					scope.$emit('ta-drop-event', this, event, dataTransfer);
+					$timeout(function(){
+						dropFired = false;
+						_setViewValue(undefined, undefined, true);
+					}, 100);
+				}
+			};
+
+			//used for updating when inserting wrapped elements
+			var _reApplyOnSelectorHandlers = scope['reApplyOnSelectorHandlers' + (attrs.id || '')] = function(){
+				/* istanbul ignore else */
+				if(!_isReadonly) angular.forEach(taSelectableElements, function(selector){
+						// check we don't apply the handler twice
+						element.find(selector)
+							.off('click', selectorClickHandler)
+							.on('click', selectorClickHandler);
+					});
+			};
+
+			var _setInnerHTML = function(newval){
+				element[0].innerHTML = newval;
+			};
+			var _renderTimeout;
+			var _renderInProgress = false;
+			// changes to the model variable from outside the html/text inputs
+			ngModel.$render = function(){
+				/* istanbul ignore if: Catches rogue renders, hard to replicate in tests */
+				if(_renderInProgress) return;
+				else _renderInProgress = true;
+				// catch model being null or undefined
+				var val = ngModel.$viewValue || '';
+				// if the editor isn't focused it needs to be updated, otherwise it's receiving user input
+				if(!_skipRender){
+					/* istanbul ignore else: in other cases we don't care */
+					if(_isContentEditable && _focussed){
+						// update while focussed
+						element.removeClass('placeholder-text');
+						if(_renderTimeout) $timeout.cancel(_renderTimeout);
+						_renderTimeout = $timeout(function(){
+							/* istanbul ignore if: Can't be bothered testing this... */
+							if(!_focussed){
+								element[0].focus();
+								taSelection.setSelectionToElementEnd(element.children()[element.children().length - 1]);
+							}
+							_renderTimeout = undefined;
+						}, 1);
+					}
+					if(_isContentEditable){
+						// WYSIWYG Mode
+						if(attrs.placeholder){
+							if(val === ''){
+								// blank
+								_setInnerHTML(_defaultVal);
+							}else{
+								// not-blank
+								_setInnerHTML(val);
+							}
+						}else{
+							_setInnerHTML((val === '') ? _defaultVal : val);
+						}
+						// if in WYSIWYG and readOnly we kill the use of links by clicking
+						if(!_isReadonly){
+							_reApplyOnSelectorHandlers();
+							element.on('drop', fileDropHandler);
+						}else{
+							element.off('drop', fileDropHandler);
+						}
+					}else if(element[0].tagName.toLowerCase() !== 'textarea' && element[0].tagName.toLowerCase() !== 'input'){
+						// make sure the end user can SEE the html code as a display. This is a read-only display element
+						_setInnerHTML(taApplyCustomRenderers(val));
+					}else{
+						// only for input and textarea inputs
+						element.val(val);
+					}
+				}
+				if(_isContentEditable && attrs.placeholder){
+					if(val === ''){
+						if(_focussed) element.removeClass('placeholder-text');
+						else element.addClass('placeholder-text');
+					}else{
+						element.removeClass('placeholder-text');
+					}
+				}
+				_renderInProgress = _skipRender = false;
+			};
+
+			if(attrs.taReadonly){
+				//set initial value
+				_isReadonly = scope.$eval(attrs.taReadonly);
+				if(_isReadonly){
+					element.addClass('ta-readonly');
+					// we changed to readOnly mode (taReadonly='true')
+					if(element[0].tagName.toLowerCase() === 'textarea' || element[0].tagName.toLowerCase() === 'input'){
+						element.attr('disabled', 'disabled');
+					}
+					if(element.attr('contenteditable') !== undefined && element.attr('contenteditable')){
+						element.removeAttr('contenteditable');
+					}
+				}else{
+					element.removeClass('ta-readonly');
+					// we changed to NOT readOnly mode (taReadonly='false')
+					if(element[0].tagName.toLowerCase() === 'textarea' || element[0].tagName.toLowerCase() === 'input'){
+						element.removeAttr('disabled');
+					}else if(_isContentEditable){
+						element.attr('contenteditable', 'true');
+					}
+				}
+				// taReadonly only has an effect if the taBind element is an input or textarea or has contenteditable='true' on it.
+				// Otherwise it is readonly by default
+				scope.$watch(attrs.taReadonly, function(newVal, oldVal){
+					if(oldVal === newVal) return;
+					if(newVal){
+						element.addClass('ta-readonly');
+						// we changed to readOnly mode (taReadonly='true')
+						if(element[0].tagName.toLowerCase() === 'textarea' || element[0].tagName.toLowerCase() === 'input'){
+							element.attr('disabled', 'disabled');
+						}
+						if(element.attr('contenteditable') !== undefined && element.attr('contenteditable')){
+							element.removeAttr('contenteditable');
+						}
+						// turn ON selector click handlers
+						angular.forEach(taSelectableElements, function(selector){
+							element.find(selector).on('click', selectorClickHandler);
+						});
+						element.off('drop', fileDropHandler);
+					}else{
+						element.removeClass('ta-readonly');
+						// we changed to NOT readOnly mode (taReadonly='false')
+						if(element[0].tagName.toLowerCase() === 'textarea' || element[0].tagName.toLowerCase() === 'input'){
+							element.removeAttr('disabled');
+						}else if(_isContentEditable){
+							element.attr('contenteditable', 'true');
+						}
+						// remove the selector click handlers
+						angular.forEach(taSelectableElements, function(selector){
+							element.find(selector).off('click', selectorClickHandler);
+						});
+						element.on('drop', fileDropHandler);
+					}
+					_isReadonly = newVal;
+				});
+			}
+
+			// Initialise the selectableElements
+			// if in WYSIWYG and readOnly we kill the use of links by clicking
+			if(_isContentEditable && !_isReadonly){
+				angular.forEach(taSelectableElements, function(selector){
+					element.find(selector).on('click', selectorClickHandler);
+				});
+				element.on('drop', fileDropHandler);
+				element.on('blur', function(){
+					/* istanbul ignore next: webkit fix */
+					if(_browserDetect.webkit) { // detect webkit
+						globalContentEditableBlur = true;
+					}
+				});
+			}
+		}
+	};
+}]);
+
+// this global var is used to prevent multiple fires of the drop event. Needs to be global to the textAngular file.
+var dropFired = false;
+var textAngular = angular.module("textAngular", ['ngSanitize', 'textAngularSetup', 'textAngular.factories', 'textAngular.DOM', 'textAngular.validators', 'textAngular.taBind']); //This makes ngSanitize required
+
+textAngular.config([function(){
+	// clear taTools variable. Just catches testing and any other time that this config may run multiple times...
+	angular.forEach(taTools, function(value, key){ delete taTools[key];	});
+}]);
+
+textAngular.run([function(){
+	/* istanbul ignore next: not sure how to test this */
+	// Require Rangy and rangy savedSelection module.
+	if (typeof define === 'function' && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(function(require) {
+			window.rangy = require('rangy');
+			window.rangy.saveSelection = require('rangy/lib/rangy-selectionsaverestore');
+		});
+	} else if (typeof require ==='function' && typeof module !== 'undefined' && typeof exports === 'object') {
+		// Node/CommonJS style
+		window.rangy = require('rangy');
+		window.rangy.saveSelection = require('rangy/lib/rangy-selectionsaverestore');
+	} else {
+		// Ensure that rangy and rangy.saveSelection exists on the window (global scope).
+		// TODO: Refactor so that the global scope is no longer used.
+		if(!window.rangy){
+			throw("rangy-core.js and rangy-selectionsaverestore.js are required for textAngular to work correctly, rangy-core is not yet loaded.");
+		}else{
+			window.rangy.init();
+			if(!window.rangy.saveSelection){
+				throw("rangy-selectionsaverestore.js is required for textAngular to work correctly.");
+			}
+		}
+	}
+}]);
+
+textAngular.directive("textAngular", [
+	'$compile', '$timeout', 'taOptions', 'taSelection', 'taExecCommand',
+	'textAngularManager', '$window', '$document', '$animate', '$log', '$q', '$parse',
+	function($compile, $timeout, taOptions, taSelection, taExecCommand,
+		textAngularManager, $window, $document, $animate, $log, $q, $parse){
+		return {
+			require: '?ngModel',
+			scope: {},
+			restrict: "EA",
+			priority: 2, // So we override validators correctly
+			link: function(scope, element, attrs, ngModel){
+				// all these vars should not be accessable outside this directive
+				var _keydown, _keyup, _keypress, _mouseup, _focusin, _focusout,
+					_originalContents, _toolbars,
+					_serial = (attrs.serial) ? attrs.serial : Math.floor(Math.random() * 10000000000000000),
+					_taExecCommand, _resizeMouseDown, _updateSelectedStylesTimeout;
+
+				scope._name = (attrs.name) ? attrs.name : 'textAngularEditor' + _serial;
+
+				var oneEvent = function(_element, event, action){
+					$timeout(function(){
+						// shim the .one till fixed
+						var _func = function(){
+							_element.off(event, _func);
+							action.apply(this, arguments);
+						};
+						_element.on(event, _func);
+					}, 100);
+				};
+				_taExecCommand = taExecCommand(attrs.taDefaultWrap);
+				// get the settings from the defaults and add our specific functions that need to be on the scope
+				angular.extend(scope, angular.copy(taOptions), {
+					// wraps the selection in the provided tag / execCommand function. Should only be called in WYSIWYG mode.
+					wrapSelection: function(command, opt, isSelectableElementTool){
+						if(command.toLowerCase() === "undo"){
+							scope['$undoTaBindtaTextElement' + _serial]();
+						}else if(command.toLowerCase() === "redo"){
+							scope['$redoTaBindtaTextElement' + _serial]();
+						}else{
+							// catch errors like FF erroring when you try to force an undo with nothing done
+							_taExecCommand(command, false, opt, scope.defaultTagAttributes);
+							if(isSelectableElementTool){
+								// re-apply the selectable tool events
+								scope['reApplyOnSelectorHandlerstaTextElement' + _serial]();
+							}
+							// refocus on the shown display element, this fixes a display bug when using :focus styles to outline the box.
+							// You still have focus on the text/html input it just doesn't show up
+							scope.displayElements.text[0].focus();
+						}
+					},
+					showHtml: scope.$eval(attrs.taShowHtml) || false
+				});
+				// setup the options from the optional attributes
+				if(attrs.taFocussedClass)			scope.classes.focussed = attrs.taFocussedClass;
+				if(attrs.taTextEditorClass)			scope.classes.textEditor = attrs.taTextEditorClass;
+				if(attrs.taHtmlEditorClass)			scope.classes.htmlEditor = attrs.taHtmlEditorClass;
+				if(attrs.taDefaultTagAttributes){
+					try	{
+						//	TODO: This should use angular.merge to enhance functionality once angular 1.4 is required
+						angular.extend(scope.defaultTagAttributes, angular.fromJson(attrs.taDefaultTagAttributes));
+					} catch (error) {
+						$log.error(error);
+					}
+				}
+				// optional setup functions
+				if(attrs.taTextEditorSetup)			scope.setup.textEditorSetup = scope.$parent.$eval(attrs.taTextEditorSetup);
+				if(attrs.taHtmlEditorSetup)			scope.setup.htmlEditorSetup = scope.$parent.$eval(attrs.taHtmlEditorSetup);
+				// optional fileDropHandler function
+				if(attrs.taFileDrop)				scope.fileDropHandler = scope.$parent.$eval(attrs.taFileDrop);
+				else								scope.fileDropHandler = scope.defaultFileDropHandler;
+
+				_originalContents = element[0].innerHTML;
+				// clear the original content
+				element[0].innerHTML = '';
+
+				// Setup the HTML elements as variable references for use later
+				scope.displayElements = {
+					// we still need the hidden input even with a textarea as the textarea may have invalid/old input in it,
+					// wheras the input will ALLWAYS have the correct value.
+					forminput: angular.element("<input type='hidden' tabindex='-1' style='display: none;'>"),
+					html: angular.element("<textarea></textarea>"),
+					text: angular.element("<div></div>"),
+					// other toolbased elements
+					scrollWindow: angular.element("<div class='ta-scroll-window'></div>"),
+					popover: angular.element('<div class="popover fade bottom" style="max-width: none; width: 305px;"></div>'),
+					popoverArrow: angular.element('<div class="arrow"></div>'),
+					popoverContainer: angular.element('<div class="popover-content"></div>'),
+					resize: {
+						overlay: angular.element('<div class="ta-resizer-handle-overlay"></div>'),
+						background: angular.element('<div class="ta-resizer-handle-background"></div>'),
+						anchors: [
+							angular.element('<div class="ta-resizer-handle-corner ta-resizer-handle-corner-tl"></div>'),
+							angular.element('<div class="ta-resizer-handle-corner ta-resizer-handle-corner-tr"></div>'),
+							angular.element('<div class="ta-resizer-handle-corner ta-resizer-handle-corner-bl"></div>'),
+							angular.element('<div class="ta-resizer-handle-corner ta-resizer-handle-corner-br"></div>')
+						],
+						info: angular.element('<div class="ta-resizer-handle-info"></div>')
+					}
+				};
+
+				// Setup the popover
+				scope.displayElements.popover.append(scope.displayElements.popoverArrow);
+				scope.displayElements.popover.append(scope.displayElements.popoverContainer);
+				scope.displayElements.scrollWindow.append(scope.displayElements.popover);
+
+				scope.displayElements.popover.on('mousedown', function(e, eventData){
+					/* istanbul ignore else: this is for catching the jqLite testing*/
+					if(eventData) angular.extend(e, eventData);
+					// this prevents focusout from firing on the editor when clicking anything in the popover
+					e.preventDefault();
+					return false;
+				});
+
+				// define the popover show and hide functions
+				scope.showPopover = function(_el){
+					scope.displayElements.popover.css('display', 'block');
+					scope.reflowPopover(_el);
+					$animate.addClass(scope.displayElements.popover, 'in');
+					oneEvent($document.find('body'), 'click keyup', function(){scope.hidePopover();});
+				};
+				scope.reflowPopover = function(_el){
+					/* istanbul ignore if: catches only if near bottom of editor */
+					if(scope.displayElements.text[0].offsetHeight - 51 > _el[0].offsetTop){
+						scope.displayElements.popover.css('top', _el[0].offsetTop + _el[0].offsetHeight + scope.displayElements.scrollWindow[0].scrollTop + 'px');
+						scope.displayElements.popover.removeClass('top').addClass('bottom');
+					}else{
+						scope.displayElements.popover.css('top', _el[0].offsetTop - 54 + scope.displayElements.scrollWindow[0].scrollTop + 'px');
+						scope.displayElements.popover.removeClass('bottom').addClass('top');
+					}
+					var _maxLeft = scope.displayElements.text[0].offsetWidth - scope.displayElements.popover[0].offsetWidth;
+					var _targetLeft = _el[0].offsetLeft + (_el[0].offsetWidth / 2.0) - (scope.displayElements.popover[0].offsetWidth / 2.0);
+					scope.displayElements.popover.css('left', Math.max(0, Math.min(_maxLeft, _targetLeft)) + 'px');
+					scope.displayElements.popoverArrow.css('margin-left', (Math.min(_targetLeft, (Math.max(0, _targetLeft - _maxLeft))) - 11) + 'px');
+				};
+				scope.hidePopover = function(){
+					scope.displayElements.popover.css('display', '');
+					scope.displayElements.popoverContainer.attr('style', '');
+					scope.displayElements.popoverContainer.attr('class', 'popover-content');
+					scope.displayElements.popover.removeClass('in');
+				};
+
+				// setup the resize overlay
+				scope.displayElements.resize.overlay.append(scope.displayElements.resize.background);
+				angular.forEach(scope.displayElements.resize.anchors, function(anchor){ scope.displayElements.resize.overlay.append(anchor);});
+				scope.displayElements.resize.overlay.append(scope.displayElements.resize.info);
+				scope.displayElements.scrollWindow.append(scope.displayElements.resize.overlay);
+
+				// define the show and hide events
+				scope.reflowResizeOverlay = function(_el){
+					_el = angular.element(_el)[0];
+					scope.displayElements.resize.overlay.css({
+						'display': 'block',
+						'left': _el.offsetLeft - 5 + 'px',
+						'top': _el.offsetTop - 5 + 'px',
+						'width': _el.offsetWidth + 10 + 'px',
+						'height': _el.offsetHeight + 10 + 'px'
+					});
+					scope.displayElements.resize.info.text(_el.offsetWidth + ' x ' + _el.offsetHeight);
+				};
+				/* istanbul ignore next: pretty sure phantomjs won't test this */
+				scope.showResizeOverlay = function(_el){
+					var _body = $document.find('body');
+					_resizeMouseDown = function(event){
+						var startPosition = {
+							width: parseInt(_el.attr('width')),
+							height: parseInt(_el.attr('height')),
+							x: event.clientX,
+							y: event.clientY
+						};
+						if(startPosition.width === undefined || isNaN(startPosition.width)) startPosition.width = _el[0].offsetWidth;
+						if(startPosition.height === undefined || isNaN(startPosition.height)) startPosition.height = _el[0].offsetHeight;
+						scope.hidePopover();
+						var ratio = startPosition.height / startPosition.width;
+						var mousemove = function(event){
+							// calculate new size
+							var pos = {
+								x: Math.max(0, startPosition.width + (event.clientX - startPosition.x)),
+								y: Math.max(0, startPosition.height + (event.clientY - startPosition.y))
+							};
+
+							// DEFAULT: the aspect ratio is not locked unless the Shift key is pressed.
+							//
+							// attribute: ta-resize-force-aspect-ratio -- locks resize into maintaing the aspect ratio
+							var bForceAspectRatio = (attrs.taResizeForceAspectRatio !== undefined);
+							// attribute: ta-resize-maintain-aspect-ratio=true causes the space ratio to remain locked
+							// unless the Shift key is pressed
+							var bFlipKeyBinding = attrs.taResizeMaintainAspectRatio;
+							var bKeepRatio =  bForceAspectRatio || (bFlipKeyBinding && !event.shiftKey);
+							if(bKeepRatio) {
+								var newRatio = pos.y / pos.x;
+								pos.x = ratio > newRatio ? pos.x : pos.y / ratio;
+								pos.y = ratio > newRatio ? pos.x * ratio : pos.y;
+							}
+							var el = angular.element(_el);
+							function roundedMaxVal(val) {
+								return Math.round(Math.max(0, val));
+							}
+							el.css('height', roundedMaxVal(pos.y) + 'px');
+							el.css('width', roundedMaxVal(pos.x) + 'px');
+
+							// reflow the popover tooltip
+							scope.reflowResizeOverlay(_el);
+						};
+						_body.on('mousemove', mousemove);
+						oneEvent(_body, 'mouseup', function(event){
+							event.preventDefault();
+							event.stopPropagation();
+							_body.off('mousemove', mousemove);
+							// at this point, we need to force the model to update! since the css has changed!
+							// this fixes bug: #862 - we now hide the popover -- as this seems more consitent.
+							// there are still issues under firefox, the window does not repaint. -- not sure
+							// how best to resolve this, but clicking anywhere works.
+							scope.$apply(function (){
+								scope.hidePopover();
+								scope.updateTaBindtaTextElement();
+							}, 100);
+						});
+						event.stopPropagation();
+						event.preventDefault();
+					};
+
+					scope.displayElements.resize.anchors[3].off('mousedown');
+					scope.displayElements.resize.anchors[3].on('mousedown', _resizeMouseDown);
+
+					scope.reflowResizeOverlay(_el);
+					oneEvent(_body, 'click', function(){scope.hideResizeOverlay();});
+				};
+				/* istanbul ignore next: pretty sure phantomjs won't test this */
+				scope.hideResizeOverlay = function(){
+					scope.displayElements.resize.anchors[3].off('mousedown', _resizeMouseDown);
+					scope.displayElements.resize.overlay.css('display', '');
+				};
+
+				// allow for insertion of custom directives on the textarea and div
+				scope.setup.htmlEditorSetup(scope.displayElements.html);
+				scope.setup.textEditorSetup(scope.displayElements.text);
+				scope.displayElements.html.attr({
+					'id': 'taHtmlElement' + _serial,
+					'ng-show': 'showHtml',
+					'ta-bind': 'ta-bind',
+					'ng-model': 'html',
+					'ng-model-options': element.attr('ng-model-options')
+				});
+				scope.displayElements.text.attr({
+					'id': 'taTextElement' + _serial,
+					'contentEditable': 'true',
+					'ta-bind': 'ta-bind',
+					'ng-model': 'html',
+					'ng-model-options': element.attr('ng-model-options')
+				});
+				scope.displayElements.scrollWindow.attr({'ng-hide': 'showHtml'});
+				if(attrs.taDefaultWrap) scope.displayElements.text.attr('ta-default-wrap', attrs.taDefaultWrap);
+
+				if(attrs.taUnsafeSanitizer){
+					scope.displayElements.text.attr('ta-unsafe-sanitizer', attrs.taUnsafeSanitizer);
+					scope.displayElements.html.attr('ta-unsafe-sanitizer', attrs.taUnsafeSanitizer);
+				}
+
+				// add the main elements to the origional element
+				scope.displayElements.scrollWindow.append(scope.displayElements.text);
+				element.append(scope.displayElements.scrollWindow);
+				element.append(scope.displayElements.html);
+
+				scope.displayElements.forminput.attr('name', scope._name);
+				element.append(scope.displayElements.forminput);
+
+				if(attrs.tabindex){
+					element.removeAttr('tabindex');
+					scope.displayElements.text.attr('tabindex', attrs.tabindex);
+					scope.displayElements.html.attr('tabindex', attrs.tabindex);
+				}
+
+				if (attrs.placeholder) {
+					scope.displayElements.text.attr('placeholder', attrs.placeholder);
+					scope.displayElements.html.attr('placeholder', attrs.placeholder);
+				}
+
+				if(attrs.taDisabled){
+					scope.displayElements.text.attr('ta-readonly', 'disabled');
+					scope.displayElements.html.attr('ta-readonly', 'disabled');
+					scope.disabled = scope.$parent.$eval(attrs.taDisabled);
+					scope.$parent.$watch(attrs.taDisabled, function(newVal){
+						scope.disabled = newVal;
+						if(scope.disabled){
+							element.addClass(scope.classes.disabled);
+						}else{
+							element.removeClass(scope.classes.disabled);
+						}
+					});
+				}
+
+				if(attrs.taPaste){
+					scope._pasteHandler = function(_html){
+						return $parse(attrs.taPaste)(scope.$parent, {$html: _html});
+					};
+					scope.displayElements.text.attr('ta-paste', '_pasteHandler($html)');
+				}
+
+				// compile the scope with the text and html elements only - if we do this with the main element it causes a compile loop
+				$compile(scope.displayElements.scrollWindow)(scope);
+				$compile(scope.displayElements.html)(scope);
+
+				scope.updateTaBindtaTextElement = scope['updateTaBindtaTextElement' + _serial];
+				scope.updateTaBindtaHtmlElement = scope['updateTaBindtaHtmlElement' + _serial];
+
+				// add the classes manually last
+				element.addClass("ta-root");
+				scope.displayElements.scrollWindow.addClass("ta-text ta-editor " + scope.classes.textEditor);
+				scope.displayElements.html.addClass("ta-html ta-editor " + scope.classes.htmlEditor);
+
+				// used in the toolbar actions
+				scope._actionRunning = false;
+				var _savedSelection = false;
+				scope.startAction = function(){
+					scope._actionRunning = true;
+					// if rangy library is loaded return a function to reload the current selection
+					_savedSelection = $window.rangy.saveSelection();
+					return function(){
+						if(_savedSelection) $window.rangy.restoreSelection(_savedSelection);
+					};
+				};
+				scope.endAction = function(){
+					scope._actionRunning = false;
+					if(_savedSelection){
+						if(scope.showHtml){
+							scope.displayElements.html[0].focus();
+						}else{
+							scope.displayElements.text[0].focus();
+						}
+						// $window.rangy.restoreSelection(_savedSelection);
+						$window.rangy.removeMarkers(_savedSelection);
+					}
+					_savedSelection = false;
+					scope.updateSelectedStyles();
+					// only update if in text or WYSIWYG mode
+					if(!scope.showHtml) scope['updateTaBindtaTextElement' + _serial]();
+				};
+
+				// note that focusout > focusin is called everytime we click a button - except bad support: http://www.quirksmode.org/dom/events/blurfocus.html
+				// cascades to displayElements.text and displayElements.html automatically.
+				_focusin = function(){
+					scope.focussed = true;
+					element.addClass(scope.classes.focussed);
+					_toolbars.focus();
+					element.triggerHandler('focus');
+				};
+				scope.displayElements.html.on('focus', _focusin);
+				scope.displayElements.text.on('focus', _focusin);
+				_focusout = function(e){
+					// if we are NOT runnig an action and have NOT focussed again on the text etc then fire the blur events
+					if(!scope._actionRunning && $document[0].activeElement !== scope.displayElements.html[0] && $document[0].activeElement !== scope.displayElements.text[0]){
+						element.removeClass(scope.classes.focussed);
+						_toolbars.unfocus();
+						// to prevent multiple apply error defer to next seems to work.
+						$timeout(function(){
+							scope._bUpdateSelectedStyles = false;
+							element.triggerHandler('blur');
+							scope.focussed = false;
+						}, 0);
+					}
+					e.preventDefault();
+					return false;
+				};
+				scope.displayElements.html.on('blur', _focusout);
+				scope.displayElements.text.on('blur', _focusout);
+
+				scope.displayElements.text.on('paste', function(event){
+					element.triggerHandler('paste', event);
+				});
+
+				// Setup the default toolbar tools, this way allows the user to add new tools like plugins.
+				// This is on the editor for future proofing if we find a better way to do this.
+				scope.queryFormatBlockState = function(command){
+					// $document[0].queryCommandValue('formatBlock') errors in Firefox if we call this when focussed on the textarea
+					return !scope.showHtml && command.toLowerCase() === $document[0].queryCommandValue('formatBlock').toLowerCase();
+				};
+				scope.queryCommandState = function(command){
+					// $document[0].queryCommandValue('formatBlock') errors in Firefox if we call this when focussed on the textarea
+					return (!scope.showHtml) ? $document[0].queryCommandState(command) : '';
+				};
+				scope.switchView = function(){
+					scope.showHtml = !scope.showHtml;
+					$animate.enabled(false, scope.displayElements.html);
+					$animate.enabled(false, scope.displayElements.text);
+					//Show the HTML view
+					if(scope.showHtml){
+						//defer until the element is visible
+						$timeout(function(){
+							$animate.enabled(true, scope.displayElements.html);
+							$animate.enabled(true, scope.displayElements.text);
+							// [0] dereferences the DOM object from the angular.element
+							return scope.displayElements.html[0].focus();
+						}, 100);
+					}else{
+						//Show the WYSIWYG view
+						//defer until the element is visible
+						$timeout(function(){
+							$animate.enabled(true, scope.displayElements.html);
+							$animate.enabled(true, scope.displayElements.text);
+							// [0] dereferences the DOM object from the angular.element
+							return scope.displayElements.text[0].focus();
+						}, 100);
+					}
+				};
+
+				// changes to the model variable from outside the html/text inputs
+				// if no ngModel, then the only input is from inside text-angular
+				if(attrs.ngModel){
+					var _firstRun = true;
+					ngModel.$render = function(){
+						if(_firstRun){
+							// we need this firstRun to set the originalContents otherwise it gets overrided by the setting of ngModel to undefined from NaN
+							_firstRun = false;
+							// if view value is null or undefined initially and there was original content, set to the original content
+							var _initialValue = scope.$parent.$eval(attrs.ngModel);
+							if((_initialValue === undefined || _initialValue === null) && (_originalContents && _originalContents !== '')){
+								// on passing through to taBind it will be sanitised
+								ngModel.$setViewValue(_originalContents);
+							}
+						}
+						scope.displayElements.forminput.val(ngModel.$viewValue);
+						// if the editors aren't focused they need to be updated, otherwise they are doing the updating
+						scope.html = ngModel.$viewValue || '';
+					};
+					// trigger the validation calls
+					if(element.attr('required')) ngModel.$validators.required = function(modelValue, viewValue) {
+						var value = modelValue || viewValue;
+						return !(!value || value.trim() === '');
+					};
+				}else{
+					// if no ngModel then update from the contents of the origional html.
+					scope.displayElements.forminput.val(_originalContents);
+					scope.html = _originalContents;
+				}
+
+				// changes from taBind back up to here
+				scope.$watch('html', function(newValue, oldValue){
+					if(newValue !== oldValue){
+						if(attrs.ngModel && ngModel.$viewValue !== newValue) ngModel.$setViewValue(newValue);
+						scope.displayElements.forminput.val(newValue);
+					}
+				});
+
+				if(attrs.taTargetToolbars) _toolbars = textAngularManager.registerEditor(scope._name, scope, attrs.taTargetToolbars.split(','));
+				else{
+					var _toolbar = angular.element('<div text-angular-toolbar name="textAngularToolbar' + _serial + '">');
+					// passthrough init of toolbar options
+					if(attrs.taToolbar)						_toolbar.attr('ta-toolbar', attrs.taToolbar);
+					if(attrs.taToolbarClass)				_toolbar.attr('ta-toolbar-class', attrs.taToolbarClass);
+					if(attrs.taToolbarGroupClass)			_toolbar.attr('ta-toolbar-group-class', attrs.taToolbarGroupClass);
+					if(attrs.taToolbarButtonClass)			_toolbar.attr('ta-toolbar-button-class', attrs.taToolbarButtonClass);
+					if(attrs.taToolbarActiveButtonClass)	_toolbar.attr('ta-toolbar-active-button-class', attrs.taToolbarActiveButtonClass);
+					if(attrs.taFocussedClass)				_toolbar.attr('ta-focussed-class', attrs.taFocussedClass);
+
+					element.prepend(_toolbar);
+					$compile(_toolbar)(scope.$parent);
+					_toolbars = textAngularManager.registerEditor(scope._name, scope, ['textAngularToolbar' + _serial]);
+				}
+
+				scope.$on('$destroy', function(){
+					textAngularManager.unregisterEditor(scope._name);
+					angular.element(window).off('blur');
+				});
+
+				// catch element select event and pass to toolbar tools
+				scope.$on('ta-element-select', function(event, element){
+					if(_toolbars.triggerElementSelect(event, element)){
+						scope['reApplyOnSelectorHandlerstaTextElement' + _serial]();
+					}
+				});
+
+				scope.$on('ta-drop-event', function(event, element, dropEvent, dataTransfer){
+					scope.displayElements.text[0].focus();
+					if(dataTransfer && dataTransfer.files && dataTransfer.files.length > 0){
+						angular.forEach(dataTransfer.files, function(file){
+							// taking advantage of boolean execution, if the fileDropHandler returns true, nothing else after it is executed
+							// If it is false then execute the defaultFileDropHandler if the fileDropHandler is NOT the default one
+							// Once one of these has been executed wrap the result as a promise, if undefined or variable update the taBind, else we should wait for the promise
+							try{
+								$q.when(scope.fileDropHandler(file, scope.wrapSelection) ||
+									(scope.fileDropHandler !== scope.defaultFileDropHandler &&
+									$q.when(scope.defaultFileDropHandler(file, scope.wrapSelection)))).then(function(){
+										scope['updateTaBindtaTextElement' + _serial]();
+									});
+							}catch(error){
+								$log.error(error);
+							}
+						});
+						dropEvent.preventDefault();
+						dropEvent.stopPropagation();
+					/* istanbul ignore else, the updates if moved text */
+					}else{
+						$timeout(function(){
+							scope['updateTaBindtaTextElement' + _serial]();
+						}, 0);
+					}
+				});
+
+				// the following is for applying the active states to the tools that support it
+				scope._bUpdateSelectedStyles = false;
+				/* istanbul ignore next: browser window/tab leave check */
+				angular.element(window).on('blur', function(){
+					scope._bUpdateSelectedStyles = false;
+					scope.focussed = false;
+				});
+				// loop through all the tools polling their activeState function if it exists
+				scope.updateSelectedStyles = function(){
+					var _selection;
+					/* istanbul ignore next: This check is to ensure multiple timeouts don't exist */
+					if(_updateSelectedStylesTimeout) $timeout.cancel(_updateSelectedStylesTimeout);
+					// test if the common element ISN'T the root ta-text node
+					if((_selection = taSelection.getSelectionElement()) !== undefined && _selection.parentNode !== scope.displayElements.text[0]){
+						_toolbars.updateSelectedStyles(angular.element(_selection));
+					}else _toolbars.updateSelectedStyles();
+					// used to update the active state when a key is held down, ie the left arrow
+					/* istanbul ignore else: browser only check */
+					if(scope._bUpdateSelectedStyles) _updateSelectedStylesTimeout = $timeout(scope.updateSelectedStyles, 200);
+				};
+				// start updating on keydown
+				_keydown = function(){
+					/* istanbul ignore next: ie catch */
+					if(!scope.focussed){
+						scope._bUpdateSelectedStyles = false;
+						return;
+					}
+					/* istanbul ignore else: don't run if already running */
+					if(!scope._bUpdateSelectedStyles){
+						scope._bUpdateSelectedStyles = true;
+						scope.$apply(function(){
+							scope.updateSelectedStyles();
+						});
+					}
+				};
+				scope.displayElements.html.on('keydown', _keydown);
+				scope.displayElements.text.on('keydown', _keydown);
+				// stop updating on key up and update the display/model
+				_keyup = function(){
+					scope._bUpdateSelectedStyles = false;
+				};
+				scope.displayElements.html.on('keyup', _keyup);
+				scope.displayElements.text.on('keyup', _keyup);
+				// stop updating on key up and update the display/model
+				_keypress = function(event, eventData){
+					/* istanbul ignore else: this is for catching the jqLite testing*/
+					if(eventData) angular.extend(event, eventData);
+					scope.$apply(function(){
+						if(_toolbars.sendKeyCommand(event)){
+							/* istanbul ignore else: don't run if already running */
+							if(!scope._bUpdateSelectedStyles){
+								scope.updateSelectedStyles();
+							}
+							event.preventDefault();
+							return false;
+						}
+					});
+				};
+				scope.displayElements.html.on('keypress', _keypress);
+				scope.displayElements.text.on('keypress', _keypress);
+				// update the toolbar active states when we click somewhere in the text/html boxed
+				_mouseup = function(){
+					// ensure only one execution of updateSelectedStyles()
+					scope._bUpdateSelectedStyles = false;
+					scope.$apply(function(){
+						scope.updateSelectedStyles();
+					});
+				};
+				scope.displayElements.html.on('mouseup', _mouseup);
+				scope.displayElements.text.on('mouseup', _mouseup);
+			}
+		};
+	}
+]);
+textAngular.service('textAngularManager', ['taToolExecuteAction', 'taTools', 'taRegisterTool', function(taToolExecuteAction, taTools, taRegisterTool){
+	// this service is used to manage all textAngular editors and toolbars.
+	// All publicly published functions that modify/need to access the toolbar or editor scopes should be in here
+	// these contain references to all the editors and toolbars that have been initialised in this app
+	var toolbars = {}, editors = {};
+	// when we focus into a toolbar, we need to set the TOOLBAR's $parent to be the toolbars it's linked to.
+	// We also need to set the tools to be updated to be the toolbars...
+	return {
+		// register an editor and the toolbars that it is affected by
+		registerEditor: function(name, scope, targetToolbars){
+			// targetToolbars are optional, we don't require a toolbar to function
+			if(!name || name === '') throw('textAngular Error: An editor requires a name');
+			if(!scope) throw('textAngular Error: An editor requires a scope');
+			if(editors[name]) throw('textAngular Error: An Editor with name "' + name + '" already exists');
+			// _toolbars is an ARRAY of toolbar scopes
+			var _toolbars = [];
+			angular.forEach(targetToolbars, function(_name){
+				if(toolbars[_name]) _toolbars.push(toolbars[_name]);
+				// if it doesn't exist it may not have been compiled yet and it will be added later
+			});
+			editors[name] = {
+				scope: scope,
+				toolbars: targetToolbars,
+				_registerToolbar: function(toolbarScope){
+					// add to the list late
+					if(this.toolbars.indexOf(toolbarScope.name) >= 0) _toolbars.push(toolbarScope);
+				},
+				// this is a suite of functions the editor should use to update all it's linked toolbars
+				editorFunctions: {
+					disable: function(){
+						// disable all linked toolbars
+						angular.forEach(_toolbars, function(toolbarScope){ toolbarScope.disabled = true; });
+					},
+					enable: function(){
+						// enable all linked toolbars
+						angular.forEach(_toolbars, function(toolbarScope){ toolbarScope.disabled = false; });
+					},
+					focus: function(){
+						// this should be called when the editor is focussed
+						angular.forEach(_toolbars, function(toolbarScope){
+							toolbarScope._parent = scope;
+							toolbarScope.disabled = false;
+							toolbarScope.focussed = true;
+							scope.focussed = true;
+						});
+					},
+					unfocus: function(){
+						// this should be called when the editor becomes unfocussed
+						angular.forEach(_toolbars, function(toolbarScope){
+							toolbarScope.disabled = true;
+							toolbarScope.focussed = false;
+						});
+						scope.focussed = false;
+					},
+					updateSelectedStyles: function(selectedElement){
+						// update the active state of all buttons on liked toolbars
+						angular.forEach(_toolbars, function(toolbarScope){
+							angular.forEach(toolbarScope.tools, function(toolScope){
+								if(toolScope.activeState){
+									toolbarScope._parent = scope;
+									toolScope.active = toolScope.activeState(selectedElement);
+								}
+							});
+						});
+					},
+					sendKeyCommand: function(event){
+						// we return true if we applied an action, false otherwise
+						var result = false;
+						if(event.ctrlKey || event.metaKey || event.specialKey) angular.forEach(taTools, function(tool, name){
+							if(tool.commandKeyCode && (tool.commandKeyCode === event.which || tool.commandKeyCode === event.specialKey)){
+								for(var _t = 0; _t < _toolbars.length; _t++){
+									if(_toolbars[_t].tools[name] !== undefined){
+										taToolExecuteAction.call(_toolbars[_t].tools[name], scope);
+										result = true;
+										break;
+									}
+								}
+							}
+						});
+						return result;
+					},
+					triggerElementSelect: function(event, element){
+						// search through the taTools to see if a match for the tag is made.
+						// if there is, see if the tool is on a registered toolbar and not disabled.
+						// NOTE: This can trigger on MULTIPLE tools simultaneously.
+						var elementHasAttrs = function(_element, attrs){
+							var result = true;
+							for(var i = 0; i < attrs.length; i++) result = result && _element.attr(attrs[i]);
+							return result;
+						};
+						var workerTools = [];
+						var unfilteredTools = {};
+						var result = false;
+						element = angular.element(element);
+						// get all valid tools by element name, keep track if one matches the
+						var onlyWithAttrsFilter = false;
+						angular.forEach(taTools, function(tool, name){
+							if(
+								tool.onElementSelect &&
+								tool.onElementSelect.element &&
+								tool.onElementSelect.element.toLowerCase() === element[0].tagName.toLowerCase() &&
+								(!tool.onElementSelect.filter || tool.onElementSelect.filter(element))
+							){
+								// this should only end up true if the element matches the only attributes
+								onlyWithAttrsFilter = onlyWithAttrsFilter ||
+									(angular.isArray(tool.onElementSelect.onlyWithAttrs) && elementHasAttrs(element, tool.onElementSelect.onlyWithAttrs));
+								if(!tool.onElementSelect.onlyWithAttrs || elementHasAttrs(element, tool.onElementSelect.onlyWithAttrs)) unfilteredTools[name] = tool;
+							}
+						});
+						// if we matched attributes to filter on, then filter, else continue
+						if(onlyWithAttrsFilter){
+							angular.forEach(unfilteredTools, function(tool, name){
+								if(tool.onElementSelect.onlyWithAttrs && elementHasAttrs(element, tool.onElementSelect.onlyWithAttrs)) workerTools.push({'name': name, 'tool': tool});
+							});
+							// sort most specific (most attrs to find) first
+							workerTools.sort(function(a,b){
+								return b.tool.onElementSelect.onlyWithAttrs.length - a.tool.onElementSelect.onlyWithAttrs.length;
+							});
+						}else{
+							angular.forEach(unfilteredTools, function(tool, name){
+								workerTools.push({'name': name, 'tool': tool});
+							});
+						}
+						// Run the actions on the first visible filtered tool only
+						if(workerTools.length > 0){
+							for(var _i = 0; _i < workerTools.length; _i++){
+								var tool = workerTools[_i].tool;
+								var name = workerTools[_i].name;
+								for(var _t = 0; _t < _toolbars.length; _t++){
+									if(_toolbars[_t].tools[name] !== undefined){
+										tool.onElementSelect.action.call(_toolbars[_t].tools[name], event, element, scope);
+										result = true;
+										break;
+									}
+								}
+								if(result) break;
+							}
+						}
+						return result;
+					}
+				}
+			};
+			return editors[name].editorFunctions;
+		},
+		// retrieve editor by name, largely used by testing suites only
+		retrieveEditor: function(name){
+			return editors[name];
+		},
+		unregisterEditor: function(name){
+			delete editors[name];
+		},
+		// registers a toolbar such that it can be linked to editors
+		registerToolbar: function(scope){
+			if(!scope) throw('textAngular Error: A toolbar requires a scope');
+			if(!scope.name || scope.name === '') throw('textAngular Error: A toolbar requires a name');
+			if(toolbars[scope.name]) throw('textAngular Error: A toolbar with name "' + scope.name + '" already exists');
+			toolbars[scope.name] = scope;
+			angular.forEach(editors, function(_editor){
+				_editor._registerToolbar(scope);
+			});
+		},
+		// retrieve toolbar by name, largely used by testing suites only
+		retrieveToolbar: function(name){
+			return toolbars[name];
+		},
+		// retrieve toolbars by editor name, largely used by testing suites only
+		retrieveToolbarsViaEditor: function(name){
+			var result = [], _this = this;
+			angular.forEach(this.retrieveEditor(name).toolbars, function(name){
+				result.push(_this.retrieveToolbar(name));
+			});
+			return result;
+		},
+		unregisterToolbar: function(name){
+			delete toolbars[name];
+		},
+		// functions for updating the toolbar buttons display
+		updateToolsDisplay: function(newTaTools){
+			// pass a partial struct of the taTools, this allows us to update the tools on the fly, will not change the defaults.
+			var _this = this;
+			angular.forEach(newTaTools, function(_newTool, key){
+				_this.updateToolDisplay(key, _newTool);
+			});
+		},
+		// this function resets all toolbars to their default tool definitions
+		resetToolsDisplay: function(){
+			var _this = this;
+			angular.forEach(taTools, function(_newTool, key){
+				_this.resetToolDisplay(key);
+			});
+		},
+		// update a tool on all toolbars
+		updateToolDisplay: function(toolKey, _newTool){
+			var _this = this;
+			angular.forEach(toolbars, function(toolbarScope, toolbarKey){
+				_this.updateToolbarToolDisplay(toolbarKey, toolKey, _newTool);
+			});
+		},
+		// resets a tool to the default/starting state on all toolbars
+		resetToolDisplay: function(toolKey){
+			var _this = this;
+			angular.forEach(toolbars, function(toolbarScope, toolbarKey){
+				_this.resetToolbarToolDisplay(toolbarKey, toolKey);
+			});
+		},
+		// update a tool on a specific toolbar
+		updateToolbarToolDisplay: function(toolbarKey, toolKey, _newTool){
+			if(toolbars[toolbarKey]) toolbars[toolbarKey].updateToolDisplay(toolKey, _newTool);
+			else throw('textAngular Error: No Toolbar with name "' + toolbarKey + '" exists');
+		},
+		// reset a tool on a specific toolbar to it's default starting value
+		resetToolbarToolDisplay: function(toolbarKey, toolKey){
+			if(toolbars[toolbarKey]) toolbars[toolbarKey].updateToolDisplay(toolKey, taTools[toolKey], true);
+			else throw('textAngular Error: No Toolbar with name "' + toolbarKey + '" exists');
+		},
+		// removes a tool from all toolbars and it's definition
+		removeTool: function(toolKey){
+			delete taTools[toolKey];
+			angular.forEach(toolbars, function(toolbarScope){
+				delete toolbarScope.tools[toolKey];
+				for(var i = 0; i < toolbarScope.toolbar.length; i++){
+					var toolbarIndex;
+					for(var j = 0; j < toolbarScope.toolbar[i].length; j++){
+						if(toolbarScope.toolbar[i][j] === toolKey){
+							toolbarIndex = {
+								group: i,
+								index: j
+							};
+							break;
+						}
+						if(toolbarIndex !== undefined) break;
+					}
+					if(toolbarIndex !== undefined){
+						toolbarScope.toolbar[toolbarIndex.group].slice(toolbarIndex.index, 1);
+						toolbarScope._$element.children().eq(toolbarIndex.group).children().eq(toolbarIndex.index).remove();
+					}
+				}
+			});
+		},
+		// toolkey, toolDefinition are required. If group is not specified will pick the last group, if index isnt defined will append to group
+		addTool: function(toolKey, toolDefinition, group, index){
+			taRegisterTool(toolKey, toolDefinition);
+			angular.forEach(toolbars, function(toolbarScope){
+				toolbarScope.addTool(toolKey, toolDefinition, group, index);
+			});
+		},
+		// adds a Tool but only to one toolbar not all
+		addToolToToolbar: function(toolKey, toolDefinition, toolbarKey, group, index){
+			taRegisterTool(toolKey, toolDefinition);
+			toolbars[toolbarKey].addTool(toolKey, toolDefinition, group, index);
+		},
+		// this is used when externally the html of an editor has been changed and textAngular needs to be notified to update the model.
+		// this will call a $digest if not already happening
+		refreshEditor: function(name){
+			if(editors[name]){
+				editors[name].scope.updateTaBindtaTextElement();
+				/* istanbul ignore else: phase catch */
+				if(!editors[name].scope.$$phase) editors[name].scope.$digest();
+			}else throw('textAngular Error: No Editor with name "' + name + '" exists');
+		},
+		// this is used by taBind to send a key command in response to a special key event
+		sendKeyCommand: function(scope, event){
+			var _editor = editors[scope._name];
+			/* istanbul ignore else: if nothing to do, do nothing */
+			if (_editor && _editor.editorFunctions.sendKeyCommand(event)) {
+				/* istanbul ignore else: don't run if already running */
+				if(!scope._bUpdateSelectedStyles){
+					scope.updateSelectedStyles();
+				}
+				event.preventDefault();
+				return false;
+			}
+		}
+	};
+}]);
+textAngular.directive('textAngularToolbar', [
+	'$compile', 'textAngularManager', 'taOptions', 'taTools', 'taToolExecuteAction', '$window',
+	function($compile, textAngularManager, taOptions, taTools, taToolExecuteAction, $window){
+		return {
+			scope: {
+				name: '@' // a name IS required
+			},
+			restrict: "EA",
+			link: function(scope, element, attrs){
+				if(!scope.name || scope.name === '') throw('textAngular Error: A toolbar requires a name');
+				angular.extend(scope, angular.copy(taOptions));
+				if(attrs.taToolbar)						scope.toolbar = scope.$parent.$eval(attrs.taToolbar);
+				if(attrs.taToolbarClass)				scope.classes.toolbar = attrs.taToolbarClass;
+				if(attrs.taToolbarGroupClass)			scope.classes.toolbarGroup = attrs.taToolbarGroupClass;
+				if(attrs.taToolbarButtonClass)			scope.classes.toolbarButton = attrs.taToolbarButtonClass;
+				if(attrs.taToolbarActiveButtonClass)	scope.classes.toolbarButtonActive = attrs.taToolbarActiveButtonClass;
+				if(attrs.taFocussedClass)				scope.classes.focussed = attrs.taFocussedClass;
+
+				scope.disabled = true;
+				scope.focussed = false;
+				scope._$element = element;
+				element[0].innerHTML = '';
+				element.addClass("ta-toolbar " + scope.classes.toolbar);
+
+				scope.$watch('focussed', function(){
+					if(scope.focussed) element.addClass(scope.classes.focussed);
+					else element.removeClass(scope.classes.focussed);
+				});
+
+				var setupToolElement = function(toolDefinition, toolScope){
+					var toolElement;
+					if(toolDefinition && toolDefinition.display){
+						toolElement = angular.element(toolDefinition.display);
+					}
+					else toolElement = angular.element("<button type='button'>");
+
+					if(toolDefinition && toolDefinition["class"]) toolElement.addClass(toolDefinition["class"]);
+					else toolElement.addClass(scope.classes.toolbarButton);
+
+					toolElement.attr('name', toolScope.name);
+					// important to not take focus from the main text/html entry
+					toolElement.attr('ta-button', 'ta-button');
+					toolElement.attr('ng-disabled', 'isDisabled()');
+					toolElement.attr('tabindex', '-1');
+					toolElement.attr('ng-click', 'executeAction()');
+					toolElement.attr('ng-class', 'displayActiveToolClass(active)');
+
+					if (toolDefinition && toolDefinition.tooltiptext) {
+						toolElement.attr('title', toolDefinition.tooltiptext);
+					}
+					if(toolDefinition && !toolDefinition.display && !toolScope._display){
+						// first clear out the current contents if any
+						toolElement[0].innerHTML = '';
+						// add the buttonText
+						if(toolDefinition.buttontext) toolElement[0].innerHTML = toolDefinition.buttontext;
+						// add the icon to the front of the button if there is content
+						if(toolDefinition.iconclass){
+							var icon = angular.element('<i>'), content = toolElement[0].innerHTML;
+							icon.addClass(toolDefinition.iconclass);
+							toolElement[0].innerHTML = '';
+							toolElement.append(icon);
+							if(content && content !== '') toolElement.append('&nbsp;' + content);
+						}
+					}
+
+					toolScope._lastToolDefinition = angular.copy(toolDefinition);
+
+					return $compile(toolElement)(toolScope);
+				};
+
+				// Keep a reference for updating the active states later
+				scope.tools = {};
+				// create the tools in the toolbar
+				// default functions and values to prevent errors in testing and on init
+				scope._parent = {
+					disabled: true,
+					showHtml: false,
+					queryFormatBlockState: function(){ return false; },
+					queryCommandState: function(){ return false; }
+				};
+				var defaultChildScope = {
+					$window: $window,
+					$editor: function(){
+						// dynamically gets the editor as it is set
+						return scope._parent;
+					},
+					isDisabled: function(){
+						// to set your own disabled logic set a function or boolean on the tool called 'disabled'
+						return ( // this bracket is important as without it it just returns the first bracket and ignores the rest
+							// when the button's disabled function/value evaluates to true
+							(typeof this.$eval('disabled') !== 'function' && this.$eval('disabled')) || this.$eval('disabled()') ||
+							// all buttons except the HTML Switch button should be disabled in the showHtml (RAW html) mode
+							(this.name !== 'html' && this.$editor().showHtml) ||
+							// if the toolbar is disabled
+							this.$parent.disabled ||
+							// if the current editor is disabled
+							this.$editor().disabled
+						);
+					},
+					displayActiveToolClass: function(active){
+						return (active)? scope.classes.toolbarButtonActive : '';
+					},
+					executeAction: taToolExecuteAction
+				};
+
+				angular.forEach(scope.toolbar, function(group){
+					// setup the toolbar group
+					var groupElement = angular.element("<div>");
+					groupElement.addClass(scope.classes.toolbarGroup);
+					angular.forEach(group, function(tool){
+						// init and add the tools to the group
+						// a tool name (key name from taTools struct)
+						//creates a child scope of the main angularText scope and then extends the childScope with the functions of this particular tool
+						// reference to the scope and element kept
+						scope.tools[tool] = angular.extend(scope.$new(true), taTools[tool], defaultChildScope, {name: tool});
+						scope.tools[tool].$element = setupToolElement(taTools[tool], scope.tools[tool]);
+						// append the tool compiled with the childScope to the group element
+						groupElement.append(scope.tools[tool].$element);
+					});
+					// append the group to the toolbar
+					element.append(groupElement);
+				});
+
+				// update a tool
+				// if a value is set to null, remove from the display
+				// when forceNew is set to true it will ignore all previous settings, used to reset to taTools definition
+				// to reset to defaults pass in taTools[key] as _newTool and forceNew as true, ie `updateToolDisplay(key, taTools[key], true);`
+				scope.updateToolDisplay = function(key, _newTool, forceNew){
+					var toolInstance = scope.tools[key];
+					if(toolInstance){
+						// get the last toolDefinition, then override with the new definition
+						if(toolInstance._lastToolDefinition && !forceNew) _newTool = angular.extend({}, toolInstance._lastToolDefinition, _newTool);
+						if(_newTool.buttontext === null && _newTool.iconclass === null && _newTool.display === null)
+							throw('textAngular Error: Tool Definition for updating "' + key + '" does not have a valid display/iconclass/buttontext value');
+
+						// if tool is defined on this toolbar, update/redo the tool
+						if(_newTool.buttontext === null){
+							delete _newTool.buttontext;
+						}
+						if(_newTool.iconclass === null){
+							delete _newTool.iconclass;
+						}
+						if(_newTool.display === null){
+							delete _newTool.display;
+						}
+
+						var toolElement = setupToolElement(_newTool, toolInstance);
+						toolInstance.$element.replaceWith(toolElement);
+						toolInstance.$element = toolElement;
+					}
+				};
+
+				// we assume here that all values passed are valid and correct
+				scope.addTool = function(key, _newTool, groupIndex, index){
+					scope.tools[key] = angular.extend(scope.$new(true), taTools[key], defaultChildScope, {name: key});
+					scope.tools[key].$element = setupToolElement(taTools[key], scope.tools[key]);
+					var group;
+					if(groupIndex === undefined) groupIndex = scope.toolbar.length - 1;
+					group = angular.element(element.children()[groupIndex]);
+
+					if(index === undefined){
+						group.append(scope.tools[key].$element);
+						scope.toolbar[groupIndex][scope.toolbar[groupIndex].length - 1] = key;
+					}else{
+						group.children().eq(index).after(scope.tools[key].$element);
+						scope.toolbar[groupIndex][index] = key;
+					}
+				};
+
+				textAngularManager.registerToolbar(scope);
+
+				scope.$on('$destroy', function(){
+					textAngularManager.unregisterToolbar(scope.name);
+				});
+			}
+		};
+	}
+]);
+})();
+// tests against the current jqLite/jquery implementation if this can be an element
+function validElementString(string){
+	try{
+		return angular.element(string).length !== 0;
+	}catch(any){
+		return false;
+	}
+}
+// setup the global contstant functions for setting up the toolbar
+
+// all tool definitions
+var taTools = {};
+/*
+	A tool definition is an object with the following key/value parameters:
+		action: [function(deferred, restoreSelection)]
+				a function that is executed on clicking on the button - this will allways be executed using ng-click and will
+				overwrite any ng-click value in the display attribute.
+				The function is passed a deferred object ($q.defer()), if this is wanted to be used `return false;` from the action and
+				manually call `deferred.resolve();` elsewhere to notify the editor that the action has finished.
+				restoreSelection is only defined if the rangy library is included and it can be called as `restoreSelection()` to restore the users
+				selection in the WYSIWYG editor.
+		display: [string]?
+				Optional, an HTML element to be displayed as the button. The `scope` of the button is the tool definition object with some additional functions
+				If set this will cause buttontext and iconclass to be ignored
+		class: [string]?
+				Optional, if set will override the taOptions.classes.toolbarButton class.
+		buttontext: [string]?
+				if this is defined it will replace the contents of the element contained in the `display` element
+		iconclass: [string]?
+				if this is defined an icon (<i>) will be appended to the `display` element with this string as it's class
+		tooltiptext: [string]?
+				Optional, a plain text description of the action, used for the title attribute of the action button in the toolbar by default.
+		activestate: [function(commonElement)]?
+				this function is called on every caret movement, if it returns true then the class taOptions.classes.toolbarButtonActive
+				will be applied to the `display` element, else the class will be removed
+		disabled: [function()]?
+				if this function returns true then the tool will have the class taOptions.classes.disabled applied to it, else it will be removed
+	Other functions available on the scope are:
+		name: [string]
+				the name of the tool, this is the first parameter passed into taRegisterTool
+		isDisabled: [function()]
+				returns true if the tool is disabled, false if it isn't
+		displayActiveToolClass: [function(boolean)]
+				returns true if the tool is 'active' in the currently focussed toolbar
+		onElementSelect: [Object]
+				This object contains the following key/value pairs and is used to trigger the ta-element-select event
+				element: [String]
+					an element name, will only trigger the onElementSelect action if the tagName of the element matches this string
+				filter: [function(element)]?
+					an optional filter that returns a boolean, if true it will trigger the onElementSelect.
+				action: [function(event, element, editorScope)]
+					the action that should be executed if the onElementSelect function runs
+*/
+// name and toolDefinition to add into the tools available to be added on the toolbar
+function registerTextAngularTool(name, toolDefinition){
+	if(!name || name === '' || taTools.hasOwnProperty(name)) throw('textAngular Error: A unique name is required for a Tool Definition');
+	if(
+		(toolDefinition.display && (toolDefinition.display === '' || !validElementString(toolDefinition.display))) ||
+		(!toolDefinition.display && !toolDefinition.buttontext && !toolDefinition.iconclass)
+	)
+		throw('textAngular Error: Tool Definition for "' + name + '" does not have a valid display/iconclass/buttontext value');
+	taTools[name] = toolDefinition;
+}
+
+angular.module('textAngularSetup', [])
+.constant('taRegisterTool', registerTextAngularTool)
+.value('taTools', taTools)
+// Here we set up the global display defaults, to set your own use a angular $provider#decorator.
+.value('taOptions',  {
+	//////////////////////////////////////////////////////////////////////////////////////
+    // forceTextAngularSanitize
+    // set false to allow the textAngular-sanitize provider to be replaced
+    // with angular-sanitize or a custom provider.
+	forceTextAngularSanitize: true,
+	///////////////////////////////////////////////////////////////////////////////////////
+	// keyMappings
+	// allow customizable keyMappings for specialized key boards or languages
+	//
+	// keyMappings provides key mappings that are attached to a given commandKeyCode.
+	// To modify a specific keyboard binding, simply provide function which returns true
+	// for the event you wish to map to.
+	// Or to disable a specific keyboard binding, provide a function which returns false.
+	// Note: 'RedoKey' and 'UndoKey' are internally bound to the redo and undo functionality.
+	// At present, the following commandKeyCodes are in use:
+	// 98, 'TabKey', 'ShiftTabKey', 105, 117, 'UndoKey', 'RedoKey'
+	//
+	// To map to an new commandKeyCode, add a new key mapping such as:
+	// {commandKeyCode: 'CustomKey', testForKey: function (event) {
+	//  if (event.keyCode=57 && event.ctrlKey && !event.shiftKey && !event.altKey) return true;
+	// } }
+	// to the keyMappings. This example maps ctrl+9 to 'CustomKey'
+	// Then where taRegisterTool(...) is called, add a commandKeyCode: 'CustomKey' and your
+	// tool will be bound to ctrl+9.
+	//
+	// To disble one of the already bound commandKeyCodes such as 'RedoKey' or 'UndoKey' add:
+	// {commandKeyCode: 'RedoKey', testForKey: function (event) { return false; } },
+	// {commandKeyCode: 'UndoKey', testForKey: function (event) { return false; } },
+	// to disable them.
+	//
+	keyMappings : [],
+	toolbar: [
+		['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre', 'quote'],
+		['bold', 'italics', 'underline', 'strikeThrough', 'ul', 'ol', 'redo', 'undo', 'clear'],
+		['justifyLeft','justifyCenter','justifyRight','justifyFull','indent','outdent'],
+        ['html', 'insertImage', 'insertLink', 'insertVideo','wordcount', 'charcount']
+	],
+	classes: {
+		focussed: "focussed",
+		toolbar: "btn-toolbar",
+		toolbarGroup: "btn-group",
+		toolbarButton: "btn btn-default",
+		toolbarButtonActive: "active",
+		disabled: "disabled",
+		textEditor: 'form-control',
+		htmlEditor: 'form-control'
+	},
+	defaultTagAttributes : {
+		a: {target:""}
+	},
+	setup: {
+		// wysiwyg mode
+		textEditorSetup: function($element){ /* Do some processing here */ },
+		// raw html
+		htmlEditorSetup: function($element){ /* Do some processing here */ }
+	},
+	defaultFileDropHandler:
+		/* istanbul ignore next: untestable image processing */
+		function(file, insertAction){
+			var reader = new FileReader();
+			if(file.type.substring(0, 5) === 'image'){
+				reader.onload = function() {
+					if(reader.result !== '') insertAction('insertImage', reader.result, true);
+				};
+
+				reader.readAsDataURL(file);
+				// NOTE: For async procedures return a promise and resolve it when the editor should update the model.
+				return true;
+			}
+			return false;
+		}
+})
+
+// This is the element selector string that is used to catch click events within a taBind, prevents the default and $emits a 'ta-element-select' event
+// these are individually used in an angular.element().find() call. What can go here depends on whether you have full jQuery loaded or just jQLite with angularjs.
+// div is only used as div.ta-insert-video caught in filter.
+.value('taSelectableElements', ['a','img'])
+
+// This is an array of objects with the following options:
+//				selector: <string> a jqLite or jQuery selector string
+//				customAttribute: <string> an attribute to search for
+//				renderLogic: <function(element)>
+// Both or one of selector and customAttribute must be defined.
+.value('taCustomRenderers', [
+	{
+		// Parse back out: '<div class="ta-insert-video" ta-insert-video src="' + urlLink + '" allowfullscreen="true" width="300" frameborder="0" height="250"></div>'
+		// To correct video element. For now only support youtube
+		selector: 'img',
+		customAttribute: 'ta-insert-video',
+		renderLogic: function(element){
+			var iframe = angular.element('<iframe></iframe>');
+			var attributes = element.prop("attributes");
+			// loop through element attributes and apply them on iframe
+			angular.forEach(attributes, function(attr) {
+				iframe.attr(attr.name, attr.value);
+			});
+			iframe.attr('src', iframe.attr('ta-insert-video'));
+			element.replaceWith(iframe);
+		}
+	}
+])
+
+.value('taTranslations', {
+	// moved to sub-elements
+	//toggleHTML: "Toggle HTML",
+	//insertImage: "Please enter a image URL to insert",
+	//insertLink: "Please enter a URL to insert",
+	//insertVideo: "Please enter a youtube URL to embed",
+	html: {
+		tooltip: 'Toggle html / Rich Text'
+	},
+	// tooltip for heading - might be worth splitting
+	heading: {
+		tooltip: 'Heading '
+	},
+	p: {
+		tooltip: 'Paragraph'
+	},
+	pre: {
+		tooltip: 'Preformatted text'
+	},
+	ul: {
+		tooltip: 'Unordered List'
+	},
+	ol: {
+		tooltip: 'Ordered List'
+	},
+	quote: {
+		tooltip: 'Quote/unquote selection or paragraph'
+	},
+	undo: {
+		tooltip: 'Undo'
+	},
+	redo: {
+		tooltip: 'Redo'
+	},
+	bold: {
+		tooltip: 'Bold'
+	},
+	italic: {
+		tooltip: 'Italic'
+	},
+	underline: {
+		tooltip: 'Underline'
+	},
+	strikeThrough:{
+		tooltip: 'Strikethrough'
+	},
+	justifyLeft: {
+		tooltip: 'Align text left'
+	},
+	justifyRight: {
+		tooltip: 'Align text right'
+	},
+	justifyFull: {
+		tooltip: 'Justify text'
+	},
+	justifyCenter: {
+		tooltip: 'Center'
+	},
+	indent: {
+		tooltip: 'Increase indent'
+	},
+	outdent: {
+		tooltip: 'Decrease indent'
+	},
+	clear: {
+		tooltip: 'Clear formatting'
+	},
+	insertImage: {
+		dialogPrompt: 'Please enter an image URL to insert',
+		tooltip: 'Insert image',
+		hotkey: 'the - possibly language dependent hotkey ... for some future implementation'
+	},
+	insertVideo: {
+		tooltip: 'Insert video',
+		dialogPrompt: 'Please enter a youtube URL to embed'
+	},
+	insertLink: {
+		tooltip: 'Insert / edit link',
+		dialogPrompt: "Please enter a URL to insert"
+	},
+	editLink: {
+		reLinkButton: {
+			tooltip: "Relink"
+		},
+		unLinkButton: {
+			tooltip: "Unlink"
+		},
+		targetToggle: {
+			buttontext: "Open in New Window"
+		}
+	},
+	wordcount: {
+		tooltip: 'Display words Count'
+	},
+		charcount: {
+		tooltip: 'Display characters Count'
+	}
+})
+.factory('taToolFunctions', ['$window','taTranslations', function($window, taTranslations) {
+	return {
+		imgOnSelectAction: function(event, $element, editorScope){
+			// setup the editor toolbar
+			// Credit to the work at http://hackerwins.github.io/summernote/ for this editbar logic/display
+			var finishEdit = function(){
+				editorScope.updateTaBindtaTextElement();
+				editorScope.hidePopover();
+			};
+			event.preventDefault();
+			editorScope.displayElements.popover.css('width', '375px');
+			var container = editorScope.displayElements.popoverContainer;
+			container.empty();
+			var buttonGroup = angular.element('<div class="btn-group" style="padding-right: 6px;">');
+			var fullButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1">100% </button>');
+			fullButton.on('click', function(event){
+				event.preventDefault();
+				$element.css({
+					'width': '100%',
+					'height': ''
+				});
+				finishEdit();
+			});
+			var halfButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1">50% </button>');
+			halfButton.on('click', function(event){
+				event.preventDefault();
+				$element.css({
+					'width': '50%',
+					'height': ''
+				});
+				finishEdit();
+			});
+			var quartButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1">25% </button>');
+			quartButton.on('click', function(event){
+				event.preventDefault();
+				$element.css({
+					'width': '25%',
+					'height': ''
+				});
+				finishEdit();
+			});
+			var resetButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1">Reset</button>');
+			resetButton.on('click', function(event){
+				event.preventDefault();
+				$element.css({
+					width: '',
+					height: ''
+				});
+				finishEdit();
+			});
+			buttonGroup.append(fullButton);
+			buttonGroup.append(halfButton);
+			buttonGroup.append(quartButton);
+			buttonGroup.append(resetButton);
+			container.append(buttonGroup);
+
+			buttonGroup = angular.element('<div class="btn-group" style="padding-right: 6px;">');
+			var floatLeft = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1"><i class="fa fa-align-left"></i></button>');
+			floatLeft.on('click', function(event){
+				event.preventDefault();
+				// webkit
+				$element.css('float', 'left');
+				// firefox
+				$element.css('cssFloat', 'left');
+				// IE < 8
+				$element.css('styleFloat', 'left');
+				finishEdit();
+			});
+			var floatRight = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1"><i class="fa fa-align-right"></i></button>');
+			floatRight.on('click', function(event){
+				event.preventDefault();
+				// webkit
+				$element.css('float', 'right');
+				// firefox
+				$element.css('cssFloat', 'right');
+				// IE < 8
+				$element.css('styleFloat', 'right');
+				finishEdit();
+			});
+			var floatNone = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1"><i class="fa fa-align-justify"></i></button>');
+			floatNone.on('click', function(event){
+				event.preventDefault();
+				// webkit
+				$element.css('float', '');
+				// firefox
+				$element.css('cssFloat', '');
+				// IE < 8
+				$element.css('styleFloat', '');
+				finishEdit();
+			});
+			buttonGroup.append(floatLeft);
+			buttonGroup.append(floatNone);
+			buttonGroup.append(floatRight);
+			container.append(buttonGroup);
+
+			buttonGroup = angular.element('<div class="btn-group">');
+			var remove = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" unselectable="on" tabindex="-1"><i class="fa fa-trash-o"></i></button>');
+			remove.on('click', function(event){
+				event.preventDefault();
+				$element.remove();
+				finishEdit();
+			});
+			buttonGroup.append(remove);
+			container.append(buttonGroup);
+
+			editorScope.showPopover($element);
+			editorScope.showResizeOverlay($element);
+		},
+		aOnSelectAction: function(event, $element, editorScope){
+			// setup the editor toolbar
+			// Credit to the work at http://hackerwins.github.io/summernote/ for this editbar logic
+			event.preventDefault();
+			editorScope.displayElements.popover.css('width', '436px');
+			var container = editorScope.displayElements.popoverContainer;
+			container.empty();
+			container.css('line-height', '28px');
+			var link = angular.element('<a href="' + $element.attr('href') + '" target="_blank">' + $element.attr('href') + '</a>');
+			link.css({
+				'display': 'inline-block',
+				'max-width': '200px',
+				'overflow': 'hidden',
+				'text-overflow': 'ellipsis',
+				'white-space': 'nowrap',
+				'vertical-align': 'middle'
+			});
+			container.append(link);
+			var buttonGroup = angular.element('<div class="btn-group pull-right">');
+			var reLinkButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" tabindex="-1" unselectable="on" title="' + taTranslations.editLink.reLinkButton.tooltip + '"><i class="fa fa-edit icon-edit"></i></button>');
+			reLinkButton.on('click', function(event){
+				event.preventDefault();
+				var urlLink = $window.prompt(taTranslations.insertLink.dialogPrompt, $element.attr('href'));
+				if(urlLink && urlLink !== '' && urlLink !== 'http://'){
+					$element.attr('href', urlLink);
+					editorScope.updateTaBindtaTextElement();
+				}
+				editorScope.hidePopover();
+			});
+			buttonGroup.append(reLinkButton);
+			var unLinkButton = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" tabindex="-1" unselectable="on" title="' + taTranslations.editLink.unLinkButton.tooltip + '"><i class="fa fa-unlink icon-unlink"></i></button>');
+			// directly before this click event is fired a digest is fired off whereby the reference to $element is orphaned off
+			unLinkButton.on('click', function(event){
+				event.preventDefault();
+				$element.replaceWith($element.contents());
+				editorScope.updateTaBindtaTextElement();
+				editorScope.hidePopover();
+			});
+			buttonGroup.append(unLinkButton);
+			var targetToggle = angular.element('<button type="button" class="btn btn-default btn-sm btn-small" tabindex="-1" unselectable="on">' + taTranslations.editLink.targetToggle.buttontext + '</button>');
+			if($element.attr('target') === '_blank'){
+				targetToggle.addClass('active');
+			}
+			targetToggle.on('click', function(event){
+				event.preventDefault();
+				$element.attr('target', ($element.attr('target') === '_blank') ? '' : '_blank');
+				targetToggle.toggleClass('active');
+				editorScope.updateTaBindtaTextElement();
+			});
+			buttonGroup.append(targetToggle);
+			container.append(buttonGroup);
+			editorScope.showPopover($element);
+		},
+		extractYoutubeVideoId: function(url) {
+			var re = /(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i;
+			var match = url.match(re);
+			return (match && match[1]) || null;
+		}
+	};
+}])
+.run(['taRegisterTool', '$window', 'taTranslations', 'taSelection', 'taToolFunctions', '$sanitize', 'taOptions', function(taRegisterTool, $window, taTranslations, taSelection, taToolFunctions, $sanitize, taOptions){
+	// test for the version of $sanitize that is in use
+	// You can disable this check by setting taOptions.textAngularSanitize == false
+	var gv = {}; $sanitize('', gv);
+	/* istanbul ignore next, throws error */
+	if ((taOptions.forceTextAngularSanitize===true) && (gv.version !== 'taSanitize')) {
+		throw angular.$$minErr('textAngular')("textAngularSetup", "The textAngular-sanitize provider has been replaced by another -- have you included angular-sanitize by mistake?");
+	}
+	taRegisterTool("html", {
+		iconclass: 'fa fa-code',
+		tooltiptext: taTranslations.html.tooltip,
+		action: function(){
+			this.$editor().switchView();
+		},
+		activeState: function(){
+			return this.$editor().showHtml;
+		}
+	});
+	// add the Header tools
+	// convenience functions so that the loop works correctly
+	var _retActiveStateFunction = function(q){
+		return function(){ return this.$editor().queryFormatBlockState(q); };
+	};
+	var headerAction = function(){
+		return this.$editor().wrapSelection("formatBlock", "<" + this.name.toUpperCase() +">");
+	};
+	angular.forEach(['h1','h2','h3','h4','h5','h6'], function(h){
+		taRegisterTool(h.toLowerCase(), {
+			buttontext: h.toUpperCase(),
+			tooltiptext: taTranslations.heading.tooltip + h.charAt(1),
+			action: headerAction,
+			activeState: _retActiveStateFunction(h.toLowerCase())
+		});
+	});
+	taRegisterTool('p', {
+		buttontext: 'P',
+		tooltiptext: taTranslations.p.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("formatBlock", "<P>");
+		},
+		activeState: function(){ return this.$editor().queryFormatBlockState('p'); }
+	});
+	// key: pre -> taTranslations[key].tooltip, taTranslations[key].buttontext
+	taRegisterTool('pre', {
+		buttontext: 'pre',
+		tooltiptext: taTranslations.pre.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("formatBlock", "<PRE>");
+		},
+		activeState: function(){ return this.$editor().queryFormatBlockState('pre'); }
+	});
+	taRegisterTool('ul', {
+		iconclass: 'fa fa-list-ul',
+		tooltiptext: taTranslations.ul.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("insertUnorderedList", null);
+		},
+		activeState: function(){ return this.$editor().queryCommandState('insertUnorderedList'); }
+	});
+	taRegisterTool('ol', {
+		iconclass: 'fa fa-list-ol',
+		tooltiptext: taTranslations.ol.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("insertOrderedList", null);
+		},
+		activeState: function(){ return this.$editor().queryCommandState('insertOrderedList'); }
+	});
+	taRegisterTool('quote', {
+		iconclass: 'fa fa-quote-right',
+		tooltiptext: taTranslations.quote.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("formatBlock", "<BLOCKQUOTE>");
+		},
+		activeState: function(){ return this.$editor().queryFormatBlockState('blockquote'); }
+	});
+	taRegisterTool('undo', {
+		iconclass: 'fa fa-undo',
+		tooltiptext: taTranslations.undo.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("undo", null);
+		}
+	});
+	taRegisterTool('redo', {
+		iconclass: 'fa fa-repeat',
+		tooltiptext: taTranslations.redo.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("redo", null);
+		}
+	});
+	taRegisterTool('bold', {
+		iconclass: 'fa fa-bold',
+		tooltiptext: taTranslations.bold.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("bold", null);
+		},
+		activeState: function(){
+			return this.$editor().queryCommandState('bold');
+		},
+		commandKeyCode: 98
+	});
+	taRegisterTool('justifyLeft', {
+		iconclass: 'fa fa-align-left',
+		tooltiptext: taTranslations.justifyLeft.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("justifyLeft", null);
+		},
+		activeState: function(commonElement){
+			/* istanbul ignore next: */
+			if (commonElement && commonElement.nodeName === '#document') return false;
+			var result = false;
+			if (commonElement)
+				result =
+					commonElement.css('text-align') === 'left' ||
+					commonElement.attr('align') === 'left' ||
+					(
+						commonElement.css('text-align') !== 'right' &&
+						commonElement.css('text-align') !== 'center' &&
+						commonElement.css('text-align') !== 'justify' && !this.$editor().queryCommandState('justifyRight') && !this.$editor().queryCommandState('justifyCenter')
+					) && !this.$editor().queryCommandState('justifyFull');
+			result = result || this.$editor().queryCommandState('justifyLeft');
+			return result;
+		}
+	});
+	taRegisterTool('justifyRight', {
+		iconclass: 'fa fa-align-right',
+		tooltiptext: taTranslations.justifyRight.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("justifyRight", null);
+		},
+		activeState: function(commonElement){
+			/* istanbul ignore next: */
+			if (commonElement && commonElement.nodeName === '#document') return false;
+			var result = false;
+			if(commonElement) result = commonElement.css('text-align') === 'right';
+			result = result || this.$editor().queryCommandState('justifyRight');
+			return result;
+		}
+	});
+	taRegisterTool('justifyFull', {
+		iconclass: 'fa fa-align-justify',
+		tooltiptext: taTranslations.justifyFull.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("justifyFull", null);
+		},
+		activeState: function(commonElement){
+			var result = false;
+			if(commonElement) result = commonElement.css('text-align') === 'justify';
+			result = result || this.$editor().queryCommandState('justifyFull');
+			return result;
+		}
+	});
+	taRegisterTool('justifyCenter', {
+		iconclass: 'fa fa-align-center',
+		tooltiptext: taTranslations.justifyCenter.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("justifyCenter", null);
+		},
+		activeState: function(commonElement){
+			/* istanbul ignore next: */
+			if (commonElement && commonElement.nodeName === '#document') return false;
+			var result = false;
+			if(commonElement) result = commonElement.css('text-align') === 'center';
+			result = result || this.$editor().queryCommandState('justifyCenter');
+			return result;
+		}
+	});
+	taRegisterTool('indent', {
+		iconclass: 'fa fa-indent',
+		tooltiptext: taTranslations.indent.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("indent", null);
+		},
+		activeState: function(){
+			return this.$editor().queryFormatBlockState('blockquote');
+		},
+		commandKeyCode: 'TabKey'
+	});
+	taRegisterTool('outdent', {
+		iconclass: 'fa fa-outdent',
+		tooltiptext: taTranslations.outdent.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("outdent", null);
+		},
+		activeState: function(){
+			return false;
+		},
+		commandKeyCode: 'ShiftTabKey'
+	});
+	taRegisterTool('italics', {
+		iconclass: 'fa fa-italic',
+		tooltiptext: taTranslations.italic.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("italic", null);
+		},
+		activeState: function(){
+			return this.$editor().queryCommandState('italic');
+		},
+		commandKeyCode: 105
+	});
+	taRegisterTool('underline', {
+		iconclass: 'fa fa-underline',
+		tooltiptext: taTranslations.underline.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("underline", null);
+		},
+		activeState: function(){
+			return this.$editor().queryCommandState('underline');
+		},
+		commandKeyCode: 117
+	});
+	taRegisterTool('strikeThrough', {
+		iconclass: 'fa fa-strikethrough',
+		tooltiptext: taTranslations.strikeThrough.tooltip,
+		action: function(){
+			return this.$editor().wrapSelection("strikeThrough", null);
+		},
+		activeState: function(){
+			return document.queryCommandState('strikeThrough');
+		}
+	});
+	taRegisterTool('clear', {
+		iconclass: 'fa fa-ban',
+		tooltiptext: taTranslations.clear.tooltip,
+		action: function(deferred, restoreSelection){
+			var i;
+			this.$editor().wrapSelection("removeFormat", null);
+			var possibleNodes = angular.element(taSelection.getSelectionElement());
+			// remove lists
+			var removeListElements = function(list){
+				list = angular.element(list);
+				var prevElement = list;
+				angular.forEach(list.children(), function(liElem){
+					var newElem = angular.element('<p></p>');
+					newElem.html(angular.element(liElem).html());
+					prevElement.after(newElem);
+					prevElement = newElem;
+				});
+				list.remove();
+			};
+			angular.forEach(possibleNodes.find("ul"), removeListElements);
+			angular.forEach(possibleNodes.find("ol"), removeListElements);
+			if(possibleNodes[0].tagName.toLowerCase() === 'li'){
+				var _list = possibleNodes[0].parentNode.childNodes;
+				var _preLis = [], _postLis = [], _found = false;
+				for(i = 0; i < _list.length; i++){
+					if(_list[i] === possibleNodes[0]){
+						_found = true;
+					}else if(!_found) _preLis.push(_list[i]);
+					else _postLis.push(_list[i]);
+				}
+				var _parent = angular.element(possibleNodes[0].parentNode);
+				var newElem = angular.element('<p></p>');
+				newElem.html(angular.element(possibleNodes[0]).html());
+				if(_preLis.length === 0 || _postLis.length === 0){
+					if(_postLis.length === 0) _parent.after(newElem);
+					else _parent[0].parentNode.insertBefore(newElem[0], _parent[0]);
+
+					if(_preLis.length === 0 && _postLis.length === 0) _parent.remove();
+					else angular.element(possibleNodes[0]).remove();
+				}else{
+					var _firstList = angular.element('<'+_parent[0].tagName+'></'+_parent[0].tagName+'>');
+					var _secondList = angular.element('<'+_parent[0].tagName+'></'+_parent[0].tagName+'>');
+					for(i = 0; i < _preLis.length; i++) _firstList.append(angular.element(_preLis[i]));
+					for(i = 0; i < _postLis.length; i++) _secondList.append(angular.element(_postLis[i]));
+					_parent.after(_secondList);
+					_parent.after(newElem);
+					_parent.after(_firstList);
+					_parent.remove();
+				}
+				taSelection.setSelectionToElementEnd(newElem[0]);
+			}
+			// clear out all class attributes. These do not seem to be cleared via removeFormat
+			var $editor = this.$editor();
+			var recursiveRemoveClass = function(node){
+				node = angular.element(node);
+				if(node[0] !== $editor.displayElements.text[0]) node.removeAttr('class');
+				angular.forEach(node.children(), recursiveRemoveClass);
+			};
+			angular.forEach(possibleNodes, recursiveRemoveClass);
+			// check if in list. If not in list then use formatBlock option
+			if(possibleNodes[0].tagName.toLowerCase() !== 'li' &&
+				possibleNodes[0].tagName.toLowerCase() !== 'ol' &&
+				possibleNodes[0].tagName.toLowerCase() !== 'ul') this.$editor().wrapSelection("formatBlock", "default");
+			restoreSelection();
+		}
+	});
+
+
+	taRegisterTool('insertImage', {
+		iconclass: 'fa fa-picture-o',
+		tooltiptext: taTranslations.insertImage.tooltip,
+		action: function(){
+			var imageLink;
+			imageLink = $window.prompt(taTranslations.insertImage.dialogPrompt, 'http://');
+			if(imageLink && imageLink !== '' && imageLink !== 'http://'){
+				return this.$editor().wrapSelection('insertImage', imageLink, true);
+			}
+		},
+		onElementSelect: {
+			element: 'img',
+			action: taToolFunctions.imgOnSelectAction
+		}
+	});
+	taRegisterTool('insertVideo', {
+		iconclass: 'fa fa-youtube-play',
+		tooltiptext: taTranslations.insertVideo.tooltip,
+		action: function(){
+			var urlPrompt;
+			urlPrompt = $window.prompt(taTranslations.insertVideo.dialogPrompt, 'https://');
+			if (urlPrompt && urlPrompt !== '' && urlPrompt !== 'https://') {
+
+				videoId = taToolFunctions.extractYoutubeVideoId(urlPrompt);
+
+				/* istanbul ignore else: if it's invalid don't worry - though probably should show some kind of error message */
+				if(videoId){
+					// create the embed link
+					var urlLink = "https://www.youtube.com/embed/" + videoId;
+					// create the HTML
+					// for all options see: http://stackoverflow.com/questions/2068344/how-do-i-get-a-youtube-video-thumbnail-from-the-youtube-api
+					// maxresdefault.jpg seems to be undefined on some.
+					var embed = '<img class="ta-insert-video" src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" ta-insert-video="' + urlLink + '" contenteditable="false" allowfullscreen="true" frameborder="0" />';
+					// insert
+					return this.$editor().wrapSelection('insertHTML', embed, true);
+				}
+			}
+		},
+		onElementSelect: {
+			element: 'img',
+			onlyWithAttrs: ['ta-insert-video'],
+			action: taToolFunctions.imgOnSelectAction
+		}
+	});
+	taRegisterTool('insertLink', {
+		tooltiptext: taTranslations.insertLink.tooltip,
+		iconclass: 'fa fa-link',
+		action: function(){
+			var urlLink;
+			urlLink = $window.prompt(taTranslations.insertLink.dialogPrompt, 'http://');
+			if(urlLink && urlLink !== '' && urlLink !== 'http://'){
+				return this.$editor().wrapSelection('createLink', urlLink, true);
+			}
+		},
+		activeState: function(commonElement){
+			if(commonElement) return commonElement[0].tagName === 'A';
+			return false;
+		},
+		onElementSelect: {
+			element: 'a',
+			action: taToolFunctions.aOnSelectAction
+		}
+	});
+	taRegisterTool('wordcount', {
+		display: '<div id="toolbarWC" style="display:block; min-width:100px;">Words: <span ng-bind="wordcount"></span></div>',
+		disabled: true,
+		wordcount: 0,
+		activeState: function(){ // this fires on keyup
+			var textElement = this.$editor().displayElements.text;
+			/* istanbul ignore next: will default to '' when undefined */
+			var workingHTML = textElement[0].innerHTML || '';
+			var noOfWords = 0;
+
+			/* istanbul ignore if: will default to '' when undefined */
+			if (workingHTML.replace(/\s*<[^>]*?>\s*/g, '') !== '') {
+				noOfWords = workingHTML.replace(/<\/?(b|i|em|strong|span|u|strikethrough|a|img|small|sub|sup|label)( [^>*?])?>/gi, '') // remove inline tags without adding spaces
+										.replace(/(<[^>]*?>\s*<[^>]*?>)/ig, ' ') // replace adjacent tags with possible space between with a space
+										.replace(/(<[^>]*?>)/ig, '') // remove any singular tags
+										.replace(/\s+/ig, ' ') // condense spacing
+										.match(/\S+/g).length; // count remaining non-space strings
+			}
+
+			//Set current scope
+			this.wordcount = noOfWords;
+			//Set editor scope
+			this.$editor().wordcount = noOfWords;
+
+			return false;
+		}
+	});
+	taRegisterTool('charcount', {
+		display: '<div id="toolbarCC" style="display:block; min-width:120px;">Characters: <span ng-bind="charcount"></span></div>',
+		disabled: true,
+		charcount: 0,
+		activeState: function(){ // this fires on keyup
+			var textElement = this.$editor().displayElements.text;
+			var sourceText = textElement[0].innerText || textElement[0].textContent; // to cover the non-jquery use case.
+
+			// Caculate number of chars
+			var noOfChars = sourceText.replace(/(\r\n|\n|\r)/gm,"").replace(/^\s+/g,' ').replace(/\s+$/g, ' ').length;
+			//Set current scope
+			this.charcount = noOfChars;
+			//Set editor scope
+			this.$editor().charcount = noOfChars;
+			return false;
+		}
+	});
+}]);
+/*
+ * angular-ui-bootstrap
+ * http://angular-ui.github.io/bootstrap/
+
+ * Version: 1.3.2 - 2016-04-14
+ * License: MIT
+ */angular.module("ui.bootstrap", ["ui.bootstrap.tpls", "ui.bootstrap.collapse","ui.bootstrap.accordion","ui.bootstrap.alert","ui.bootstrap.buttons","ui.bootstrap.carousel","ui.bootstrap.dateparser","ui.bootstrap.isClass","ui.bootstrap.datepicker","ui.bootstrap.position","ui.bootstrap.datepickerPopup","ui.bootstrap.debounce","ui.bootstrap.dropdown","ui.bootstrap.stackedMap","ui.bootstrap.modal","ui.bootstrap.paging","ui.bootstrap.pager","ui.bootstrap.pagination","ui.bootstrap.tooltip","ui.bootstrap.popover","ui.bootstrap.progressbar","ui.bootstrap.rating","ui.bootstrap.tabs","ui.bootstrap.timepicker","ui.bootstrap.typeahead"]);
+angular.module("ui.bootstrap.tpls", ["uib/template/accordion/accordion-group.html","uib/template/accordion/accordion.html","uib/template/alert/alert.html","uib/template/carousel/carousel.html","uib/template/carousel/slide.html","uib/template/datepicker/datepicker.html","uib/template/datepicker/day.html","uib/template/datepicker/month.html","uib/template/datepicker/year.html","uib/template/datepickerPopup/popup.html","uib/template/modal/backdrop.html","uib/template/modal/window.html","uib/template/pager/pager.html","uib/template/pagination/pagination.html","uib/template/tooltip/tooltip-html-popup.html","uib/template/tooltip/tooltip-popup.html","uib/template/tooltip/tooltip-template-popup.html","uib/template/popover/popover-html.html","uib/template/popover/popover-template.html","uib/template/popover/popover.html","uib/template/progressbar/bar.html","uib/template/progressbar/progress.html","uib/template/progressbar/progressbar.html","uib/template/rating/rating.html","uib/template/tabs/tab.html","uib/template/tabs/tabset.html","uib/template/timepicker/timepicker.html","uib/template/typeahead/typeahead-match.html","uib/template/typeahead/typeahead-popup.html"]);
 angular.module('ui.bootstrap.collapse', [])
 
-  .directive('uibCollapse', ['$animate', '$injector', function($animate, $injector) {
+  .directive('uibCollapse', ['$animate', '$q', '$parse', '$injector', function($animate, $q, $parse, $injector) {
     var $animateCss = $injector.has('$animateCss') ? $injector.get('$animateCss') : null;
     return {
       link: function(scope, element, attrs) {
+        var expandingExpr = $parse(attrs.expanding),
+            expandedExpr = $parse(attrs.expanded),
+            collapsingExpr = $parse(attrs.collapsing),
+            collapsedExpr = $parse(attrs.collapsed);
+
         if (!scope.$eval(attrs.uibCollapse)) {
           element.addClass('in')
             .addClass('collapse')
+            .attr('aria-expanded', true)
+            .attr('aria-hidden', false)
             .css({height: 'auto'});
         }
 
         function expand() {
-          element.removeClass('collapse')
-            .addClass('collapsing')
-            .attr('aria-expanded', true)
-            .attr('aria-hidden', false);
-
-          if ($animateCss) {
-            $animateCss(element, {
-              addClass: 'in',
-              easing: 'ease',
-              to: { height: element[0].scrollHeight + 'px' }
-            }).start()['finally'](expandDone);
-          } else {
-            $animate.addClass(element, 'in', {
-              to: { height: element[0].scrollHeight + 'px' }
-            }).then(expandDone);
+          if (element.hasClass('collapse') && element.hasClass('in')) {
+            return;
           }
+
+          $q.resolve(expandingExpr(scope))
+            .then(function() {
+              element.removeClass('collapse')
+                .addClass('collapsing')
+                .attr('aria-expanded', true)
+                .attr('aria-hidden', false);
+
+              if ($animateCss) {
+                $animateCss(element, {
+                  addClass: 'in',
+                  easing: 'ease',
+                  to: { height: element[0].scrollHeight + 'px' }
+                }).start()['finally'](expandDone);
+              } else {
+                $animate.addClass(element, 'in', {
+                  to: { height: element[0].scrollHeight + 'px' }
+                }).then(expandDone);
+              }
+            });
         }
 
         function expandDone() {
           element.removeClass('collapsing')
             .addClass('collapse')
             .css({height: 'auto'});
+          expandedExpr(scope);
         }
 
         function collapse() {
@@ -8993,34 +14507,38 @@ angular.module('ui.bootstrap.collapse', [])
             return collapseDone();
           }
 
-          element
-            // IMPORTANT: The height must be set before adding "collapsing" class.
-            // Otherwise, the browser attempts to animate from height 0 (in
-            // collapsing class) to the given height here.
-            .css({height: element[0].scrollHeight + 'px'})
-            // initially all panel collapse have the collapse class, this removal
-            // prevents the animation from jumping to collapsed state
-            .removeClass('collapse')
-            .addClass('collapsing')
-            .attr('aria-expanded', false)
-            .attr('aria-hidden', true);
+          $q.resolve(collapsingExpr(scope))
+            .then(function() {
+              element
+                // IMPORTANT: The height must be set before adding "collapsing" class.
+                // Otherwise, the browser attempts to animate from height 0 (in
+                // collapsing class) to the given height here.
+                .css({height: element[0].scrollHeight + 'px'})
+                // initially all panel collapse have the collapse class, this removal
+                // prevents the animation from jumping to collapsed state
+                .removeClass('collapse')
+                .addClass('collapsing')
+                .attr('aria-expanded', false)
+                .attr('aria-hidden', true);
 
-          if ($animateCss) {
-            $animateCss(element, {
-              removeClass: 'in',
-              to: {height: '0'}
-            }).start()['finally'](collapseDone);
-          } else {
-            $animate.removeClass(element, 'in', {
-              to: {height: '0'}
-            }).then(collapseDone);
-          }
+              if ($animateCss) {
+                $animateCss(element, {
+                  removeClass: 'in',
+                  to: {height: '0'}
+                }).start()['finally'](collapseDone);
+              } else {
+                $animate.removeClass(element, 'in', {
+                  to: {height: '0'}
+                }).then(collapseDone);
+              }
+            });
         }
 
         function collapseDone() {
           element.css({height: '0'}); // Required so that collapse works when animation is disabled
           element.removeClass('collapsing')
             .addClass('collapse');
+          collapsedExpr(scope);
         }
 
         scope.$watch(attrs.uibCollapse, function(shouldCollapse) {
@@ -9100,6 +14618,7 @@ angular.module('ui.bootstrap.accordion', ['ui.bootstrap.collapse'])
     },
     scope: {
       heading: '@',               // Interpolate the heading attribute onto this scope
+      panelClass: '@?',           // Ditto with panelClass
       isOpen: '=?',
       isDisabled: '=?'
     },
@@ -9127,6 +14646,10 @@ angular.module('ui.bootstrap.accordion', ['ui.bootstrap.collapse'])
           }
         }
       };
+
+      var id = 'accordiongroup-' + scope.$id + '-' + Math.floor(Math.random() * 10000);
+      scope.headingId = id + '-tab';
+      scope.panelId = id + '-panel';
     }
   };
 })
@@ -9155,8 +14678,9 @@ angular.module('ui.bootstrap.accordion', ['ui.bootstrap.collapse'])
     link: function(scope, element, attrs, controller) {
       scope.$watch(function() { return controller[attrs.uibAccordionTransclude]; }, function(heading) {
         if (heading) {
-          element.find('span').html('');
-          element.find('span').append(heading);
+          var elem = angular.element(element[0].querySelector('[uib-accordion-header]'));
+          elem.html('');
+          elem.append(heading);
         }
       });
     }
@@ -9240,7 +14764,7 @@ angular.module('ui.bootstrap.buttons', [])
 
       if (attrs.uibUncheckable) {
         scope.$watch(uncheckableExpr, function(uncheckable) {
-          attrs.$set('uncheckable', uncheckable ? '' : null);
+          attrs.$set('uncheckable', uncheckable ? '' : undefined);
         });
       }
     }
@@ -9295,35 +14819,41 @@ angular.module('ui.bootstrap.carousel', [])
   var self = this,
     slides = self.slides = $scope.slides = [],
     SLIDE_DIRECTION = 'uib-slideDirection',
-    currentIndex = -1,
+    currentIndex = $scope.active,
     currentInterval, isPlaying, bufferedTransitions = [];
-  self.currentSlide = null;
 
   var destroyed = false;
 
   self.addSlide = function(slide, element) {
-    slide.$element = element;
-    slides.push(slide);
+    slides.push({
+      slide: slide,
+      element: element
+    });
+    slides.sort(function(a, b) {
+      return +a.slide.index - +b.slide.index;
+    });
     //if this is the first slide or the slide is set to active, select it
-    if (slides.length === 1 || slide.active) {
+    if (slide.index === $scope.active || slides.length === 1 && !angular.isNumber($scope.active)) {
       if ($scope.$currentTransition) {
         $scope.$currentTransition = null;
       }
 
-      self.select(slides[slides.length - 1]);
+      currentIndex = slide.index;
+      $scope.active = slide.index;
+      setActive(currentIndex);
+      self.select(slides[findSlideIndex(slide)]);
       if (slides.length === 1) {
         $scope.play();
       }
-    } else {
-      slide.active = false;
     }
   };
 
   self.getCurrentIndex = function() {
-    if (self.currentSlide && angular.isDefined(self.currentSlide.index)) {
-      return +self.currentSlide.index;
+    for (var i = 0; i < slides.length; i++) {
+      if (slides[i].slide.index === currentIndex) {
+        return i;
+      }
     }
-    return currentIndex;
   };
 
   self.next = $scope.next = function() {
@@ -9334,7 +14864,7 @@ angular.module('ui.bootstrap.carousel', [])
       return;
     }
 
-    return self.select(getSlideByIndex(newIndex), 'next');
+    return self.select(slides[newIndex], 'next');
   };
 
   self.prev = $scope.prev = function() {
@@ -9345,65 +14875,75 @@ angular.module('ui.bootstrap.carousel', [])
       return;
     }
 
-    return self.select(getSlideByIndex(newIndex), 'prev');
+    return self.select(slides[newIndex], 'prev');
   };
 
   self.removeSlide = function(slide) {
-    if (angular.isDefined(slide.index)) {
-      slides.sort(function(a, b) {
-        return +a.index > +b.index;
-      });
-    }
+    var index = findSlideIndex(slide);
 
-    var bufferedIndex = bufferedTransitions.indexOf(slide);
+    var bufferedIndex = bufferedTransitions.indexOf(slides[index]);
     if (bufferedIndex !== -1) {
       bufferedTransitions.splice(bufferedIndex, 1);
     }
-    //get the index of the slide inside the carousel
-    var index = slides.indexOf(slide);
-    slides.splice(index, 1);
-    $timeout(function() {
-      if (slides.length > 0 && slide.active) {
-        if (index >= slides.length) {
-          self.select(slides[index - 1]);
-        } else {
-          self.select(slides[index]);
-        }
-      } else if (currentIndex > index) {
-        currentIndex--;
-      }
-    });
 
-    //clean the currentSlide when no more slide
+    //get the index of the slide inside the carousel
+    slides.splice(index, 1);
+    if (slides.length > 0 && currentIndex === index) {
+      if (index >= slides.length) {
+        currentIndex = slides.length - 1;
+        $scope.active = currentIndex;
+        setActive(currentIndex);
+        self.select(slides[slides.length - 1]);
+      } else {
+        currentIndex = index;
+        $scope.active = currentIndex;
+        setActive(currentIndex);
+        self.select(slides[index]);
+      }
+    } else if (currentIndex > index) {
+      currentIndex--;
+      $scope.active = currentIndex;
+    }
+
+    //clean the active value when no more slide
     if (slides.length === 0) {
-      self.currentSlide = null;
+      currentIndex = null;
+      $scope.active = null;
       clearBufferedTransitions();
     }
   };
 
   /* direction: "prev" or "next" */
   self.select = $scope.select = function(nextSlide, direction) {
-    var nextIndex = $scope.indexOfSlide(nextSlide);
+    var nextIndex = findSlideIndex(nextSlide.slide);
     //Decide direction if it's not given
     if (direction === undefined) {
       direction = nextIndex > self.getCurrentIndex() ? 'next' : 'prev';
     }
     //Prevent this user-triggered transition from occurring if there is already one in progress
-    if (nextSlide && nextSlide !== self.currentSlide && !$scope.$currentTransition) {
-      goNext(nextSlide, nextIndex, direction);
-    } else if (nextSlide && nextSlide !== self.currentSlide && $scope.$currentTransition) {
-      bufferedTransitions.push(nextSlide);
-      nextSlide.active = false;
+    if (nextSlide.slide.index !== currentIndex &&
+      !$scope.$currentTransition) {
+      goNext(nextSlide.slide, nextIndex, direction);
+    } else if (nextSlide && nextSlide.slide.index !== currentIndex && $scope.$currentTransition) {
+      bufferedTransitions.push(slides[nextIndex]);
     }
   };
 
   /* Allow outside people to call indexOf on slides array */
   $scope.indexOfSlide = function(slide) {
-    return angular.isDefined(slide.index) ? +slide.index : slides.indexOf(slide);
+    return +slide.slide.index;
   };
 
   $scope.isActive = function(slide) {
-    return self.currentSlide === slide;
+    return $scope.active === slide.slide.index;
+  };
+
+  $scope.isPrevDisabled = function() {
+    return $scope.active === 0 && $scope.noWrap();
+  };
+
+  $scope.isNextDisabled = function() {
+    return $scope.active === slides.length - 1 && $scope.noWrap();
   };
 
   $scope.pause = function() {
@@ -9433,6 +14973,24 @@ angular.module('ui.bootstrap.carousel', [])
 
   $scope.$watchCollection('slides', resetTransition);
 
+  $scope.$watch('active', function(index) {
+    if (angular.isNumber(index) && currentIndex !== index) {
+      for (var i = 0; i < slides.length; i++) {
+        if (slides[i].slide.index === index) {
+          index = i;
+          break;
+        }
+      }
+
+      var slide = slides[index];
+      if (slide) {
+        setActive(index);
+        self.select(slides[index]);
+        currentIndex = index;
+      }
+    }
+  });
+
   function clearBufferedTransitions() {
     while (bufferedTransitions.length) {
       bufferedTransitions.shift();
@@ -9440,9 +14998,6 @@ angular.module('ui.bootstrap.carousel', [])
   }
 
   function getSlideByIndex(index) {
-    if (angular.isUndefined(slides[index].index)) {
-      return slides[index];
-    }
     for (var i = 0, l = slides.length; i < l; ++i) {
       if (slides[i].index === index) {
         return slides[i];
@@ -9450,26 +15005,36 @@ angular.module('ui.bootstrap.carousel', [])
     }
   }
 
-  function goNext(slide, index, direction) {
-    if (destroyed) { return; }
+  function setActive(index) {
+    for (var i = 0; i < slides.length; i++) {
+      slides[i].slide.active = i === index;
+    }
+  }
 
-    angular.extend(slide, {direction: direction, active: true});
-    angular.extend(self.currentSlide || {}, {direction: direction, active: false});
+  function goNext(slide, index, direction) {
+    if (destroyed) {
+      return;
+    }
+
+    angular.extend(slide, {direction: direction});
+    angular.extend(slides[currentIndex].slide || {}, {direction: direction});
     if ($animate.enabled($element) && !$scope.$currentTransition &&
-      slide.$element && self.slides.length > 1) {
-      slide.$element.data(SLIDE_DIRECTION, slide.direction);
-      if (self.currentSlide && self.currentSlide.$element) {
-        self.currentSlide.$element.data(SLIDE_DIRECTION, slide.direction);
+      slides[index].element && self.slides.length > 1) {
+      slides[index].element.data(SLIDE_DIRECTION, slide.direction);
+      var currentIdx = self.getCurrentIndex();
+
+      if (angular.isNumber(currentIdx) && slides[currentIdx].element) {
+        slides[currentIdx].element.data(SLIDE_DIRECTION, slide.direction);
       }
 
       $scope.$currentTransition = true;
-      $animate.on('addClass', slide.$element, function(element, phase) {
+      $animate.on('addClass', slides[index].element, function(element, phase) {
         if (phase === 'close') {
           $scope.$currentTransition = null;
           $animate.off('addClass', element);
           if (bufferedTransitions.length) {
-            var nextSlide = bufferedTransitions.pop();
-            var nextIndex = $scope.indexOfSlide(nextSlide);
+            var nextSlide = bufferedTransitions.pop().slide;
+            var nextIndex = nextSlide.index;
             var nextDirection = nextIndex > self.getCurrentIndex() ? 'next' : 'prev';
             clearBufferedTransitions();
 
@@ -9479,11 +15044,20 @@ angular.module('ui.bootstrap.carousel', [])
       });
     }
 
-    self.currentSlide = slide;
-    currentIndex = index;
+    $scope.active = slide.index;
+    currentIndex = slide.index;
+    setActive(index);
 
     //every time you change slides, reset the timer
     restartTimer();
+  }
+
+  function findSlideIndex(slide) {
+    for (var i = 0; i < slides.length; i++) {
+      if (slides[i].slide === slide) {
+        return i;
+      }
+    }
   }
 
   function resetTimer() {
@@ -9528,6 +15102,7 @@ angular.module('ui.bootstrap.carousel', [])
       return attrs.templateUrl || 'uib/template/carousel/carousel.html';
     },
     scope: {
+      active: '=',
       interval: '=',
       noTransition: '=',
       noPause: '=',
@@ -9545,7 +15120,6 @@ angular.module('ui.bootstrap.carousel', [])
       return attrs.templateUrl || 'uib/template/carousel/slide.html';
     },
     scope: {
-      active: '=?',
       actual: '=?',
       index: '=?'
     },
@@ -9554,12 +15128,6 @@ angular.module('ui.bootstrap.carousel', [])
       //when the scope is destroyed then remove the slide from the current slides array
       scope.$on('$destroy', function() {
         carouselCtrl.removeSlide(scope);
-      });
-
-      scope.$watch('active', function(active) {
-        if (active) {
-          carouselCtrl.select(scope);
-        }
       });
     }
   };
@@ -9618,7 +15186,7 @@ function($animateCss) {
 
 angular.module('ui.bootstrap.dateparser', [])
 
-.service('uibDateParser', ['$log', '$locale', 'orderByFilter', function($log, $locale, orderByFilter) {
+.service('uibDateParser', ['$log', '$locale', 'dateFilter', 'orderByFilter', function($log, $locale, dateFilter, orderByFilter) {
   // Pulled from https://github.com/mbostock/d3/blob/master/src/format/requote.js
   var SPECIAL_CHARACTERS_REGEXP = /[\\\^\$\*\+\?\|\[\]\(\)\.\{\}]/g;
 
@@ -9629,115 +15197,164 @@ angular.module('ui.bootstrap.dateparser', [])
     localeId = $locale.id;
 
     this.parsers = {};
+    this.formatters = {};
 
     formatCodeToRegex = [
       {
         key: 'yyyy',
         regex: '\\d{4}',
-        apply: function(value) { this.year = +value; }
+        apply: function(value) { this.year = +value; },
+        formatter: function(date) {
+          var _date = new Date();
+          _date.setFullYear(Math.abs(date.getFullYear()));
+          return dateFilter(_date, 'yyyy');
+        }
       },
       {
         key: 'yy',
         regex: '\\d{2}',
-        apply: function(value) { this.year = +value + 2000; }
+        apply: function(value) { value = +value; this.year = value < 69 ? value + 2000 : value + 1900; },
+        formatter: function(date) {
+          var _date = new Date();
+          _date.setFullYear(Math.abs(date.getFullYear()));
+          return dateFilter(_date, 'yy');
+        }
       },
       {
         key: 'y',
         regex: '\\d{1,4}',
-        apply: function(value) { this.year = +value; }
+        apply: function(value) { this.year = +value; },
+        formatter: function(date) {
+          var _date = new Date();
+          _date.setFullYear(Math.abs(date.getFullYear()));
+          return dateFilter(_date, 'y');
+        }
       },
       {
         key: 'M!',
         regex: '0?[1-9]|1[0-2]',
-        apply: function(value) { this.month = value - 1; }
+        apply: function(value) { this.month = value - 1; },
+        formatter: function(date) {
+          var value = date.getMonth();
+          if (/^[0-9]$/.test(value)) {
+            return dateFilter(date, 'MM');
+          }
+
+          return dateFilter(date, 'M');
+        }
       },
       {
         key: 'MMMM',
         regex: $locale.DATETIME_FORMATS.MONTH.join('|'),
-        apply: function(value) { this.month = $locale.DATETIME_FORMATS.MONTH.indexOf(value); }
+        apply: function(value) { this.month = $locale.DATETIME_FORMATS.MONTH.indexOf(value); },
+        formatter: function(date) { return dateFilter(date, 'MMMM'); }
       },
       {
         key: 'MMM',
         regex: $locale.DATETIME_FORMATS.SHORTMONTH.join('|'),
-        apply: function(value) { this.month = $locale.DATETIME_FORMATS.SHORTMONTH.indexOf(value); }
+        apply: function(value) { this.month = $locale.DATETIME_FORMATS.SHORTMONTH.indexOf(value); },
+        formatter: function(date) { return dateFilter(date, 'MMM'); }
       },
       {
         key: 'MM',
         regex: '0[1-9]|1[0-2]',
-        apply: function(value) { this.month = value - 1; }
+        apply: function(value) { this.month = value - 1; },
+        formatter: function(date) { return dateFilter(date, 'MM'); }
       },
       {
         key: 'M',
         regex: '[1-9]|1[0-2]',
-        apply: function(value) { this.month = value - 1; }
+        apply: function(value) { this.month = value - 1; },
+        formatter: function(date) { return dateFilter(date, 'M'); }
       },
       {
         key: 'd!',
         regex: '[0-2]?[0-9]{1}|3[0-1]{1}',
-        apply: function(value) { this.date = +value; }
+        apply: function(value) { this.date = +value; },
+        formatter: function(date) {
+          var value = date.getDate();
+          if (/^[1-9]$/.test(value)) {
+            return dateFilter(date, 'dd');
+          }
+
+          return dateFilter(date, 'd');
+        }
       },
       {
         key: 'dd',
         regex: '[0-2][0-9]{1}|3[0-1]{1}',
-        apply: function(value) { this.date = +value; }
+        apply: function(value) { this.date = +value; },
+        formatter: function(date) { return dateFilter(date, 'dd'); }
       },
       {
         key: 'd',
         regex: '[1-2]?[0-9]{1}|3[0-1]{1}',
-        apply: function(value) { this.date = +value; }
+        apply: function(value) { this.date = +value; },
+        formatter: function(date) { return dateFilter(date, 'd'); }
       },
       {
         key: 'EEEE',
-        regex: $locale.DATETIME_FORMATS.DAY.join('|')
+        regex: $locale.DATETIME_FORMATS.DAY.join('|'),
+        formatter: function(date) { return dateFilter(date, 'EEEE'); }
       },
       {
         key: 'EEE',
-        regex: $locale.DATETIME_FORMATS.SHORTDAY.join('|')
+        regex: $locale.DATETIME_FORMATS.SHORTDAY.join('|'),
+        formatter: function(date) { return dateFilter(date, 'EEE'); }
       },
       {
         key: 'HH',
         regex: '(?:0|1)[0-9]|2[0-3]',
-        apply: function(value) { this.hours = +value; }
+        apply: function(value) { this.hours = +value; },
+        formatter: function(date) { return dateFilter(date, 'HH'); }
       },
       {
         key: 'hh',
         regex: '0[0-9]|1[0-2]',
-        apply: function(value) { this.hours = +value; }
+        apply: function(value) { this.hours = +value; },
+        formatter: function(date) { return dateFilter(date, 'hh'); }
       },
       {
         key: 'H',
         regex: '1?[0-9]|2[0-3]',
-        apply: function(value) { this.hours = +value; }
+        apply: function(value) { this.hours = +value; },
+        formatter: function(date) { return dateFilter(date, 'H'); }
       },
       {
         key: 'h',
         regex: '[0-9]|1[0-2]',
-        apply: function(value) { this.hours = +value; }
+        apply: function(value) { this.hours = +value; },
+        formatter: function(date) { return dateFilter(date, 'h'); }
       },
       {
         key: 'mm',
         regex: '[0-5][0-9]',
-        apply: function(value) { this.minutes = +value; }
+        apply: function(value) { this.minutes = +value; },
+        formatter: function(date) { return dateFilter(date, 'mm'); }
       },
       {
         key: 'm',
         regex: '[0-9]|[1-5][0-9]',
-        apply: function(value) { this.minutes = +value; }
+        apply: function(value) { this.minutes = +value; },
+        formatter: function(date) { return dateFilter(date, 'm'); }
       },
       {
         key: 'sss',
         regex: '[0-9][0-9][0-9]',
-        apply: function(value) { this.milliseconds = +value; }
+        apply: function(value) { this.milliseconds = +value; },
+        formatter: function(date) { return dateFilter(date, 'sss'); }
       },
       {
         key: 'ss',
         regex: '[0-5][0-9]',
-        apply: function(value) { this.seconds = +value; }
+        apply: function(value) { this.seconds = +value; },
+        formatter: function(date) { return dateFilter(date, 'ss'); }
       },
       {
         key: 's',
         regex: '[0-9]|[1-5][0-9]',
-        apply: function(value) { this.seconds = +value; }
+        apply: function(value) { this.seconds = +value; },
+        formatter: function(date) { return dateFilter(date, 's'); }
       },
       {
         key: 'a',
@@ -9750,7 +15367,8 @@ angular.module('ui.bootstrap.dateparser', [])
           if (value === 'PM') {
             this.hours += 12;
           }
-        }
+        },
+        formatter: function(date) { return dateFilter(date, 'a'); }
       },
       {
         key: 'Z',
@@ -9762,38 +15380,47 @@ angular.module('ui.bootstrap.dateparser', [])
             minutes = matches[3];
           this.hours += toInt(sign + hours);
           this.minutes += toInt(sign + minutes);
+        },
+        formatter: function(date) {
+          return dateFilter(date, 'Z');
         }
       },
       {
         key: 'ww',
-        regex: '[0-4][0-9]|5[0-3]'
+        regex: '[0-4][0-9]|5[0-3]',
+        formatter: function(date) { return dateFilter(date, 'ww'); }
       },
       {
         key: 'w',
-        regex: '[0-9]|[1-4][0-9]|5[0-3]'
+        regex: '[0-9]|[1-4][0-9]|5[0-3]',
+        formatter: function(date) { return dateFilter(date, 'w'); }
       },
       {
         key: 'GGGG',
-        regex: $locale.DATETIME_FORMATS.ERANAMES.join('|').replace(/\s/g, '\\s')
+        regex: $locale.DATETIME_FORMATS.ERANAMES.join('|').replace(/\s/g, '\\s'),
+        formatter: function(date) { return dateFilter(date, 'GGGG'); }
       },
       {
         key: 'GGG',
-        regex: $locale.DATETIME_FORMATS.ERAS.join('|')
+        regex: $locale.DATETIME_FORMATS.ERAS.join('|'),
+        formatter: function(date) { return dateFilter(date, 'GGG'); }
       },
       {
         key: 'GG',
-        regex: $locale.DATETIME_FORMATS.ERAS.join('|')
+        regex: $locale.DATETIME_FORMATS.ERAS.join('|'),
+        formatter: function(date) { return dateFilter(date, 'GG'); }
       },
       {
         key: 'G',
-        regex: $locale.DATETIME_FORMATS.ERAS.join('|')
+        regex: $locale.DATETIME_FORMATS.ERAS.join('|'),
+        formatter: function(date) { return dateFilter(date, 'G'); }
       }
     ];
   };
 
   this.init();
 
-  function createParser(format) {
+  function createParser(format, func) {
     var map = [], regex = format.split('');
 
     // check for literal values
@@ -9841,7 +15468,8 @@ angular.module('ui.bootstrap.dateparser', [])
 
         map.push({
           index: index,
-          apply: data.apply,
+          key: data.key,
+          apply: data[func],
           matcher: data.regex
         });
       }
@@ -9852,6 +15480,43 @@ angular.module('ui.bootstrap.dateparser', [])
       map: orderByFilter(map, 'index')
     };
   }
+
+  this.filter = function(date, format) {
+    if (!angular.isDate(date) || isNaN(date) || !format) {
+      return '';
+    }
+
+    format = $locale.DATETIME_FORMATS[format] || format;
+
+    if ($locale.id !== localeId) {
+      this.init();
+    }
+
+    if (!this.formatters[format]) {
+      this.formatters[format] = createParser(format, 'formatter');
+    }
+
+    var parser = this.formatters[format],
+      map = parser.map;
+
+    var _format = format;
+
+    return map.reduce(function(str, mapper, i) {
+      var match = _format.match(new RegExp('(.*)' + mapper.key));
+      if (match && angular.isString(match[1])) {
+        str += match[1];
+        _format = _format.replace(match[1] + mapper.key, '');
+      }
+
+      var endStr = i === map.length - 1 ? _format : '';
+
+      if (mapper.apply) {
+        return str + mapper.apply.call(null, date) + endStr;
+      }
+
+      return str + endStr;
+    }, '');
+  };
 
   this.parse = function(input, format, baseDate) {
     if (!angular.isString(input) || !format) {
@@ -9866,7 +15531,7 @@ angular.module('ui.bootstrap.dateparser', [])
     }
 
     if (!this.parsers[format]) {
-      this.parsers[format] = createParser(format);
+      this.parsers[format] = createParser(format, 'apply');
     }
 
     var parser = this.parsers[format],
@@ -9954,7 +15619,7 @@ angular.module('ui.bootstrap.dateparser', [])
   this.timezoneToOffset = timezoneToOffset;
   this.addDateMinutes = addDateMinutes;
   this.convertTimezoneToLocal = convertTimezoneToLocal;
-  
+
   function toTimezone(date, timezone) {
     return date && timezone ? convertTimezoneToLocal(date, timezone) : date;
   }
@@ -9997,7 +15662,7 @@ function ($animate) {
 
   return {
     restrict: 'A',
-    compile: function (tElement, tAttrs) {
+    compile: function(tElement, tAttrs) {
       var linkedScopes = [];
       var instances = [];
       var expToData = {};
@@ -10016,7 +15681,7 @@ function ($animate) {
           element: element
         });
 
-        exps.forEach(function (exp, k) {
+        exps.forEach(function(exp, k) {
           addForExp(exp, scope);
         });
 
@@ -10029,9 +15694,9 @@ function ($animate) {
         var compareWithExp = matches[2];
         var data = expToData[exp];
         if (!data) {
-          var watchFn = function (compareWithVal) {
+          var watchFn = function(compareWithVal) {
             var newActivated = null;
-            instances.some(function (instance) {
+            instances.some(function(instance) {
               var thisVal = instance.scope.$eval(onExp);
               if (thisVal === compareWithVal) {
                 newActivated = instance;
@@ -10066,20 +15731,660 @@ function ($animate) {
         instances.splice(index, 1);
         if (linkedScopes.length) {
           var newWatchScope = linkedScopes[0];
-          angular.forEach(expToData, function (data) {
+          angular.forEach(expToData, function(data) {
             if (data.scope === removedScope) {
               data.watcher = newWatchScope.$watch(data.compareWithExp, data.watchFn);
               data.scope = newWatchScope;
             }
           });
-        }
-        else {
+        } else {
           expToData = {};
         }
       }
     }
   };
 }]);
+angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootstrap.isClass'])
+
+.value('$datepickerSuppressError', false)
+
+.value('$datepickerLiteralWarning', true)
+
+.constant('uibDatepickerConfig', {
+  datepickerMode: 'day',
+  formatDay: 'dd',
+  formatMonth: 'MMMM',
+  formatYear: 'yyyy',
+  formatDayHeader: 'EEE',
+  formatDayTitle: 'MMMM yyyy',
+  formatMonthTitle: 'yyyy',
+  maxDate: null,
+  maxMode: 'year',
+  minDate: null,
+  minMode: 'day',
+  ngModelOptions: {},
+  shortcutPropagation: false,
+  showWeeks: true,
+  yearColumns: 5,
+  yearRows: 4
+})
+
+.controller('UibDatepickerController', ['$scope', '$attrs', '$parse', '$interpolate', '$locale', '$log', 'dateFilter', 'uibDatepickerConfig', '$datepickerLiteralWarning', '$datepickerSuppressError', 'uibDateParser',
+  function($scope, $attrs, $parse, $interpolate, $locale, $log, dateFilter, datepickerConfig, $datepickerLiteralWarning, $datepickerSuppressError, dateParser) {
+  var self = this,
+      ngModelCtrl = { $setViewValue: angular.noop }, // nullModelCtrl;
+      ngModelOptions = {},
+      watchListeners = [],
+      optionsUsed = !!$attrs.datepickerOptions;
+
+  if (!$scope.datepickerOptions) {
+    $scope.datepickerOptions = {};
+  }
+
+  // Modes chain
+  this.modes = ['day', 'month', 'year'];
+
+  [
+    'customClass',
+    'dateDisabled',
+    'datepickerMode',
+    'formatDay',
+    'formatDayHeader',
+    'formatDayTitle',
+    'formatMonth',
+    'formatMonthTitle',
+    'formatYear',
+    'maxDate',
+    'maxMode',
+    'minDate',
+    'minMode',
+    'showWeeks',
+    'shortcutPropagation',
+    'startingDay',
+    'yearColumns',
+    'yearRows'
+  ].forEach(function(key) {
+    switch (key) {
+      case 'customClass':
+      case 'dateDisabled':
+        $scope[key] = $scope.datepickerOptions[key] || angular.noop;
+        break;
+      case 'datepickerMode':
+        $scope.datepickerMode = angular.isDefined($scope.datepickerOptions.datepickerMode) ?
+          $scope.datepickerOptions.datepickerMode : datepickerConfig.datepickerMode;
+        break;
+      case 'formatDay':
+      case 'formatDayHeader':
+      case 'formatDayTitle':
+      case 'formatMonth':
+      case 'formatMonthTitle':
+      case 'formatYear':
+        self[key] = angular.isDefined($scope.datepickerOptions[key]) ?
+          $interpolate($scope.datepickerOptions[key])($scope.$parent) :
+          datepickerConfig[key];
+        break;
+      case 'showWeeks':
+      case 'shortcutPropagation':
+      case 'yearColumns':
+      case 'yearRows':
+        self[key] = angular.isDefined($scope.datepickerOptions[key]) ?
+          $scope.datepickerOptions[key] : datepickerConfig[key];
+        break;
+      case 'startingDay':
+        if (angular.isDefined($scope.datepickerOptions.startingDay)) {
+          self.startingDay = $scope.datepickerOptions.startingDay;
+        } else if (angular.isNumber(datepickerConfig.startingDay)) {
+          self.startingDay = datepickerConfig.startingDay;
+        } else {
+          self.startingDay = ($locale.DATETIME_FORMATS.FIRSTDAYOFWEEK + 8) % 7;
+        }
+
+        break;
+      case 'maxDate':
+      case 'minDate':
+        $scope.$watch('datepickerOptions.' + key, function(value) {
+          if (value) {
+            if (angular.isDate(value)) {
+              self[key] = dateParser.fromTimezone(new Date(value), ngModelOptions.timezone);
+            } else {
+              if ($datepickerLiteralWarning) {
+                $log.warn('Literal date support has been deprecated, please switch to date object usage');
+              }
+
+              self[key] = new Date(dateFilter(value, 'medium'));
+            }
+          } else {
+            self[key] = datepickerConfig[key] ?
+              dateParser.fromTimezone(new Date(datepickerConfig[key]), ngModelOptions.timezone) :
+              null;
+          }
+
+          self.refreshView();
+        });
+
+        break;
+      case 'maxMode':
+      case 'minMode':
+        if ($scope.datepickerOptions[key]) {
+          $scope.$watch(function() { return $scope.datepickerOptions[key]; }, function(value) {
+            self[key] = $scope[key] = angular.isDefined(value) ? value : datepickerOptions[key];
+            if (key === 'minMode' && self.modes.indexOf($scope.datepickerOptions.datepickerMode) < self.modes.indexOf(self[key]) ||
+              key === 'maxMode' && self.modes.indexOf($scope.datepickerOptions.datepickerMode) > self.modes.indexOf(self[key])) {
+              $scope.datepickerMode = self[key];
+              $scope.datepickerOptions.datepickerMode = self[key];
+            }
+          });
+        } else {
+          self[key] = $scope[key] = datepickerConfig[key] || null;
+        }
+
+        break;
+    }
+  });
+
+  $scope.uniqueId = 'datepicker-' + $scope.$id + '-' + Math.floor(Math.random() * 10000);
+
+  $scope.disabled = angular.isDefined($attrs.disabled) || false;
+  if (angular.isDefined($attrs.ngDisabled)) {
+    watchListeners.push($scope.$parent.$watch($attrs.ngDisabled, function(disabled) {
+      $scope.disabled = disabled;
+      self.refreshView();
+    }));
+  }
+
+  $scope.isActive = function(dateObject) {
+    if (self.compare(dateObject.date, self.activeDate) === 0) {
+      $scope.activeDateId = dateObject.uid;
+      return true;
+    }
+    return false;
+  };
+
+  this.init = function(ngModelCtrl_) {
+    ngModelCtrl = ngModelCtrl_;
+    ngModelOptions = ngModelCtrl_.$options || datepickerConfig.ngModelOptions;
+    if ($scope.datepickerOptions.initDate) {
+      self.activeDate = dateParser.fromTimezone($scope.datepickerOptions.initDate, ngModelOptions.timezone) || new Date();
+      $scope.$watch('datepickerOptions.initDate', function(initDate) {
+        if (initDate && (ngModelCtrl.$isEmpty(ngModelCtrl.$modelValue) || ngModelCtrl.$invalid)) {
+          self.activeDate = dateParser.fromTimezone(initDate, ngModelOptions.timezone);
+          self.refreshView();
+        }
+      });
+    } else {
+      self.activeDate = new Date();
+    }
+
+    this.activeDate = ngModelCtrl.$modelValue ?
+      dateParser.fromTimezone(new Date(ngModelCtrl.$modelValue), ngModelOptions.timezone) :
+      dateParser.fromTimezone(new Date(), ngModelOptions.timezone);
+
+    ngModelCtrl.$render = function() {
+      self.render();
+    };
+  };
+
+  this.render = function() {
+    if (ngModelCtrl.$viewValue) {
+      var date = new Date(ngModelCtrl.$viewValue),
+          isValid = !isNaN(date);
+
+      if (isValid) {
+        this.activeDate = dateParser.fromTimezone(date, ngModelOptions.timezone);
+      } else if (!$datepickerSuppressError) {
+        $log.error('Datepicker directive: "ng-model" value must be a Date object');
+      }
+    }
+    this.refreshView();
+  };
+
+  this.refreshView = function() {
+    if (this.element) {
+      $scope.selectedDt = null;
+      this._refreshView();
+      if ($scope.activeDt) {
+        $scope.activeDateId = $scope.activeDt.uid;
+      }
+
+      var date = ngModelCtrl.$viewValue ? new Date(ngModelCtrl.$viewValue) : null;
+      date = dateParser.fromTimezone(date, ngModelOptions.timezone);
+      ngModelCtrl.$setValidity('dateDisabled', !date ||
+        this.element && !this.isDisabled(date));
+    }
+  };
+
+  this.createDateObject = function(date, format) {
+    var model = ngModelCtrl.$viewValue ? new Date(ngModelCtrl.$viewValue) : null;
+    model = dateParser.fromTimezone(model, ngModelOptions.timezone);
+    var today = new Date();
+    today = dateParser.fromTimezone(today, ngModelOptions.timezone);
+    var time = this.compare(date, today);
+    var dt = {
+      date: date,
+      label: dateParser.filter(date, format),
+      selected: model && this.compare(date, model) === 0,
+      disabled: this.isDisabled(date),
+      past: time < 0,
+      current: time === 0,
+      future: time > 0,
+      customClass: this.customClass(date) || null
+    };
+
+    if (model && this.compare(date, model) === 0) {
+      $scope.selectedDt = dt;
+    }
+
+    if (self.activeDate && this.compare(dt.date, self.activeDate) === 0) {
+      $scope.activeDt = dt;
+    }
+
+    return dt;
+  };
+
+  this.isDisabled = function(date) {
+    return $scope.disabled ||
+      this.minDate && this.compare(date, this.minDate) < 0 ||
+      this.maxDate && this.compare(date, this.maxDate) > 0 ||
+      $scope.dateDisabled && $scope.dateDisabled({date: date, mode: $scope.datepickerMode});
+  };
+
+  this.customClass = function(date) {
+    return $scope.customClass({date: date, mode: $scope.datepickerMode});
+  };
+
+  // Split array into smaller arrays
+  this.split = function(arr, size) {
+    var arrays = [];
+    while (arr.length > 0) {
+      arrays.push(arr.splice(0, size));
+    }
+    return arrays;
+  };
+
+  $scope.select = function(date) {
+    if ($scope.datepickerMode === self.minMode) {
+      var dt = ngModelCtrl.$viewValue ? dateParser.fromTimezone(new Date(ngModelCtrl.$viewValue), ngModelOptions.timezone) : new Date(0, 0, 0, 0, 0, 0, 0);
+      dt.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+      dt = dateParser.toTimezone(dt, ngModelOptions.timezone);
+      ngModelCtrl.$setViewValue(dt);
+      ngModelCtrl.$render();
+    } else {
+      self.activeDate = date;
+      setMode(self.modes[self.modes.indexOf($scope.datepickerMode) - 1]);
+
+      $scope.$emit('uib:datepicker.mode');
+    }
+
+    $scope.$broadcast('uib:datepicker.focus');
+  };
+
+  $scope.move = function(direction) {
+    var year = self.activeDate.getFullYear() + direction * (self.step.years || 0),
+        month = self.activeDate.getMonth() + direction * (self.step.months || 0);
+    self.activeDate.setFullYear(year, month, 1);
+    self.refreshView();
+  };
+
+  $scope.toggleMode = function(direction) {
+    direction = direction || 1;
+
+    if ($scope.datepickerMode === self.maxMode && direction === 1 ||
+      $scope.datepickerMode === self.minMode && direction === -1) {
+      return;
+    }
+
+    setMode(self.modes[self.modes.indexOf($scope.datepickerMode) + direction]);
+
+    $scope.$emit('uib:datepicker.mode');
+  };
+
+  // Key event mapper
+  $scope.keys = { 13: 'enter', 32: 'space', 33: 'pageup', 34: 'pagedown', 35: 'end', 36: 'home', 37: 'left', 38: 'up', 39: 'right', 40: 'down' };
+
+  var focusElement = function() {
+    self.element[0].focus();
+  };
+
+  // Listen for focus requests from popup directive
+  $scope.$on('uib:datepicker.focus', focusElement);
+
+  $scope.keydown = function(evt) {
+    var key = $scope.keys[evt.which];
+
+    if (!key || evt.shiftKey || evt.altKey || $scope.disabled) {
+      return;
+    }
+
+    evt.preventDefault();
+    if (!self.shortcutPropagation) {
+      evt.stopPropagation();
+    }
+
+    if (key === 'enter' || key === 'space') {
+      if (self.isDisabled(self.activeDate)) {
+        return; // do nothing
+      }
+      $scope.select(self.activeDate);
+    } else if (evt.ctrlKey && (key === 'up' || key === 'down')) {
+      $scope.toggleMode(key === 'up' ? 1 : -1);
+    } else {
+      self.handleKeyDown(key, evt);
+      self.refreshView();
+    }
+  };
+
+  $scope.$on('$destroy', function() {
+    //Clear all watch listeners on destroy
+    while (watchListeners.length) {
+      watchListeners.shift()();
+    }
+  });
+
+  function setMode(mode) {
+    $scope.datepickerMode = mode;
+    $scope.datepickerOptions.datepickerMode = mode;
+  }
+}])
+
+.controller('UibDaypickerController', ['$scope', '$element', 'dateFilter', function(scope, $element, dateFilter) {
+  var DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+  this.step = { months: 1 };
+  this.element = $element;
+  function getDaysInMonth(year, month) {
+    return month === 1 && year % 4 === 0 &&
+      (year % 100 !== 0 || year % 400 === 0) ? 29 : DAYS_IN_MONTH[month];
+  }
+
+  this.init = function(ctrl) {
+    angular.extend(ctrl, this);
+    scope.showWeeks = ctrl.showWeeks;
+    ctrl.refreshView();
+  };
+
+  this.getDates = function(startDate, n) {
+    var dates = new Array(n), current = new Date(startDate), i = 0, date;
+    while (i < n) {
+      date = new Date(current);
+      dates[i++] = date;
+      current.setDate(current.getDate() + 1);
+    }
+    return dates;
+  };
+
+  this._refreshView = function() {
+    var year = this.activeDate.getFullYear(),
+      month = this.activeDate.getMonth(),
+      firstDayOfMonth = new Date(this.activeDate);
+
+    firstDayOfMonth.setFullYear(year, month, 1);
+
+    var difference = this.startingDay - firstDayOfMonth.getDay(),
+      numDisplayedFromPreviousMonth = difference > 0 ?
+        7 - difference : - difference,
+      firstDate = new Date(firstDayOfMonth);
+
+    if (numDisplayedFromPreviousMonth > 0) {
+      firstDate.setDate(-numDisplayedFromPreviousMonth + 1);
+    }
+
+    // 42 is the number of days on a six-week calendar
+    var days = this.getDates(firstDate, 42);
+    for (var i = 0; i < 42; i ++) {
+      days[i] = angular.extend(this.createDateObject(days[i], this.formatDay), {
+        secondary: days[i].getMonth() !== month,
+        uid: scope.uniqueId + '-' + i
+      });
+    }
+
+    scope.labels = new Array(7);
+    for (var j = 0; j < 7; j++) {
+      scope.labels[j] = {
+        abbr: dateFilter(days[j].date, this.formatDayHeader),
+        full: dateFilter(days[j].date, 'EEEE')
+      };
+    }
+
+    scope.title = dateFilter(this.activeDate, this.formatDayTitle);
+    scope.rows = this.split(days, 7);
+
+    if (scope.showWeeks) {
+      scope.weekNumbers = [];
+      var thursdayIndex = (4 + 7 - this.startingDay) % 7,
+          numWeeks = scope.rows.length;
+      for (var curWeek = 0; curWeek < numWeeks; curWeek++) {
+        scope.weekNumbers.push(
+          getISO8601WeekNumber(scope.rows[curWeek][thursdayIndex].date));
+      }
+    }
+  };
+
+  this.compare = function(date1, date2) {
+    var _date1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
+    var _date2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
+    _date1.setFullYear(date1.getFullYear());
+    _date2.setFullYear(date2.getFullYear());
+    return _date1 - _date2;
+  };
+
+  function getISO8601WeekNumber(date) {
+    var checkDate = new Date(date);
+    checkDate.setDate(checkDate.getDate() + 4 - (checkDate.getDay() || 7)); // Thursday
+    var time = checkDate.getTime();
+    checkDate.setMonth(0); // Compare with Jan 1
+    checkDate.setDate(1);
+    return Math.floor(Math.round((time - checkDate) / 86400000) / 7) + 1;
+  }
+
+  this.handleKeyDown = function(key, evt) {
+    var date = this.activeDate.getDate();
+
+    if (key === 'left') {
+      date = date - 1;
+    } else if (key === 'up') {
+      date = date - 7;
+    } else if (key === 'right') {
+      date = date + 1;
+    } else if (key === 'down') {
+      date = date + 7;
+    } else if (key === 'pageup' || key === 'pagedown') {
+      var month = this.activeDate.getMonth() + (key === 'pageup' ? - 1 : 1);
+      this.activeDate.setMonth(month, 1);
+      date = Math.min(getDaysInMonth(this.activeDate.getFullYear(), this.activeDate.getMonth()), date);
+    } else if (key === 'home') {
+      date = 1;
+    } else if (key === 'end') {
+      date = getDaysInMonth(this.activeDate.getFullYear(), this.activeDate.getMonth());
+    }
+    this.activeDate.setDate(date);
+  };
+}])
+
+.controller('UibMonthpickerController', ['$scope', '$element', 'dateFilter', function(scope, $element, dateFilter) {
+  this.step = { years: 1 };
+  this.element = $element;
+
+  this.init = function(ctrl) {
+    angular.extend(ctrl, this);
+    ctrl.refreshView();
+  };
+
+  this._refreshView = function() {
+    var months = new Array(12),
+        year = this.activeDate.getFullYear(),
+        date;
+
+    for (var i = 0; i < 12; i++) {
+      date = new Date(this.activeDate);
+      date.setFullYear(year, i, 1);
+      months[i] = angular.extend(this.createDateObject(date, this.formatMonth), {
+        uid: scope.uniqueId + '-' + i
+      });
+    }
+
+    scope.title = dateFilter(this.activeDate, this.formatMonthTitle);
+    scope.rows = this.split(months, 3);
+  };
+
+  this.compare = function(date1, date2) {
+    var _date1 = new Date(date1.getFullYear(), date1.getMonth());
+    var _date2 = new Date(date2.getFullYear(), date2.getMonth());
+    _date1.setFullYear(date1.getFullYear());
+    _date2.setFullYear(date2.getFullYear());
+    return _date1 - _date2;
+  };
+
+  this.handleKeyDown = function(key, evt) {
+    var date = this.activeDate.getMonth();
+
+    if (key === 'left') {
+      date = date - 1;
+    } else if (key === 'up') {
+      date = date - 3;
+    } else if (key === 'right') {
+      date = date + 1;
+    } else if (key === 'down') {
+      date = date + 3;
+    } else if (key === 'pageup' || key === 'pagedown') {
+      var year = this.activeDate.getFullYear() + (key === 'pageup' ? - 1 : 1);
+      this.activeDate.setFullYear(year);
+    } else if (key === 'home') {
+      date = 0;
+    } else if (key === 'end') {
+      date = 11;
+    }
+    this.activeDate.setMonth(date);
+  };
+}])
+
+.controller('UibYearpickerController', ['$scope', '$element', 'dateFilter', function(scope, $element, dateFilter) {
+  var columns, range;
+  this.element = $element;
+
+  function getStartingYear(year) {
+    return parseInt((year - 1) / range, 10) * range + 1;
+  }
+
+  this.yearpickerInit = function() {
+    columns = this.yearColumns;
+    range = this.yearRows * columns;
+    this.step = { years: range };
+  };
+
+  this._refreshView = function() {
+    var years = new Array(range), date;
+
+    for (var i = 0, start = getStartingYear(this.activeDate.getFullYear()); i < range; i++) {
+      date = new Date(this.activeDate);
+      date.setFullYear(start + i, 0, 1);
+      years[i] = angular.extend(this.createDateObject(date, this.formatYear), {
+        uid: scope.uniqueId + '-' + i
+      });
+    }
+
+    scope.title = [years[0].label, years[range - 1].label].join(' - ');
+    scope.rows = this.split(years, columns);
+    scope.columns = columns;
+  };
+
+  this.compare = function(date1, date2) {
+    return date1.getFullYear() - date2.getFullYear();
+  };
+
+  this.handleKeyDown = function(key, evt) {
+    var date = this.activeDate.getFullYear();
+
+    if (key === 'left') {
+      date = date - 1;
+    } else if (key === 'up') {
+      date = date - columns;
+    } else if (key === 'right') {
+      date = date + 1;
+    } else if (key === 'down') {
+      date = date + columns;
+    } else if (key === 'pageup' || key === 'pagedown') {
+      date += (key === 'pageup' ? - 1 : 1) * range;
+    } else if (key === 'home') {
+      date = getStartingYear(this.activeDate.getFullYear());
+    } else if (key === 'end') {
+      date = getStartingYear(this.activeDate.getFullYear()) + range - 1;
+    }
+    this.activeDate.setFullYear(date);
+  };
+}])
+
+.directive('uibDatepicker', function() {
+  return {
+    replace: true,
+    templateUrl: function(element, attrs) {
+      return attrs.templateUrl || 'uib/template/datepicker/datepicker.html';
+    },
+    scope: {
+      datepickerOptions: '=?'
+    },
+    require: ['uibDatepicker', '^ngModel'],
+    controller: 'UibDatepickerController',
+    controllerAs: 'datepicker',
+    link: function(scope, element, attrs, ctrls) {
+      var datepickerCtrl = ctrls[0], ngModelCtrl = ctrls[1];
+
+      datepickerCtrl.init(ngModelCtrl);
+    }
+  };
+})
+
+.directive('uibDaypicker', function() {
+  return {
+    replace: true,
+    templateUrl: function(element, attrs) {
+      return attrs.templateUrl || 'uib/template/datepicker/day.html';
+    },
+    require: ['^uibDatepicker', 'uibDaypicker'],
+    controller: 'UibDaypickerController',
+    link: function(scope, element, attrs, ctrls) {
+      var datepickerCtrl = ctrls[0],
+        daypickerCtrl = ctrls[1];
+
+      daypickerCtrl.init(datepickerCtrl);
+    }
+  };
+})
+
+.directive('uibMonthpicker', function() {
+  return {
+    replace: true,
+    templateUrl: function(element, attrs) {
+      return attrs.templateUrl || 'uib/template/datepicker/month.html';
+    },
+    require: ['^uibDatepicker', 'uibMonthpicker'],
+    controller: 'UibMonthpickerController',
+    link: function(scope, element, attrs, ctrls) {
+      var datepickerCtrl = ctrls[0],
+        monthpickerCtrl = ctrls[1];
+
+      monthpickerCtrl.init(datepickerCtrl);
+    }
+  };
+})
+
+.directive('uibYearpicker', function() {
+  return {
+    replace: true,
+    templateUrl: function(element, attrs) {
+      return attrs.templateUrl || 'uib/template/datepicker/year.html';
+    },
+    require: ['^uibDatepicker', 'uibYearpicker'],
+    controller: 'UibYearpickerController',
+    link: function(scope, element, attrs, ctrls) {
+      var ctrl = ctrls[0];
+      angular.extend(ctrl, ctrls[1]);
+      ctrl.yearpickerInit();
+
+      ctrl.refreshView();
+    }
+  };
+});
+
 angular.module('ui.bootstrap.position', [])
 
 /**
@@ -10094,6 +16399,11 @@ angular.module('ui.bootstrap.position', [])
      * Do not access this variable directly, use scrollbarWidth() instead.
      */
     var SCROLLBAR_WIDTH;
+    /**
+     * scrollbar on body and html element in IE and Edge overlay
+     * content and should be considered 0 width.
+     */
+    var BODY_SCROLLBAR_WIDTH;
     var OVERFLOW_REGEX = {
       normal: /(auto|scroll)/,
       hidden: /(auto|scroll|hidden)/
@@ -10104,6 +16414,7 @@ angular.module('ui.bootstrap.position', [])
       secondary: /^(top|bottom|left|right|center)$/,
       vertical: /^(top|bottom)$/
     };
+    var BODY_REGEX = /(HTML|BODY)/;
 
     return {
 
@@ -10115,7 +16426,7 @@ angular.module('ui.bootstrap.position', [])
        * @returns {element} A HTML element.
        */
       getRawNode: function(elem) {
-        return elem[0] || elem;
+        return elem.nodeName ? elem : elem[0] || elem;
       },
 
       /**
@@ -10157,12 +16468,25 @@ angular.module('ui.bootstrap.position', [])
       /**
        * Provides the scrollbar width, concept from TWBS measureScrollbar()
        * function in https://github.com/twbs/bootstrap/blob/master/js/modal.js
+       * In IE and Edge, scollbar on body and html element overlay and should
+       * return a width of 0.
        *
        * @returns {number} The width of the browser scollbar.
        */
-      scrollbarWidth: function() {
+      scrollbarWidth: function(isBody) {
+        if (isBody) {
+          if (angular.isUndefined(BODY_SCROLLBAR_WIDTH)) {
+            var bodyElem = $document.find('body');
+            bodyElem.addClass('uib-position-body-scrollbar-measure');
+            BODY_SCROLLBAR_WIDTH = $window.innerWidth - bodyElem[0].clientWidth;
+            BODY_SCROLLBAR_WIDTH = isFinite(BODY_SCROLLBAR_WIDTH) ? BODY_SCROLLBAR_WIDTH : 0;
+            bodyElem.removeClass('uib-position-body-scrollbar-measure');
+          }
+          return BODY_SCROLLBAR_WIDTH;
+        }
+
         if (angular.isUndefined(SCROLLBAR_WIDTH)) {
-          var scrollElem = angular.element('<div style="position: absolute; top: -9999px; width: 50px; height: 50px; overflow: scroll;"></div>');
+          var scrollElem = angular.element('<div class="uib-position-scrollbar-measure"></div>');
           $document.find('body').append(scrollElem);
           SCROLLBAR_WIDTH = scrollElem[0].offsetWidth - scrollElem[0].clientWidth;
           SCROLLBAR_WIDTH = isFinite(SCROLLBAR_WIDTH) ? SCROLLBAR_WIDTH : 0;
@@ -10173,6 +16497,57 @@ angular.module('ui.bootstrap.position', [])
       },
 
       /**
+       * Provides the padding required on an element to replace the scrollbar.
+       *
+       * @returns {object} An object with the following properties:
+       *   <ul>
+       *     <li>**scrollbarWidth**: the width of the scrollbar</li>
+       *     <li>**widthOverflow**: whether the the width is overflowing</li>
+       *     <li>**right**: the amount of right padding on the element needed to replace the scrollbar</li>
+       *     <li>**rightOriginal**: the amount of right padding currently on the element</li>
+       *     <li>**heightOverflow**: whether the the height is overflowing</li>
+       *     <li>**bottom**: the amount of bottom padding on the element needed to replace the scrollbar</li>
+       *     <li>**bottomOriginal**: the amount of bottom padding currently on the element</li>
+       *   </ul>
+       */
+      scrollbarPadding: function(elem) {
+        elem = this.getRawNode(elem);
+
+        var elemStyle = $window.getComputedStyle(elem);
+        var paddingRight = this.parseStyle(elemStyle.paddingRight);
+        var paddingBottom = this.parseStyle(elemStyle.paddingBottom);
+        var scrollParent = this.scrollParent(elem, false, true);
+        var scrollbarWidth = this.scrollbarWidth(scrollParent, BODY_REGEX.test(scrollParent.tagName));
+
+        return {
+          scrollbarWidth: scrollbarWidth,
+          widthOverflow: scrollParent.scrollWidth > scrollParent.clientWidth,
+          right: paddingRight + scrollbarWidth,
+          originalRight: paddingRight,
+          heightOverflow: scrollParent.scrollHeight > scrollParent.clientHeight,
+          bottom: paddingBottom + scrollbarWidth,
+          originalBottom: paddingBottom
+         };
+      },
+
+      /**
+       * Checks to see if the element is scrollable.
+       *
+       * @param {element} elem - The element to check.
+       * @param {boolean=} [includeHidden=false] - Should scroll style of 'hidden' be considered,
+       *   default is false.
+       *
+       * @returns {boolean} Whether the element is scrollable.
+       */
+      isScrollable: function(elem, includeHidden) {
+        elem = this.getRawNode(elem);
+
+        var overflowRegex = includeHidden ? OVERFLOW_REGEX.hidden : OVERFLOW_REGEX.normal;
+        var elemStyle = $window.getComputedStyle(elem);
+        return overflowRegex.test(elemStyle.overflow + elemStyle.overflowY + elemStyle.overflowX);
+      },
+
+      /**
        * Provides the closest scrollable ancestor.
        * A port of the jQuery UI scrollParent method:
        * https://github.com/jquery/jquery-ui/blob/master/ui/scroll-parent.js
@@ -10180,15 +16555,20 @@ angular.module('ui.bootstrap.position', [])
        * @param {element} elem - The element to find the scroll parent of.
        * @param {boolean=} [includeHidden=false] - Should scroll style of 'hidden' be considered,
        *   default is false.
+       * @param {boolean=} [includeSelf=false] - Should the element being passed be
+       * included in the scrollable llokup.
        *
        * @returns {element} A HTML element.
        */
-      scrollParent: function(elem, includeHidden) {
+      scrollParent: function(elem, includeHidden, includeSelf) {
         elem = this.getRawNode(elem);
 
         var overflowRegex = includeHidden ? OVERFLOW_REGEX.hidden : OVERFLOW_REGEX.normal;
         var documentEl = $document[0].documentElement;
         var elemStyle = $window.getComputedStyle(elem);
+        if (includeSelf && overflowRegex.test(elemStyle.overflow + elemStyle.overflowY + elemStyle.overflowX)) {
+          return elem;
+        }
         var excludeStatic = elemStyle.position === 'absolute';
         var scrollParent = elem.parentElement || documentEl;
 
@@ -10452,7 +16832,7 @@ angular.module('ui.bootstrap.position', [])
         var targetElemPos = {top: 0, left: 0, placement: ''};
 
         if (placement[2]) {
-          var viewportOffset = this.viewportOffset(hostElem);
+          var viewportOffset = this.viewportOffset(hostElem, appendToBody);
 
           var targetElemStyle = $window.getComputedStyle(targetElem);
           var adjustedSize = {
@@ -10546,26 +16926,29 @@ angular.module('ui.bootstrap.position', [])
       positionArrow: function(elem, placement) {
         elem = this.getRawNode(elem);
 
-        var isTooltip = true;
-
-        var innerElem = elem.querySelector('.tooltip-inner');
-        if (!innerElem) {
-          isTooltip = false;
-          innerElem = elem.querySelector('.popover-inner');
-        }
+        var innerElem = elem.querySelector('.tooltip-inner, .popover-inner');
         if (!innerElem) {
           return;
         }
+
+        var isTooltip = angular.element(innerElem).hasClass('tooltip-inner');
 
         var arrowElem = isTooltip ? elem.querySelector('.tooltip-arrow') : elem.querySelector('.arrow');
         if (!arrowElem) {
           return;
         }
 
+        var arrowCss = {
+          top: '',
+          bottom: '',
+          left: '',
+          right: ''
+        };
+
         placement = this.parsePlacement(placement);
         if (placement[1] === 'center') {
           // no adjustment necessary - just reset styles
-          angular.element(arrowElem).css({top: '', bottom: '', right: '', left: '', margin: ''});
+          angular.element(arrowElem).css(arrowCss);
           return;
         }
 
@@ -10580,14 +16963,6 @@ angular.module('ui.bootstrap.position', [])
         }
         borderRadiusProp += '-radius';
         var borderRadius = $window.getComputedStyle(isTooltip ? innerElem : elem)[borderRadiusProp];
-
-        var arrowCss = {
-          top: 'auto',
-          bottom: 'auto',
-          left: 'auto',
-          right: 'auto',
-          margin: 0
-        };
 
         switch (placement[0]) {
           case 'top':
@@ -10611,619 +16986,80 @@ angular.module('ui.bootstrap.position', [])
     };
   }]);
 
-angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootstrap.isClass', 'ui.bootstrap.position'])
+angular.module('ui.bootstrap.datepickerPopup', ['ui.bootstrap.datepicker', 'ui.bootstrap.position'])
 
-.value('$datepickerSuppressError', false)
-
-.constant('uibDatepickerConfig', {
-  formatDay: 'dd',
-  formatMonth: 'MMMM',
-  formatYear: 'yyyy',
-  formatDayHeader: 'EEE',
-  formatDayTitle: 'MMMM yyyy',
-  formatMonthTitle: 'yyyy',
-  datepickerMode: 'day',
-  minMode: 'day',
-  maxMode: 'year',
-  showWeeks: true,
-  startingDay: 0,
-  yearRows: 4,
-  yearColumns: 5,
-  minDate: null,
-  maxDate: null,
-  shortcutPropagation: false,
-  ngModelOptions: {}
-})
-
-.controller('UibDatepickerController', ['$scope', '$attrs', '$parse', '$interpolate', '$log', 'dateFilter', 'uibDatepickerConfig', '$datepickerSuppressError', 'uibDateParser',
-  function($scope, $attrs, $parse, $interpolate, $log, dateFilter, datepickerConfig, $datepickerSuppressError, dateParser) {
-  var self = this,
-      ngModelCtrl = { $setViewValue: angular.noop }, // nullModelCtrl;
-      ngModelOptions = {};
-
-  // Modes chain
-  this.modes = ['day', 'month', 'year'];
-
-  // Interpolated configuration attributes
-  angular.forEach(['formatDay', 'formatMonth', 'formatYear', 'formatDayHeader', 'formatDayTitle', 'formatMonthTitle'], function(key) {
-    self[key] = angular.isDefined($attrs[key]) ? $interpolate($attrs[key])($scope.$parent) : datepickerConfig[key];
-  });
-
-  // Evaled configuration attributes
-  angular.forEach(['showWeeks', 'startingDay', 'yearRows', 'yearColumns', 'shortcutPropagation'], function(key) {
-    self[key] = angular.isDefined($attrs[key]) ? $scope.$parent.$eval($attrs[key]) : datepickerConfig[key];
-  });
-
-  // Watchable date attributes
-  angular.forEach(['minDate', 'maxDate'], function(key) {
-    if ($attrs[key]) {
-      $scope.$parent.$watch($attrs[key], function(value) {
-        self[key] = value ? angular.isDate(value) ? dateParser.fromTimezone(new Date(value), ngModelOptions.timezone) : new Date(dateFilter(value, 'medium')) : null;
-        self.refreshView();
-      });
-    } else {
-      self[key] = datepickerConfig[key] ? dateParser.fromTimezone(new Date(datepickerConfig[key]), ngModelOptions.timezone) : null;
-    }
-  });
-
-  angular.forEach(['minMode', 'maxMode'], function(key) {
-    if ($attrs[key]) {
-      $scope.$parent.$watch($attrs[key], function(value) {
-        self[key] = $scope[key] = angular.isDefined(value) ? value : $attrs[key];
-        if (key === 'minMode' && self.modes.indexOf($scope.datepickerMode) < self.modes.indexOf(self[key]) ||
-          key === 'maxMode' && self.modes.indexOf($scope.datepickerMode) > self.modes.indexOf(self[key])) {
-          $scope.datepickerMode = self[key];
-        }
-      });
-    } else {
-      self[key] = $scope[key] = datepickerConfig[key] || null;
-    }
-  });
-
-  $scope.datepickerMode = $scope.datepickerMode || datepickerConfig.datepickerMode;
-  $scope.uniqueId = 'datepicker-' + $scope.$id + '-' + Math.floor(Math.random() * 10000);
-
-  if (angular.isDefined($attrs.initDate)) {
-    this.activeDate = dateParser.fromTimezone($scope.$parent.$eval($attrs.initDate), ngModelOptions.timezone) || new Date();
-    $scope.$parent.$watch($attrs.initDate, function(initDate) {
-      if (initDate && (ngModelCtrl.$isEmpty(ngModelCtrl.$modelValue) || ngModelCtrl.$invalid)) {
-        self.activeDate = dateParser.fromTimezone(initDate, ngModelOptions.timezone);
-        self.refreshView();
-      }
-    });
-  } else {
-    this.activeDate = new Date();
-  }
-
-  $scope.disabled = angular.isDefined($attrs.disabled) || false;
-  if (angular.isDefined($attrs.ngDisabled)) {
-    $scope.$parent.$watch($attrs.ngDisabled, function(disabled) {
-      $scope.disabled = disabled;
-      self.refreshView();
-    });
-  }
-
-  $scope.isActive = function(dateObject) {
-    if (self.compare(dateObject.date, self.activeDate) === 0) {
-      $scope.activeDateId = dateObject.uid;
-      return true;
-    }
-    return false;
-  };
-
-  this.init = function(ngModelCtrl_) {
-    ngModelCtrl = ngModelCtrl_;
-    ngModelOptions = ngModelCtrl_.$options || datepickerConfig.ngModelOptions;
-
-    if (ngModelCtrl.$modelValue) {
-      this.activeDate = ngModelCtrl.$modelValue;
-    }
-
-    ngModelCtrl.$render = function() {
-      self.render();
-    };
-  };
-
-  this.render = function() {
-    if (ngModelCtrl.$viewValue) {
-      var date = new Date(ngModelCtrl.$viewValue),
-          isValid = !isNaN(date);
-
-      if (isValid) {
-        this.activeDate = dateParser.fromTimezone(date, ngModelOptions.timezone);
-      } else if (!$datepickerSuppressError) {
-        $log.error('Datepicker directive: "ng-model" value must be a Date object');
-      }
-    }
-    this.refreshView();
-  };
-
-  this.refreshView = function() {
-    if (this.element) {
-      $scope.selectedDt = null;
-      this._refreshView();
-      if ($scope.activeDt) {
-        $scope.activeDateId = $scope.activeDt.uid;
-      }
-
-      var date = ngModelCtrl.$viewValue ? new Date(ngModelCtrl.$viewValue) : null;
-      date = dateParser.fromTimezone(date, ngModelOptions.timezone);
-      ngModelCtrl.$setValidity('dateDisabled', !date ||
-        this.element && !this.isDisabled(date));
-    }
-  };
-
-  this.createDateObject = function(date, format) {
-    var model = ngModelCtrl.$viewValue ? new Date(ngModelCtrl.$viewValue) : null;
-    model = dateParser.fromTimezone(model, ngModelOptions.timezone);
-    var dt = {
-      date: date,
-      label: dateFilter(date, format.replace(/d!/, 'dd')).replace(/M!/, 'MM'),
-      selected: model && this.compare(date, model) === 0,
-      disabled: this.isDisabled(date),
-      current: this.compare(date, new Date()) === 0,
-      customClass: this.customClass(date) || null
-    };
-
-    if (model && this.compare(date, model) === 0) {
-      $scope.selectedDt = dt;
-    }
-
-    if (self.activeDate && this.compare(dt.date, self.activeDate) === 0) {
-      $scope.activeDt = dt;
-    }
-
-    return dt;
-  };
-
-  this.isDisabled = function(date) {
-    return $scope.disabled ||
-      this.minDate && this.compare(date, this.minDate) < 0 ||
-      this.maxDate && this.compare(date, this.maxDate) > 0 ||
-      $attrs.dateDisabled && $scope.dateDisabled({date: date, mode: $scope.datepickerMode});
-  };
-
-  this.customClass = function(date) {
-    return $scope.customClass({date: date, mode: $scope.datepickerMode});
-  };
-
-  // Split array into smaller arrays
-  this.split = function(arr, size) {
-    var arrays = [];
-    while (arr.length > 0) {
-      arrays.push(arr.splice(0, size));
-    }
-    return arrays;
-  };
-
-  $scope.select = function(date) {
-    if ($scope.datepickerMode === self.minMode) {
-      var dt = ngModelCtrl.$viewValue ? dateParser.fromTimezone(new Date(ngModelCtrl.$viewValue), ngModelOptions.timezone) : new Date(0, 0, 0, 0, 0, 0, 0);
-      dt.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-      dt = dateParser.toTimezone(dt, ngModelOptions.timezone);
-      ngModelCtrl.$setViewValue(dt);
-      ngModelCtrl.$render();
-    } else {
-      self.activeDate = date;
-      $scope.datepickerMode = self.modes[self.modes.indexOf($scope.datepickerMode) - 1];
-    }
-  };
-
-  $scope.move = function(direction) {
-    var year = self.activeDate.getFullYear() + direction * (self.step.years || 0),
-        month = self.activeDate.getMonth() + direction * (self.step.months || 0);
-    self.activeDate.setFullYear(year, month, 1);
-    self.refreshView();
-  };
-
-  $scope.toggleMode = function(direction) {
-    direction = direction || 1;
-
-    if ($scope.datepickerMode === self.maxMode && direction === 1 ||
-      $scope.datepickerMode === self.minMode && direction === -1) {
-      return;
-    }
-
-    $scope.datepickerMode = self.modes[self.modes.indexOf($scope.datepickerMode) + direction];
-  };
-
-  // Key event mapper
-  $scope.keys = { 13: 'enter', 32: 'space', 33: 'pageup', 34: 'pagedown', 35: 'end', 36: 'home', 37: 'left', 38: 'up', 39: 'right', 40: 'down' };
-
-  var focusElement = function() {
-    self.element[0].focus();
-  };
-
-  // Listen for focus requests from popup directive
-  $scope.$on('uib:datepicker.focus', focusElement);
-
-  $scope.keydown = function(evt) {
-    var key = $scope.keys[evt.which];
-
-    if (!key || evt.shiftKey || evt.altKey || $scope.disabled) {
-      return;
-    }
-
-    evt.preventDefault();
-    if (!self.shortcutPropagation) {
-      evt.stopPropagation();
-    }
-
-    if (key === 'enter' || key === 'space') {
-      if (self.isDisabled(self.activeDate)) {
-        return; // do nothing
-      }
-      $scope.select(self.activeDate);
-    } else if (evt.ctrlKey && (key === 'up' || key === 'down')) {
-      $scope.toggleMode(key === 'up' ? 1 : -1);
-    } else {
-      self.handleKeyDown(key, evt);
-      self.refreshView();
-    }
-  };
-}])
-
-.controller('UibDaypickerController', ['$scope', '$element', 'dateFilter', function(scope, $element, dateFilter) {
-  var DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-  this.step = { months: 1 };
-  this.element = $element;
-  function getDaysInMonth(year, month) {
-    return month === 1 && year % 4 === 0 &&
-      (year % 100 !== 0 || year % 400 === 0) ? 29 : DAYS_IN_MONTH[month];
-  }
-
-  this.init = function(ctrl) {
-    angular.extend(ctrl, this);
-    scope.showWeeks = ctrl.showWeeks;
-    ctrl.refreshView();
-  };
-
-  this.getDates = function(startDate, n) {
-    var dates = new Array(n), current = new Date(startDate), i = 0, date;
-    while (i < n) {
-      date = new Date(current);
-      dates[i++] = date;
-      current.setDate(current.getDate() + 1);
-    }
-    return dates;
-  };
-
-  this._refreshView = function() {
-    var year = this.activeDate.getFullYear(),
-      month = this.activeDate.getMonth(),
-      firstDayOfMonth = new Date(this.activeDate);
-
-    firstDayOfMonth.setFullYear(year, month, 1);
-
-    var difference = this.startingDay - firstDayOfMonth.getDay(),
-      numDisplayedFromPreviousMonth = difference > 0 ?
-        7 - difference : - difference,
-      firstDate = new Date(firstDayOfMonth);
-
-    if (numDisplayedFromPreviousMonth > 0) {
-      firstDate.setDate(-numDisplayedFromPreviousMonth + 1);
-    }
-
-    // 42 is the number of days on a six-week calendar
-    var days = this.getDates(firstDate, 42);
-    for (var i = 0; i < 42; i ++) {
-      days[i] = angular.extend(this.createDateObject(days[i], this.formatDay), {
-        secondary: days[i].getMonth() !== month,
-        uid: scope.uniqueId + '-' + i
-      });
-    }
-
-    scope.labels = new Array(7);
-    for (var j = 0; j < 7; j++) {
-      scope.labels[j] = {
-        abbr: dateFilter(days[j].date, this.formatDayHeader),
-        full: dateFilter(days[j].date, 'EEEE')
-      };
-    }
-
-    scope.title = dateFilter(this.activeDate, this.formatDayTitle);
-    scope.rows = this.split(days, 7);
-
-    if (scope.showWeeks) {
-      scope.weekNumbers = [];
-      var thursdayIndex = (4 + 7 - this.startingDay) % 7,
-          numWeeks = scope.rows.length;
-      for (var curWeek = 0; curWeek < numWeeks; curWeek++) {
-        scope.weekNumbers.push(
-          getISO8601WeekNumber(scope.rows[curWeek][thursdayIndex].date));
-      }
-    }
-  };
-
-  this.compare = function(date1, date2) {
-    var _date1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
-    var _date2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
-    _date1.setFullYear(date1.getFullYear());
-    _date2.setFullYear(date2.getFullYear());
-    return _date1 - _date2;
-  };
-
-  function getISO8601WeekNumber(date) {
-    var checkDate = new Date(date);
-    checkDate.setDate(checkDate.getDate() + 4 - (checkDate.getDay() || 7)); // Thursday
-    var time = checkDate.getTime();
-    checkDate.setMonth(0); // Compare with Jan 1
-    checkDate.setDate(1);
-    return Math.floor(Math.round((time - checkDate) / 86400000) / 7) + 1;
-  }
-
-  this.handleKeyDown = function(key, evt) {
-    var date = this.activeDate.getDate();
-
-    if (key === 'left') {
-      date = date - 1;
-    } else if (key === 'up') {
-      date = date - 7;
-    } else if (key === 'right') {
-      date = date + 1;
-    } else if (key === 'down') {
-      date = date + 7;
-    } else if (key === 'pageup' || key === 'pagedown') {
-      var month = this.activeDate.getMonth() + (key === 'pageup' ? - 1 : 1);
-      this.activeDate.setMonth(month, 1);
-      date = Math.min(getDaysInMonth(this.activeDate.getFullYear(), this.activeDate.getMonth()), date);
-    } else if (key === 'home') {
-      date = 1;
-    } else if (key === 'end') {
-      date = getDaysInMonth(this.activeDate.getFullYear(), this.activeDate.getMonth());
-    }
-    this.activeDate.setDate(date);
-  };
-}])
-
-.controller('UibMonthpickerController', ['$scope', '$element', 'dateFilter', function(scope, $element, dateFilter) {
-  this.step = { years: 1 };
-  this.element = $element;
-
-  this.init = function(ctrl) {
-    angular.extend(ctrl, this);
-    ctrl.refreshView();
-  };
-
-  this._refreshView = function() {
-    var months = new Array(12),
-        year = this.activeDate.getFullYear(),
-        date;
-
-    for (var i = 0; i < 12; i++) {
-      date = new Date(this.activeDate);
-      date.setFullYear(year, i, 1);
-      months[i] = angular.extend(this.createDateObject(date, this.formatMonth), {
-        uid: scope.uniqueId + '-' + i
-      });
-    }
-
-    scope.title = dateFilter(this.activeDate, this.formatMonthTitle);
-    scope.rows = this.split(months, 3);
-  };
-
-  this.compare = function(date1, date2) {
-    var _date1 = new Date(date1.getFullYear(), date1.getMonth());
-    var _date2 = new Date(date2.getFullYear(), date2.getMonth());
-    _date1.setFullYear(date1.getFullYear());
-    _date2.setFullYear(date2.getFullYear());
-    return _date1 - _date2;
-  };
-
-  this.handleKeyDown = function(key, evt) {
-    var date = this.activeDate.getMonth();
-
-    if (key === 'left') {
-      date = date - 1;
-    } else if (key === 'up') {
-      date = date - 3;
-    } else if (key === 'right') {
-      date = date + 1;
-    } else if (key === 'down') {
-      date = date + 3;
-    } else if (key === 'pageup' || key === 'pagedown') {
-      var year = this.activeDate.getFullYear() + (key === 'pageup' ? - 1 : 1);
-      this.activeDate.setFullYear(year);
-    } else if (key === 'home') {
-      date = 0;
-    } else if (key === 'end') {
-      date = 11;
-    }
-    this.activeDate.setMonth(date);
-  };
-}])
-
-.controller('UibYearpickerController', ['$scope', '$element', 'dateFilter', function(scope, $element, dateFilter) {
-  var columns, range;
-  this.element = $element;
-
-  function getStartingYear(year) {
-    return parseInt((year - 1) / range, 10) * range + 1;
-  }
-
-  this.yearpickerInit = function() {
-    columns = this.yearColumns;
-    range = this.yearRows * columns;
-    this.step = { years: range };
-  };
-
-  this._refreshView = function() {
-    var years = new Array(range), date;
-
-    for (var i = 0, start = getStartingYear(this.activeDate.getFullYear()); i < range; i++) {
-      date = new Date(this.activeDate);
-      date.setFullYear(start + i, 0, 1);
-      years[i] = angular.extend(this.createDateObject(date, this.formatYear), {
-        uid: scope.uniqueId + '-' + i
-      });
-    }
-
-    scope.title = [years[0].label, years[range - 1].label].join(' - ');
-    scope.rows = this.split(years, columns);
-    scope.columns = columns;
-  };
-
-  this.compare = function(date1, date2) {
-    return date1.getFullYear() - date2.getFullYear();
-  };
-
-  this.handleKeyDown = function(key, evt) {
-    var date = this.activeDate.getFullYear();
-
-    if (key === 'left') {
-      date = date - 1;
-    } else if (key === 'up') {
-      date = date - columns;
-    } else if (key === 'right') {
-      date = date + 1;
-    } else if (key === 'down') {
-      date = date + columns;
-    } else if (key === 'pageup' || key === 'pagedown') {
-      date += (key === 'pageup' ? - 1 : 1) * range;
-    } else if (key === 'home') {
-      date = getStartingYear(this.activeDate.getFullYear());
-    } else if (key === 'end') {
-      date = getStartingYear(this.activeDate.getFullYear()) + range - 1;
-    }
-    this.activeDate.setFullYear(date);
-  };
-}])
-
-.directive('uibDatepicker', function() {
-  return {
-    replace: true,
-    templateUrl: function(element, attrs) {
-      return attrs.templateUrl || 'uib/template/datepicker/datepicker.html';
-    },
-    scope: {
-      datepickerMode: '=?',
-      dateDisabled: '&',
-      customClass: '&',
-      shortcutPropagation: '&?'
-    },
-    require: ['uibDatepicker', '^ngModel'],
-    controller: 'UibDatepickerController',
-    controllerAs: 'datepicker',
-    link: function(scope, element, attrs, ctrls) {
-      var datepickerCtrl = ctrls[0], ngModelCtrl = ctrls[1];
-
-      datepickerCtrl.init(ngModelCtrl);
-    }
-  };
-})
-
-.directive('uibDaypicker', function() {
-  return {
-    replace: true,
-    templateUrl: function(element, attrs) {
-      return attrs.templateUrl || 'uib/template/datepicker/day.html';
-    },
-    require: ['^uibDatepicker', 'uibDaypicker'],
-    controller: 'UibDaypickerController',
-    link: function(scope, element, attrs, ctrls) {
-      var datepickerCtrl = ctrls[0],
-        daypickerCtrl = ctrls[1];
-
-      daypickerCtrl.init(datepickerCtrl);
-    }
-  };
-})
-
-.directive('uibMonthpicker', function() {
-  return {
-    replace: true,
-    templateUrl: function(element, attrs) {
-      return attrs.templateUrl || 'uib/template/datepicker/month.html';
-    },
-    require: ['^uibDatepicker', 'uibMonthpicker'],
-    controller: 'UibMonthpickerController',
-    link: function(scope, element, attrs, ctrls) {
-      var datepickerCtrl = ctrls[0],
-        monthpickerCtrl = ctrls[1];
-
-      monthpickerCtrl.init(datepickerCtrl);
-    }
-  };
-})
-
-.directive('uibYearpicker', function() {
-  return {
-    replace: true,
-    templateUrl: function(element, attrs) {
-      return attrs.templateUrl || 'uib/template/datepicker/year.html';
-    },
-    require: ['^uibDatepicker', 'uibYearpicker'],
-    controller: 'UibYearpickerController',
-    link: function(scope, element, attrs, ctrls) {
-      var ctrl = ctrls[0];
-      angular.extend(ctrl, ctrls[1]);
-      ctrl.yearpickerInit();
-
-      ctrl.refreshView();
-    }
-  };
-})
+.value('$datepickerPopupLiteralWarning', true)
 
 .constant('uibDatepickerPopupConfig', {
+  altInputFormats: [],
+  appendToBody: false,
+  clearText: 'Clear',
+  closeOnDateSelection: true,
+  closeText: 'Done',
+  currentText: 'Today',
   datepickerPopup: 'yyyy-MM-dd',
-  datepickerPopupTemplateUrl: 'uib/template/datepicker/popup.html',
+  datepickerPopupTemplateUrl: 'uib/template/datepickerPopup/popup.html',
   datepickerTemplateUrl: 'uib/template/datepicker/datepicker.html',
   html5Types: {
     date: 'yyyy-MM-dd',
     'datetime-local': 'yyyy-MM-ddTHH:mm:ss.sss',
     'month': 'yyyy-MM'
   },
-  currentText: 'Today',
-  clearText: 'Clear',
-  closeText: 'Done',
-  closeOnDateSelection: true,
-  appendToBody: false,
-  showButtonBar: true,
   onOpenFocus: true,
-  altInputFormats: []
+  showButtonBar: true,
+  placement: 'auto bottom-left'
 })
 
-.controller('UibDatepickerPopupController', ['$scope', '$element', '$attrs', '$compile', '$parse', '$document', '$rootScope', '$uibPosition', 'dateFilter', 'uibDateParser', 'uibDatepickerPopupConfig', '$timeout', 'uibDatepickerConfig',
-function(scope, element, attrs, $compile, $parse, $document, $rootScope, $position, dateFilter, dateParser, datepickerPopupConfig, $timeout, datepickerConfig) {
-  var self = this;
+.controller('UibDatepickerPopupController', ['$scope', '$element', '$attrs', '$compile', '$log', '$parse', '$window', '$document', '$rootScope', '$uibPosition', 'dateFilter', 'uibDateParser', 'uibDatepickerPopupConfig', '$timeout', 'uibDatepickerConfig', '$datepickerPopupLiteralWarning',
+function($scope, $element, $attrs, $compile, $log, $parse, $window, $document, $rootScope, $position, dateFilter, dateParser, datepickerPopupConfig, $timeout, datepickerConfig, $datepickerPopupLiteralWarning) {
   var cache = {},
     isHtml5DateInput = false;
   var dateFormat, closeOnDateSelection, appendToBody, onOpenFocus,
-    datepickerPopupTemplateUrl, datepickerTemplateUrl, popupEl, datepickerEl,
-    ngModel, ngModelOptions, $popup, altInputFormats;
-
-  scope.watchData = {};
+    datepickerPopupTemplateUrl, datepickerTemplateUrl, popupEl, datepickerEl, scrollParentEl,
+    ngModel, ngModelOptions, $popup, altInputFormats, watchListeners = [],
+    timezone;
 
   this.init = function(_ngModel_) {
     ngModel = _ngModel_;
-    ngModelOptions = _ngModel_.$options || datepickerConfig.ngModelOptions;
-    closeOnDateSelection = angular.isDefined(attrs.closeOnDateSelection) ? scope.$parent.$eval(attrs.closeOnDateSelection) : datepickerPopupConfig.closeOnDateSelection;
-    appendToBody = angular.isDefined(attrs.datepickerAppendToBody) ? scope.$parent.$eval(attrs.datepickerAppendToBody) : datepickerPopupConfig.appendToBody;
-    onOpenFocus = angular.isDefined(attrs.onOpenFocus) ? scope.$parent.$eval(attrs.onOpenFocus) : datepickerPopupConfig.onOpenFocus;
-    datepickerPopupTemplateUrl = angular.isDefined(attrs.datepickerPopupTemplateUrl) ? attrs.datepickerPopupTemplateUrl : datepickerPopupConfig.datepickerPopupTemplateUrl;
-    datepickerTemplateUrl = angular.isDefined(attrs.datepickerTemplateUrl) ? attrs.datepickerTemplateUrl : datepickerPopupConfig.datepickerTemplateUrl;
-    altInputFormats = angular.isDefined(attrs.altInputFormats) ? scope.$parent.$eval(attrs.altInputFormats) : datepickerPopupConfig.altInputFormats;
+    ngModelOptions = _ngModel_.$options;
+    closeOnDateSelection = angular.isDefined($attrs.closeOnDateSelection) ?
+      $scope.$parent.$eval($attrs.closeOnDateSelection) :
+      datepickerPopupConfig.closeOnDateSelection;
+    appendToBody = angular.isDefined($attrs.datepickerAppendToBody) ?
+      $scope.$parent.$eval($attrs.datepickerAppendToBody) :
+      datepickerPopupConfig.appendToBody;
+    onOpenFocus = angular.isDefined($attrs.onOpenFocus) ?
+      $scope.$parent.$eval($attrs.onOpenFocus) : datepickerPopupConfig.onOpenFocus;
+    datepickerPopupTemplateUrl = angular.isDefined($attrs.datepickerPopupTemplateUrl) ?
+      $attrs.datepickerPopupTemplateUrl :
+      datepickerPopupConfig.datepickerPopupTemplateUrl;
+    datepickerTemplateUrl = angular.isDefined($attrs.datepickerTemplateUrl) ?
+      $attrs.datepickerTemplateUrl : datepickerPopupConfig.datepickerTemplateUrl;
+    altInputFormats = angular.isDefined($attrs.altInputFormats) ?
+      $scope.$parent.$eval($attrs.altInputFormats) :
+      datepickerPopupConfig.altInputFormats;
 
-    scope.showButtonBar = angular.isDefined(attrs.showButtonBar) ? scope.$parent.$eval(attrs.showButtonBar) : datepickerPopupConfig.showButtonBar;
+    $scope.showButtonBar = angular.isDefined($attrs.showButtonBar) ?
+      $scope.$parent.$eval($attrs.showButtonBar) :
+      datepickerPopupConfig.showButtonBar;
 
-    if (datepickerPopupConfig.html5Types[attrs.type]) {
-      dateFormat = datepickerPopupConfig.html5Types[attrs.type];
+    if (datepickerPopupConfig.html5Types[$attrs.type]) {
+      dateFormat = datepickerPopupConfig.html5Types[$attrs.type];
       isHtml5DateInput = true;
     } else {
-      dateFormat = attrs.uibDatepickerPopup || datepickerPopupConfig.datepickerPopup;
-      attrs.$observe('uibDatepickerPopup', function(value, oldValue) {
-          var newDateFormat = value || datepickerPopupConfig.datepickerPopup;
-          // Invalidate the $modelValue to ensure that formatters re-run
-          // FIXME: Refactor when PR is merged: https://github.com/angular/angular.js/pull/10764
-          if (newDateFormat !== dateFormat) {
-            dateFormat = newDateFormat;
-            ngModel.$modelValue = null;
+      dateFormat = $attrs.uibDatepickerPopup || datepickerPopupConfig.datepickerPopup;
+      $attrs.$observe('uibDatepickerPopup', function(value, oldValue) {
+        var newDateFormat = value || datepickerPopupConfig.datepickerPopup;
+        // Invalidate the $modelValue to ensure that formatters re-run
+        // FIXME: Refactor when PR is merged: https://github.com/angular/angular.js/pull/10764
+        if (newDateFormat !== dateFormat) {
+          dateFormat = newDateFormat;
+          ngModel.$modelValue = null;
 
-            if (!dateFormat) {
-              throw new Error('uibDatepickerPopup must have a date format specified.');
-            }
+          if (!dateFormat) {
+            throw new Error('uibDatepickerPopup must have a date format specified.');
           }
+        }
       });
     }
 
@@ -11231,17 +17067,28 @@ function(scope, element, attrs, $compile, $parse, $document, $rootScope, $positi
       throw new Error('uibDatepickerPopup must have a date format specified.');
     }
 
-    if (isHtml5DateInput && attrs.uibDatepickerPopup) {
+    if (isHtml5DateInput && $attrs.uibDatepickerPopup) {
       throw new Error('HTML5 date input types do not support custom formats.');
     }
 
     // popup element used to display calendar
     popupEl = angular.element('<div uib-datepicker-popup-wrap><div uib-datepicker></div></div>');
-    scope.ngModelOptions = angular.copy(ngModelOptions);
-    scope.ngModelOptions.timezone = null;
+    if (ngModelOptions) {
+      timezone = ngModelOptions.timezone;
+      $scope.ngModelOptions = angular.copy(ngModelOptions);
+      $scope.ngModelOptions.timezone = null;
+      if ($scope.ngModelOptions.updateOnDefault === true) {
+        $scope.ngModelOptions.updateOn = $scope.ngModelOptions.updateOn ?
+          $scope.ngModelOptions.updateOn + ' default' : 'default';
+      }
+
+      popupEl.attr('ng-model-options', 'ngModelOptions');
+    } else {
+      timezone = null;
+    }
+
     popupEl.attr({
       'ng-model': 'date',
-      'ng-model-options': 'ngModelOptions',
       'ng-change': 'dateSelection(date)',
       'template-url': datepickerPopupTemplateUrl
     });
@@ -11250,86 +17097,18 @@ function(scope, element, attrs, $compile, $parse, $document, $rootScope, $positi
     datepickerEl = angular.element(popupEl.children()[0]);
     datepickerEl.attr('template-url', datepickerTemplateUrl);
 
+    if (!$scope.datepickerOptions) {
+      $scope.datepickerOptions = {};
+    }
+
     if (isHtml5DateInput) {
-      if (attrs.type === 'month') {
-        datepickerEl.attr('datepicker-mode', '"month"');
-        datepickerEl.attr('min-mode', 'month');
+      if ($attrs.type === 'month') {
+        $scope.datepickerOptions.datepickerMode = 'month';
+        $scope.datepickerOptions.minMode = 'month';
       }
     }
 
-    if (attrs.datepickerOptions) {
-      var options = scope.$parent.$eval(attrs.datepickerOptions);
-      if (options && options.initDate) {
-        scope.initDate = dateParser.fromTimezone(options.initDate, ngModelOptions.timezone);
-        datepickerEl.attr('init-date', 'initDate');
-        delete options.initDate;
-      }
-      angular.forEach(options, function(value, option) {
-        datepickerEl.attr(cameltoDash(option), value);
-      });
-    }
-
-    angular.forEach(['minMode', 'maxMode'], function(key) {
-      if (attrs[key]) {
-        scope.$parent.$watch(function() { return attrs[key]; }, function(value) {
-          scope.watchData[key] = value;
-        });
-        datepickerEl.attr(cameltoDash(key), 'watchData.' + key);
-      }
-    });
-
-    angular.forEach(['datepickerMode', 'shortcutPropagation'], function(key) {
-      if (attrs[key]) {
-        var getAttribute = $parse(attrs[key]);
-        var propConfig = {
-          get: function() {
-            return getAttribute(scope.$parent);
-          }
-        };
-
-        datepickerEl.attr(cameltoDash(key), 'watchData.' + key);
-
-        // Propagate changes from datepicker to outside
-        if (key === 'datepickerMode') {
-          var setAttribute = getAttribute.assign;
-          propConfig.set = function(v) {
-            setAttribute(scope.$parent, v);
-          };
-        }
-
-        Object.defineProperty(scope.watchData, key, propConfig);
-      }
-    });
-
-    angular.forEach(['minDate', 'maxDate', 'initDate'], function(key) {
-      if (attrs[key]) {
-        var getAttribute = $parse(attrs[key]);
-
-        scope.$parent.$watch(getAttribute, function(value) {
-          if (key === 'minDate' || key === 'maxDate') {
-            cache[key] = angular.isDate(value) ? dateParser.fromTimezone(new Date(value), ngModelOptions.timezone) : new Date(dateFilter(value, 'medium'));
-          }
-
-          scope.watchData[key] = cache[key] || dateParser.fromTimezone(new Date(value), ngModelOptions.timezone);
-        });
-
-        datepickerEl.attr(cameltoDash(key), 'watchData.' + key);
-      }
-    });
-
-    if (attrs.dateDisabled) {
-      datepickerEl.attr('date-disabled', 'dateDisabled({ date: date, mode: mode })');
-    }
-
-    angular.forEach(['formatDay', 'formatMonth', 'formatYear', 'formatDayHeader', 'formatDayTitle', 'formatMonthTitle', 'showWeeks', 'startingDay', 'yearRows', 'yearColumns'], function(key) {
-      if (angular.isDefined(attrs[key])) {
-        datepickerEl.attr(cameltoDash(key), attrs[key]);
-      }
-    });
-
-    if (attrs.customClass) {
-      datepickerEl.attr('custom-class', 'customClass({ date: date, mode: mode })');
-    }
+    datepickerEl.attr('datepicker-options', 'datepickerOptions');
 
     if (!isHtml5DateInput) {
       // Internal API to maintain the correct ng-invalid-[key] class
@@ -11338,136 +17117,184 @@ function(scope, element, attrs, $compile, $parse, $document, $rootScope, $positi
       ngModel.$parsers.unshift(parseDate);
       ngModel.$formatters.push(function(value) {
         if (ngModel.$isEmpty(value)) {
-          scope.date = value;
+          $scope.date = value;
           return value;
         }
-        scope.date = dateParser.fromTimezone(value, ngModelOptions.timezone);
-        dateFormat = dateFormat.replace(/M!/, 'MM')
-          .replace(/d!/, 'dd');
 
-        return dateFilter(scope.date, dateFormat);
+        $scope.date = dateParser.fromTimezone(value, timezone);
+
+        if (angular.isNumber($scope.date)) {
+          $scope.date = new Date($scope.date);
+        }
+
+        return dateParser.filter($scope.date, dateFormat);
       });
     } else {
       ngModel.$formatters.push(function(value) {
-        scope.date = dateParser.fromTimezone(value, ngModelOptions.timezone);
+        $scope.date = dateParser.fromTimezone(value, timezone);
         return value;
       });
     }
 
     // Detect changes in the view from the text box
     ngModel.$viewChangeListeners.push(function() {
-      scope.date = parseDateString(ngModel.$viewValue);
+      $scope.date = parseDateString(ngModel.$viewValue);
     });
 
-    element.bind('keydown', inputKeydownBind);
+    $element.on('keydown', inputKeydownBind);
 
-    $popup = $compile(popupEl)(scope);
+    $popup = $compile(popupEl)($scope);
     // Prevent jQuery cache memory leak (template is now redundant after linking)
     popupEl.remove();
 
     if (appendToBody) {
       $document.find('body').append($popup);
     } else {
-      element.after($popup);
+      $element.after($popup);
     }
 
-    scope.$on('$destroy', function() {
-      if (scope.isOpen === true) {
+    $scope.$on('$destroy', function() {
+      if ($scope.isOpen === true) {
         if (!$rootScope.$$phase) {
-          scope.$apply(function() {
-            scope.isOpen = false;
+          $scope.$apply(function() {
+            $scope.isOpen = false;
           });
         }
       }
 
       $popup.remove();
-      element.unbind('keydown', inputKeydownBind);
-      $document.unbind('click', documentClickBind);
+      $element.off('keydown', inputKeydownBind);
+      $document.off('click', documentClickBind);
+      if (scrollParentEl) {
+        scrollParentEl.off('scroll', positionPopup);
+      }
+      angular.element($window).off('resize', positionPopup);
+
+      //Clear all watch listeners on destroy
+      while (watchListeners.length) {
+        watchListeners.shift()();
+      }
     });
   };
 
-  scope.getText = function(key) {
-    return scope[key + 'Text'] || datepickerPopupConfig[key + 'Text'];
+  $scope.getText = function(key) {
+    return $scope[key + 'Text'] || datepickerPopupConfig[key + 'Text'];
   };
 
-  scope.isDisabled = function(date) {
+  $scope.isDisabled = function(date) {
     if (date === 'today') {
-      date = new Date();
+      date = dateParser.fromTimezone(new Date(), timezone);
     }
 
-    return scope.watchData.minDate && scope.compare(date, cache.minDate) < 0 ||
-      scope.watchData.maxDate && scope.compare(date, cache.maxDate) > 0;
+    var dates = {};
+    angular.forEach(['minDate', 'maxDate'], function(key) {
+      if (!$scope.datepickerOptions[key]) {
+        dates[key] = null;
+      } else if (angular.isDate($scope.datepickerOptions[key])) {
+        dates[key] = dateParser.fromTimezone(new Date($scope.datepickerOptions[key]), timezone);
+      } else {
+        if ($datepickerPopupLiteralWarning) {
+          $log.warn('Literal date support has been deprecated, please switch to date object usage');
+        }
+
+        dates[key] = new Date(dateFilter($scope.datepickerOptions[key], 'medium'));
+      }
+    });
+
+    return $scope.datepickerOptions &&
+      dates.minDate && $scope.compare(date, dates.minDate) < 0 ||
+      dates.maxDate && $scope.compare(date, dates.maxDate) > 0;
   };
 
-  scope.compare = function(date1, date2) {
+  $scope.compare = function(date1, date2) {
     return new Date(date1.getFullYear(), date1.getMonth(), date1.getDate()) - new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
   };
 
   // Inner change
-  scope.dateSelection = function(dt) {
+  $scope.dateSelection = function(dt) {
     if (angular.isDefined(dt)) {
-      scope.date = dt;
+      $scope.date = dt;
     }
-    var date = scope.date ? dateFilter(scope.date, dateFormat) : null; // Setting to NULL is necessary for form validators to function
-    element.val(date);
+    var date = $scope.date ? dateParser.filter($scope.date, dateFormat) : null; // Setting to NULL is necessary for form validators to function
+    $element.val(date);
     ngModel.$setViewValue(date);
 
     if (closeOnDateSelection) {
-      scope.isOpen = false;
-      element[0].focus();
+      $scope.isOpen = false;
+      $element[0].focus();
     }
   };
 
-  scope.keydown = function(evt) {
+  $scope.keydown = function(evt) {
     if (evt.which === 27) {
       evt.stopPropagation();
-      scope.isOpen = false;
-      element[0].focus();
+      $scope.isOpen = false;
+      $element[0].focus();
     }
   };
 
-  scope.select = function(date) {
+  $scope.select = function(date, evt) {
+    evt.stopPropagation();
+
     if (date === 'today') {
       var today = new Date();
-      if (angular.isDate(scope.date)) {
-        date = new Date(scope.date);
+      if (angular.isDate($scope.date)) {
+        date = new Date($scope.date);
         date.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
       } else {
         date = new Date(today.setHours(0, 0, 0, 0));
       }
     }
-    scope.dateSelection(date);
+    $scope.dateSelection(date);
   };
 
-  scope.close = function() {
-    scope.isOpen = false;
-    element[0].focus();
+  $scope.close = function(evt) {
+    evt.stopPropagation();
+
+    $scope.isOpen = false;
+    $element[0].focus();
   };
 
-  scope.disabled = angular.isDefined(attrs.disabled) || false;
-  if (attrs.ngDisabled) {
-    scope.$parent.$watch($parse(attrs.ngDisabled), function(disabled) {
-      scope.disabled = disabled;
-    });
+  $scope.disabled = angular.isDefined($attrs.disabled) || false;
+  if ($attrs.ngDisabled) {
+    watchListeners.push($scope.$parent.$watch($parse($attrs.ngDisabled), function(disabled) {
+      $scope.disabled = disabled;
+    }));
   }
 
-  scope.$watch('isOpen', function(value) {
+  $scope.$watch('isOpen', function(value) {
     if (value) {
-      if (!scope.disabled) {
-        scope.position = appendToBody ? $position.offset(element) : $position.position(element);
-        scope.position.top = scope.position.top + element.prop('offsetHeight');
-
+      if (!$scope.disabled) {
         $timeout(function() {
+          positionPopup();
+
           if (onOpenFocus) {
-            scope.$broadcast('uib:datepicker.focus');
+            $scope.$broadcast('uib:datepicker.focus');
           }
-          $document.bind('click', documentClickBind);
+
+          $document.on('click', documentClickBind);
+
+          var placement = $attrs.popupPlacement ? $attrs.popupPlacement : datepickerPopupConfig.placement;
+          if (appendToBody || $position.parsePlacement(placement)[2]) {
+            scrollParentEl = scrollParentEl || angular.element($position.scrollParent($element));
+            if (scrollParentEl) {
+              scrollParentEl.on('scroll', positionPopup);
+            }
+          } else {
+            scrollParentEl = null;
+          }
+
+          angular.element($window).on('resize', positionPopup);
         }, 0, false);
       } else {
-        scope.isOpen = false;
+        $scope.isOpen = false;
       }
     } else {
-      $document.unbind('click', documentClickBind);
+      $document.off('click', documentClickBind);
+      if (scrollParentEl) {
+        scrollParentEl.off('scroll', positionPopup);
+      }
+      angular.element($window).off('resize', positionPopup);
     }
   });
 
@@ -11476,10 +17303,10 @@ function(scope, element, attrs, $compile, $parse, $document, $rootScope, $positi
   }
 
   function parseDateString(viewValue) {
-    var date = dateParser.parse(viewValue, dateFormat, scope.date);
+    var date = dateParser.parse(viewValue, dateFormat, $scope.date);
     if (isNaN(date)) {
       for (var i = 0; i < altInputFormats.length; i++) {
-        date = dateParser.parse(viewValue, altInputFormats[i], scope.date);
+        date = dateParser.parse(viewValue, altInputFormats[i], $scope.date);
         if (!isNaN(date)) {
           return date;
         }
@@ -11505,7 +17332,7 @@ function(scope, element, attrs, $compile, $parse, $document, $rootScope, $positi
     if (angular.isString(viewValue)) {
       var date = parseDateString(viewValue);
       if (!isNaN(date)) {
-        return dateParser.toTimezone(date, ngModelOptions.timezone);
+        return dateParser.toTimezone(date, timezone);
       }
     }
 
@@ -11515,7 +17342,7 @@ function(scope, element, attrs, $compile, $parse, $document, $rootScope, $positi
   function validator(modelValue, viewValue) {
     var value = modelValue || viewValue;
 
-    if (!attrs.ngRequired && !value) {
+    if (!$attrs.ngRequired && !value) {
       return true;
     }
 
@@ -11539,38 +17366,54 @@ function(scope, element, attrs, $compile, $parse, $document, $rootScope, $positi
   }
 
   function documentClickBind(event) {
-    if (!scope.isOpen && scope.disabled) {
+    if (!$scope.isOpen && $scope.disabled) {
       return;
     }
 
     var popup = $popup[0];
-    var dpContainsTarget = element[0].contains(event.target);
+    var dpContainsTarget = $element[0].contains(event.target);
     // The popup node may not be an element node
     // In some browsers (IE) only element nodes have the 'contains' function
     var popupContainsTarget = popup.contains !== undefined && popup.contains(event.target);
-    if (scope.isOpen && !(dpContainsTarget || popupContainsTarget)) {
-      scope.$apply(function() {
-        scope.isOpen = false;
+    if ($scope.isOpen && !(dpContainsTarget || popupContainsTarget)) {
+      $scope.$apply(function() {
+        $scope.isOpen = false;
       });
     }
   }
 
   function inputKeydownBind(evt) {
-    if (evt.which === 27 && scope.isOpen) {
+    if (evt.which === 27 && $scope.isOpen) {
       evt.preventDefault();
       evt.stopPropagation();
-      scope.$apply(function() {
-        scope.isOpen = false;
+      $scope.$apply(function() {
+        $scope.isOpen = false;
       });
-      element[0].focus();
-    } else if (evt.which === 40 && !scope.isOpen) {
+      $element[0].focus();
+    } else if (evt.which === 40 && !$scope.isOpen) {
       evt.preventDefault();
       evt.stopPropagation();
-      scope.$apply(function() {
-        scope.isOpen = true;
+      $scope.$apply(function() {
+        $scope.isOpen = true;
       });
     }
   }
+
+  function positionPopup() {
+    if ($scope.isOpen) {
+      var dpElement = angular.element($popup[0].querySelector('.uib-datepicker-popup'));
+      var placement = $attrs.popupPlacement ? $attrs.popupPlacement : datepickerPopupConfig.placement;
+      var position = $position.positionElements($element, dpElement, placement, appendToBody);
+      dpElement.css({top: position.top + 'px', left: position.left + 'px'});
+      if (dpElement.hasClass('uib-position-measure')) {
+        dpElement.removeClass('uib-position-measure');
+      }
+    }
+  }
+
+  $scope.$on('uib:datepicker.mode', function() {
+    $timeout(positionPopup, 0, false);
+  });
 }])
 
 .directive('uibDatepickerPopup', function() {
@@ -11578,12 +17421,11 @@ function(scope, element, attrs, $compile, $parse, $document, $rootScope, $positi
     require: ['ngModel', 'uibDatepickerPopup'],
     controller: 'UibDatepickerPopupController',
     scope: {
+      datepickerOptions: '=?',
       isOpen: '=?',
       currentText: '@',
       clearText: '@',
-      closeText: '@',
-      dateDisabled: '&',
-      customClass: '&'
+      closeText: '@'
     },
     link: function(scope, element, attrs, ctrls) {
       var ngModel = ctrls[0],
@@ -11599,7 +17441,7 @@ function(scope, element, attrs, $compile, $parse, $document, $rootScope, $positi
     replace: true,
     transclude: true,
     templateUrl: function(element, attrs) {
-      return attrs.templateUrl || 'uib/template/datepicker/popup.html';
+      return attrs.templateUrl || 'uib/template/datepickerPopup/popup.html';
     }
   };
 });
@@ -11636,10 +17478,10 @@ angular.module('ui.bootstrap.dropdown', ['ui.bootstrap.position'])
 .service('uibDropdownService', ['$document', '$rootScope', function($document, $rootScope) {
   var openScope = null;
 
-  this.open = function(dropdownScope) {
+  this.open = function(dropdownScope, element) {
     if (!openScope) {
       $document.on('click', closeDropdown);
-      $document.on('keydown', keybindFilter);
+      element.on('keydown', keybindFilter);
     }
 
     if (openScope && openScope !== dropdownScope) {
@@ -11649,11 +17491,11 @@ angular.module('ui.bootstrap.dropdown', ['ui.bootstrap.position'])
     openScope = dropdownScope;
   };
 
-  this.close = function(dropdownScope) {
+  this.close = function(dropdownScope, element) {
     if (openScope === dropdownScope) {
       openScope = null;
       $document.off('click', closeDropdown);
-      $document.off('keydown', keybindFilter);
+      element.off('keydown', keybindFilter);
     }
   };
 
@@ -11686,6 +17528,7 @@ angular.module('ui.bootstrap.dropdown', ['ui.bootstrap.position'])
 
   var keybindFilter = function(evt) {
     if (evt.which === 27) {
+      evt.stopPropagation();
       openScope.focusToggleElement();
       closeDropdown();
     } else if (openScope.isKeynavEnabled() && [38, 40].indexOf(evt.which) !== -1 && openScope.isOpen) {
@@ -11746,7 +17589,12 @@ angular.module('ui.bootstrap.dropdown', ['ui.bootstrap.position'])
   };
 
   this.toggle = function(open) {
-    return scope.isOpen = arguments.length ? !!open : !scope.isOpen;
+    scope.isOpen = arguments.length ? !!open : !scope.isOpen;
+    if (angular.isFunction(setIsOpen)) {
+      setIsOpen(scope, scope.isOpen);
+    }
+
+    return scope.isOpen;
   };
 
   // Allow other directives to watch status
@@ -11849,12 +17697,15 @@ angular.module('ui.bootstrap.dropdown', ['ui.bootstrap.position'])
     }
 
     var openContainer = appendTo ? appendTo : $element;
+    var hasOpenClass = openContainer.hasClass(appendTo ? appendToOpenClass : openClass);
 
-    $animate[isOpen ? 'addClass' : 'removeClass'](openContainer, appendTo ? appendToOpenClass : openClass).then(function() {
-      if (angular.isDefined(isOpen) && isOpen !== wasOpen) {
-        toggleInvoker($scope, { open: !!isOpen });
-      }
-    });
+    if (hasOpenClass === !isOpen) {
+      $animate[isOpen ? 'addClass' : 'removeClass'](openContainer, appendTo ? appendToOpenClass : openClass).then(function() {
+        if (angular.isDefined(isOpen) && isOpen !== wasOpen) {
+          toggleInvoker($scope, { open: !!isOpen });
+        }
+      });
+    }
 
     if (isOpen) {
       if (self.dropdownMenuTemplateUrl) {
@@ -11869,7 +17720,7 @@ angular.module('ui.bootstrap.dropdown', ['ui.bootstrap.position'])
       }
 
       scope.focusToggleElement();
-      uibDropdownService.open(scope);
+      uibDropdownService.open(scope, $element);
     } else {
       if (self.dropdownMenuTemplateUrl) {
         if (templateScope) {
@@ -11880,18 +17731,12 @@ angular.module('ui.bootstrap.dropdown', ['ui.bootstrap.position'])
         self.dropdownMenu = newEl;
       }
 
-      uibDropdownService.close(scope);
+      uibDropdownService.close(scope, $element);
       self.selectedOption = null;
     }
 
     if (angular.isFunction(setIsOpen)) {
       setIsOpen($scope, isOpen);
-    }
-  });
-
-  $scope.$on('$locationChangeSuccess', function() {
-    if (scope.getAutoClose() !== 'disabled') {
-      scope.isOpen = false;
     }
   });
 }])
@@ -12019,7 +17864,7 @@ angular.module('ui.bootstrap.stackedMap', [])
       }
     };
   });
-angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
+angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap', 'ui.bootstrap.position'])
 /**
  * A helper, internal data structure that stores all references attached to key
  */
@@ -12124,8 +17969,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
 /**
  * A helper directive for the $modal service. It creates a backdrop element.
  */
-  .directive('uibModalBackdrop', ['$animateCss', '$injector', '$uibModalStack',
-  function($animateCss, $injector, $modalStack) {
+  .directive('uibModalBackdrop', ['$animate', '$injector', '$uibModalStack',
+  function($animate, $injector, $modalStack) {
     return {
       replace: true,
       templateUrl: 'uib/template/modal/backdrop.html',
@@ -12137,16 +17982,12 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
 
     function linkFn(scope, element, attrs) {
       if (attrs.modalInClass) {
-        $animateCss(element, {
-          addClass: attrs.modalInClass
-        }).start();
+        $animate.addClass(element, attrs.modalInClass);
 
         scope.$on($modalStack.NOW_CLOSING_EVENT, function(e, setIsAsync) {
           var done = setIsAsync();
           if (scope.modalOptions.animation) {
-            $animateCss(element, {
-              removeClass: attrs.modalInClass
-            }).start().then(done);
+            $animate.removeClass(element, attrs.modalInClass).then(done);
           } else {
             done();
           }
@@ -12155,8 +17996,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
     }
   }])
 
-  .directive('uibModalWindow', ['$uibModalStack', '$q', '$animate', '$animateCss', '$document',
-  function($modalStack, $q, $animate, $animateCss, $document) {
+  .directive('uibModalWindow', ['$uibModalStack', '$q', '$animateCss', '$document',
+  function($modalStack, $q, $animateCss, $document) {
     return {
       scope: {
         index: '@'
@@ -12210,18 +18051,20 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
 
             scope.$on($modalStack.NOW_CLOSING_EVENT, function(e, setIsAsync) {
               var done = setIsAsync();
-              if ($animateCss) {
-                $animateCss(element, {
-                  removeClass: attrs.modalInClass
-                }).start().then(done);
-              } else {
-                $animate.removeClass(element, attrs.modalInClass).then(done);
-              }
+              $animateCss(element, {
+                removeClass: attrs.modalInClass
+              }).start().then(done);
             });
           }
 
 
           $q.when(animationPromise).then(function() {
+            // Notify {@link $modalStack} that modal is rendered.
+            var modal = $modalStack.getTop();
+            if (modal) {
+              $modalStack.modalRendered(modal.key);
+            }
+
             /**
              * If something within the freshly-opened modal already has focus (perhaps via a
              * directive that causes focus). then no need to try and focus anything.
@@ -12243,12 +18086,6 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
               }
             }
           });
-
-          // Notify {@link $modalStack} that modal is rendered.
-          var modal = $modalStack.getTop();
-          if (modal) {
-            $modalStack.modalRendered(modal.key);
-          }
         });
       }
     };
@@ -12276,8 +18113,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
   })
 
   .factory('$uibModalStack', ['$animate', '$animateCss', '$document',
-    '$compile', '$rootScope', '$q', '$$multiMap', '$$stackedMap',
-    function($animate, $animateCss, $document, $compile, $rootScope, $q, $$multiMap, $$stackedMap) {
+    '$compile', '$rootScope', '$q', '$$multiMap', '$$stackedMap', '$uibPosition',
+    function($animate, $animateCss, $document, $compile, $rootScope, $q, $$multiMap, $$stackedMap, $uibPosition) {
       var OPENED_MODAL_CLASS = 'modal-open';
 
       var backdropDomEl, backdropScope;
@@ -12286,13 +18123,20 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
       var $modalStack = {
         NOW_CLOSING_EVENT: 'modal.stack.now-closing'
       };
+      var topModalIndex = 0;
+      var previousTopOpenedModal = null;
 
       //Modal focus behavior
-      var focusableElementList;
-      var focusIndex = 0;
-      var tababbleSelector = 'a[href], area[href], input:not([disabled]), ' +
+      var tabableSelector = 'a[href], area[href], input:not([disabled]), ' +
         'button:not([disabled]),select:not([disabled]), textarea:not([disabled]), ' +
         'iframe, object, embed, *[tabindex], *[contenteditable=true]';
+      var scrollbarPadding;
+
+      function isVisible(element) {
+        return !!(element.offsetWidth ||
+          element.offsetHeight ||
+          element.getClientRects().length);
+      }
 
       function backdropIndex() {
         var topBackdropIndex = -1;
@@ -12301,6 +18145,12 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
           if (openedWindows.get(opened[i]).value.backdrop) {
             topBackdropIndex = i;
           }
+        }
+
+        // If any backdrop exist, ensure that it's index is always
+        // right below the top modal
+        if (topBackdropIndex > -1 && topBackdropIndex < topModalIndex) {
+          topBackdropIndex = topModalIndex;
         }
         return topBackdropIndex;
       }
@@ -12317,13 +18167,26 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
 
         //clean up the stack
         openedWindows.remove(modalInstance);
+        previousTopOpenedModal = openedWindows.top();
+        if (previousTopOpenedModal) {
+          topModalIndex = parseInt(previousTopOpenedModal.value.modalDomEl.attr('index'), 10);
+        }
 
         removeAfterAnimate(modalWindow.modalDomEl, modalWindow.modalScope, function() {
           var modalBodyClass = modalWindow.openedClass || OPENED_MODAL_CLASS;
           openedClasses.remove(modalBodyClass, modalInstance);
-          appendToElement.toggleClass(modalBodyClass, openedClasses.hasKey(modalBodyClass));
+          var areAnyOpen = openedClasses.hasKey(modalBodyClass);
+          appendToElement.toggleClass(modalBodyClass, areAnyOpen);
+          if (!areAnyOpen && scrollbarPadding && scrollbarPadding.heightOverflow && scrollbarPadding.scrollbarWidth) {
+            if (scrollbarPadding.originalRight) {
+              appendToElement.css({paddingRight: scrollbarPadding.originalRight + 'px'});
+            } else {
+              appendToElement.css({paddingRight: ''});
+            }
+            scrollbarPadding = null;
+          }
           toggleTopWindowClass(true);
-        });
+        }, modalWindow.closedDeferred);
         checkRemoveBackdrop();
 
         //move focus to specified element if available, or else to body
@@ -12382,9 +18245,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
           }
           afterAnimating.done = true;
 
-          $animateCss(domEl, {
-            event: 'leave'
-          }).start().then(function() {
+          $animate.leave(domEl).then(function() {
             domEl.remove();
             if (closedDeferred) {
               closedDeferred.resolve();
@@ -12422,15 +18283,15 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
               break;
             }
             case 9: {
-              $modalStack.loadFocusElementList(modal);
+              var list = $modalStack.loadFocusElementList(modal);
               var focusChanged = false;
               if (evt.shiftKey) {
-                if ($modalStack.isFocusInFirstItem(evt)) {
-                  focusChanged = $modalStack.focusLastFocusableElement();
+                if ($modalStack.isFocusInFirstItem(evt, list) || $modalStack.isModalFocused(evt, modal)) {
+                  focusChanged = $modalStack.focusLastFocusableElement(list);
                 }
               } else {
-                if ($modalStack.isFocusInLastItem(evt)) {
-                  focusChanged = $modalStack.focusFirstFocusableElement();
+                if ($modalStack.isFocusInLastItem(evt, list)) {
+                  focusChanged = $modalStack.focusFirstFocusableElement(list);
                 }
               }
 
@@ -12438,6 +18299,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
                 evt.preventDefault();
                 evt.stopPropagation();
               }
+
               break;
             }
           }
@@ -12449,6 +18311,10 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
           modalBodyClass = modal.openedClass || OPENED_MODAL_CLASS;
 
         toggleTopWindowClass(false);
+
+        // Store the current top first, to determine what index we ought to use
+        // for the current top modal
+        previousTopOpenedModal = openedWindows.top();
 
         openedWindows.add(modalInstance, {
           deferred: modal.deferred,
@@ -12483,31 +18349,32 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
           }
           $compile(backdropDomEl)(backdropScope);
           $animate.enter(backdropDomEl, appendToElement);
+          scrollbarPadding = $uibPosition.scrollbarPadding(appendToElement);
+          if (scrollbarPadding.heightOverflow && scrollbarPadding.scrollbarWidth) {
+            appendToElement.css({paddingRight: scrollbarPadding.right + 'px'});
+          }
         }
 
+        // Set the top modal index based on the index of the previous top modal
+        topModalIndex = previousTopOpenedModal ? parseInt(previousTopOpenedModal.value.modalDomEl.attr('index'), 10) + 1 : 0;
         var angularDomEl = angular.element('<div uib-modal-window="modal-window"></div>');
         angularDomEl.attr({
           'template-url': modal.windowTemplateUrl,
           'window-class': modal.windowClass,
           'window-top-class': modal.windowTopClass,
           'size': modal.size,
-          'index': openedWindows.length() - 1,
+          'index': topModalIndex,
           'animate': 'animate'
         }).html(modal.content);
         if (modal.animation) {
           angularDomEl.attr('modal-animation', 'true');
         }
 
-        $animate.enter(angularDomEl, appendToElement)
-          .then(function() {
-            $compile(angularDomEl)(modal.scope);
-            $animate.addClass(appendToElement, modalBodyClass);
-          });
+        appendToElement.addClass(modalBodyClass);
+        $animate.enter($compile(angularDomEl)(modal.scope), appendToElement);
 
         openedWindows.top().value.modalDomEl = angularDomEl;
         openedWindows.top().value.modalOpener = modalOpener;
-
-        $modalStack.clearFocusListCache();
       };
 
       function broadcastClosing(modalWindow, resultOrReason, closing) {
@@ -12554,47 +18421,55 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
         }
       };
 
-      $modalStack.focusFirstFocusableElement = function() {
-        if (focusableElementList.length > 0) {
-          focusableElementList[0].focus();
-          return true;
-        }
-        return false;
-      };
-      $modalStack.focusLastFocusableElement = function() {
-        if (focusableElementList.length > 0) {
-          focusableElementList[focusableElementList.length - 1].focus();
+      $modalStack.focusFirstFocusableElement = function(list) {
+        if (list.length > 0) {
+          list[0].focus();
           return true;
         }
         return false;
       };
 
-      $modalStack.isFocusInFirstItem = function(evt) {
-        if (focusableElementList.length > 0) {
-          return (evt.target || evt.srcElement) === focusableElementList[0];
+      $modalStack.focusLastFocusableElement = function(list) {
+        if (list.length > 0) {
+          list[list.length - 1].focus();
+          return true;
         }
         return false;
       };
 
-      $modalStack.isFocusInLastItem = function(evt) {
-        if (focusableElementList.length > 0) {
-          return (evt.target || evt.srcElement) === focusableElementList[focusableElementList.length - 1];
+      $modalStack.isModalFocused = function(evt, modalWindow) {
+        if (evt && modalWindow) {
+          var modalDomEl = modalWindow.value.modalDomEl;
+          if (modalDomEl && modalDomEl.length) {
+            return (evt.target || evt.srcElement) === modalDomEl[0];
+          }
         }
         return false;
       };
 
-      $modalStack.clearFocusListCache = function() {
-        focusableElementList = [];
-        focusIndex = 0;
+      $modalStack.isFocusInFirstItem = function(evt, list) {
+        if (list.length > 0) {
+          return (evt.target || evt.srcElement) === list[0];
+        }
+        return false;
+      };
+
+      $modalStack.isFocusInLastItem = function(evt, list) {
+        if (list.length > 0) {
+          return (evt.target || evt.srcElement) === list[list.length - 1];
+        }
+        return false;
       };
 
       $modalStack.loadFocusElementList = function(modalWindow) {
-        if (focusableElementList === undefined || !focusableElementList.length) {
-          if (modalWindow) {
-            var modalDomE1 = modalWindow.value.modalDomEl;
-            if (modalDomE1 && modalDomE1.length) {
-              focusableElementList = modalDomE1[0].querySelectorAll(tababbleSelector);
-            }
+        if (modalWindow) {
+          var modalDomE1 = modalWindow.value.modalDomEl;
+          if (modalDomE1 && modalDomE1.length) {
+            var elements = modalDomE1[0].querySelectorAll(tabableSelector);
+            return elements ?
+              Array.prototype.filter.call(elements, function(element) {
+                return isVisible(element);
+              }) : elements;
           }
         }
       };
@@ -12681,7 +18556,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
                   }
                 });
 
-                var ctrlInstance, ctrlLocals = {};
+                var ctrlInstance, ctrlInstantiate, ctrlLocals = {};
 
                 //controllers
                 if (modalOptions.controller) {
@@ -12691,15 +18566,27 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.stackedMap'])
                     ctrlLocals[key] = value;
                   });
 
-                  ctrlInstance = $controller(modalOptions.controller, ctrlLocals);
+                  // the third param will make the controller instantiate later,private api
+                  // @see https://github.com/angular/angular.js/blob/master/src/ng/controller.js#L126
+                  ctrlInstantiate = $controller(modalOptions.controller, ctrlLocals, true);
                   if (modalOptions.controllerAs) {
+                    ctrlInstance = ctrlInstantiate.instance;
+
                     if (modalOptions.bindToController) {
                       ctrlInstance.$close = modalScope.$close;
                       ctrlInstance.$dismiss = modalScope.$dismiss;
                       angular.extend(ctrlInstance, providedScope);
                     }
 
+                    ctrlInstance = ctrlInstantiate();
+
                     modalScope[modalOptions.controllerAs] = ctrlInstance;
+                  } else {
+                    ctrlInstance = ctrlInstantiate();
+                  }
+
+                  if (angular.isFunction(ctrlInstance.$onInit)) {
+                    ctrlInstance.$onInit();
                   }
                 }
 
@@ -12752,6 +18639,7 @@ angular.module('ui.bootstrap.paging', [])
     create: function(ctrl, $scope, $attrs) {
       ctrl.setNumPages = $attrs.numPages ? $parse($attrs.numPages).assign : angular.noop;
       ctrl.ngModelCtrl = { $setViewValue: angular.noop }; // nullModelCtrl
+      ctrl._watchers = [];
 
       ctrl.init = function(ngModelCtrl, config) {
         ctrl.ngModelCtrl = ngModelCtrl;
@@ -12762,11 +18650,11 @@ angular.module('ui.bootstrap.paging', [])
         };
 
         if ($attrs.itemsPerPage) {
-          $scope.$parent.$watch($parse($attrs.itemsPerPage), function(value) {
+          ctrl._watchers.push($scope.$parent.$watch($attrs.itemsPerPage, function(value) {
             ctrl.itemsPerPage = parseInt(value, 10);
             $scope.totalPages = ctrl.calculateTotalPages();
             ctrl.updatePage();
-          });
+          }));
         } else {
           ctrl.itemsPerPage = config.itemsPerPage;
         }
@@ -12824,6 +18712,12 @@ angular.module('ui.bootstrap.paging', [])
           ctrl.ngModelCtrl.$render();
         }
       };
+
+      $scope.$on('$destroy', function() {
+        while (ctrl._watchers.length) {
+          ctrl._watchers.shift()();
+        }
+      });
     }
   };
 }]);
@@ -12877,17 +18771,18 @@ angular.module('ui.bootstrap.pagination', ['ui.bootstrap.paging'])
   var maxSize = angular.isDefined($attrs.maxSize) ? $scope.$parent.$eval($attrs.maxSize) : uibPaginationConfig.maxSize,
     rotate = angular.isDefined($attrs.rotate) ? $scope.$parent.$eval($attrs.rotate) : uibPaginationConfig.rotate,
     forceEllipses = angular.isDefined($attrs.forceEllipses) ? $scope.$parent.$eval($attrs.forceEllipses) : uibPaginationConfig.forceEllipses,
-    boundaryLinkNumbers = angular.isDefined($attrs.boundaryLinkNumbers) ? $scope.$parent.$eval($attrs.boundaryLinkNumbers) : uibPaginationConfig.boundaryLinkNumbers;
+    boundaryLinkNumbers = angular.isDefined($attrs.boundaryLinkNumbers) ? $scope.$parent.$eval($attrs.boundaryLinkNumbers) : uibPaginationConfig.boundaryLinkNumbers,
+    pageLabel = angular.isDefined($attrs.pageLabel) ? function(idx) { return $scope.$parent.$eval($attrs.pageLabel, {$page: idx}); } : angular.identity;
   $scope.boundaryLinks = angular.isDefined($attrs.boundaryLinks) ? $scope.$parent.$eval($attrs.boundaryLinks) : uibPaginationConfig.boundaryLinks;
   $scope.directionLinks = angular.isDefined($attrs.directionLinks) ? $scope.$parent.$eval($attrs.directionLinks) : uibPaginationConfig.directionLinks;
 
   uibPaging.create(this, $scope, $attrs);
 
   if ($attrs.maxSize) {
-    $scope.$parent.$watch($parse($attrs.maxSize), function(value) {
+    ctrl._watchers.push($scope.$parent.$watch($parse($attrs.maxSize), function(value) {
       maxSize = parseInt(value, 10);
       ctrl.render();
-    });
+    }));
   }
 
   // Create page object used in template
@@ -12929,7 +18824,7 @@ angular.module('ui.bootstrap.pagination', ['ui.bootstrap.paging'])
 
     // Add page number links
     for (var number = startPage; number <= endPage; number++) {
-      var page = makePage(number, number, number === currentPage);
+      var page = makePage(number, pageLabel(number), number === currentPage);
       pages.push(page);
     }
 
@@ -13071,7 +18966,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
   /**
    * This allows you to extend the set of trigger mappings available. E.g.:
    *
-   *   $tooltipProvider.setTriggers( 'openTrigger': 'closeTrigger' );
+   *   $tooltipProvider.setTriggers( { 'openTrigger': 'closeTrigger' } );
    */
   this.setTriggers = function setTriggers(triggers) {
     angular.extend(triggerMap, triggers);
@@ -13144,17 +19039,17 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
       var startSym = $interpolate.startSymbol();
       var endSym = $interpolate.endSymbol();
       var template =
-        '<div '+ directiveName + '-popup '+
-          'title="' + startSym + 'title' + endSym + '" '+
+        '<div '+ directiveName + '-popup ' +
+          'uib-title="' + startSym + 'title' + endSym + '" ' +
           (options.useContentExp ?
             'content-exp="contentExp()" ' :
             'content="' + startSym + 'content' + endSym + '" ') +
-          'placement="' + startSym + 'placement' + endSym + '" '+
-          'popup-class="' + startSym + 'popupClass' + endSym + '" '+
+          'placement="' + startSym + 'placement' + endSym + '" ' +
+          'popup-class="' + startSym + 'popupClass' + endSym + '" ' +
           'animation="animation" ' +
-          'is-open="isOpen"' +
+          'is-open="isOpen" ' +
           'origin-scope="origScope" ' +
-          'style="visibility: hidden; display: block; top: -9999px; left: -9999px;"' +
+          'class="uib-position-measure"' +
           '>' +
         '</div>';
 
@@ -13177,6 +19072,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
             var isOpenParse = angular.isDefined(attrs[prefix + 'IsOpen']) ? $parse(attrs[prefix + 'IsOpen']) : false;
             var contentParse = options.useContentExp ? $parse(attrs[ttType]) : false;
             var observers = [];
+            var lastPlacement;
 
             var positionTooltip = function() {
               // check if tooltip exists and is not empty
@@ -13184,36 +19080,29 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
 
               if (!positionTimeout) {
                 positionTimeout = $timeout(function() {
-                  // Reset the positioning.
-                  tooltip.css({ top: 0, left: 0 });
-
-                  // Now set the calculated positioning.
                   var ttPosition = $position.positionElements(element, tooltip, ttScope.placement, appendToBody);
-                  tooltip.css({ top: ttPosition.top + 'px', left: ttPosition.left + 'px', visibility: 'visible' });
+                  tooltip.css({ top: ttPosition.top + 'px', left: ttPosition.left + 'px' });
 
-                  // If the placement class is prefixed, still need
-                  // to remove the TWBS standard class.
-                  if (options.placementClassPrefix) {
-                    tooltip.removeClass('top bottom left right');
+                  if (!tooltip.hasClass(ttPosition.placement.split('-')[0])) {
+                    tooltip.removeClass(lastPlacement.split('-')[0]);
+                    tooltip.addClass(ttPosition.placement.split('-')[0]);
                   }
 
-                  tooltip.removeClass(
-                    options.placementClassPrefix + 'top ' +
-                    options.placementClassPrefix + 'top-left ' +
-                    options.placementClassPrefix + 'top-right ' +
-                    options.placementClassPrefix + 'bottom ' +
-                    options.placementClassPrefix + 'bottom-left ' +
-                    options.placementClassPrefix + 'bottom-right ' +
-                    options.placementClassPrefix + 'left ' +
-                    options.placementClassPrefix + 'left-top ' +
-                    options.placementClassPrefix + 'left-bottom ' +
-                    options.placementClassPrefix + 'right ' +
-                    options.placementClassPrefix + 'right-top ' +
-                    options.placementClassPrefix + 'right-bottom');
+                  if (!tooltip.hasClass(options.placementClassPrefix + ttPosition.placement)) {
+                    tooltip.removeClass(options.placementClassPrefix + lastPlacement);
+                    tooltip.addClass(options.placementClassPrefix + ttPosition.placement);
+                  }
 
-                  var placement = ttPosition.placement.split('-');
-                  tooltip.addClass(placement[0], options.placementClassPrefix + ttPosition.placement);
-                  $position.positionArrow(tooltip, ttPosition.placement);
+                  // first time through tt element will have the
+                  // uib-position-measure class or if the placement
+                  // has changed we need to position the arrow.
+                  if (tooltip.hasClass('uib-position-measure')) {
+                    $position.positionArrow(tooltip, ttPosition.placement);
+                    tooltip.removeClass('uib-position-measure');
+                  } else if (lastPlacement !== ttPosition.placement) {
+                    $position.positionArrow(tooltip, ttPosition.placement);
+                  }
+                  lastPlacement = ttPosition.placement;
 
                   positionTimeout = null;
                 }, 0, false);
@@ -13310,18 +19199,20 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
 
               // First things first: we don't show it anymore.
               ttScope.$evalAsync(function() {
-                ttScope.isOpen = false;
-                assignIsOpen(false);
-                // And now we remove it from the DOM. However, if we have animation, we
-                // need to wait for it to expire beforehand.
-                // FIXME: this is a placeholder for a port of the transitions library.
-                // The fade transition in TWBS is 150ms.
-                if (ttScope.animation) {
-                  if (!transitionTimeout) {
-                    transitionTimeout = $timeout(removeTooltip, 150, false);
+                if (ttScope) {
+                  ttScope.isOpen = false;
+                  assignIsOpen(false);
+                  // And now we remove it from the DOM. However, if we have animation, we
+                  // need to wait for it to expire beforehand.
+                  // FIXME: this is a placeholder for a port of the transitions library.
+                  // The fade transition in TWBS is 150ms.
+                  if (ttScope.animation) {
+                    if (!transitionTimeout) {
+                      transitionTimeout = $timeout(removeTooltip, 150, false);
+                    }
+                  } else {
+                    removeTooltip();
                   }
-                } else {
-                  removeTooltip();
                 }
               });
             }
@@ -13331,6 +19222,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
                 $timeout.cancel(hideTimeout);
                 hideTimeout = null;
               }
+
               if (transitionTimeout) {
                 $timeout.cancel(transitionTimeout);
                 transitionTimeout = null;
@@ -13385,6 +19277,8 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
 
               ttScope.popupClass = attrs[prefix + 'Class'];
               ttScope.placement = angular.isDefined(attrs[prefix + 'Placement']) ? attrs[prefix + 'Placement'] : options.placement;
+              var placement = $position.parsePlacement(ttScope.placement);
+              lastPlacement = placement[1] ? placement[0] + '-' + placement[1] : placement[0];
 
               var delay = parseInt(attrs[prefix + 'PopupDelay'], 10);
               var closeDelay = parseInt(attrs[prefix + 'PopupCloseDelay'], 10);
@@ -13561,17 +19455,6 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
 
             appendToBody = angular.isDefined(appendToBodyVal) ? appendToBodyVal : appendToBody;
 
-            // if a tooltip is attached to <body> we need to remove it on
-            // location change as its parent scope will probably not be destroyed
-            // by the change.
-            if (appendToBody) {
-              scope.$on('$locationChangeSuccess', function closeTooltipOnLocationChangeSuccess() {
-                if (ttScope.isOpen) {
-                  hide();
-                }
-              });
-            }
-
             // Make sure tooltip is destroyed and removed.
             scope.$on('$destroy', function onDestroyTooltip() {
               unregisterTriggers();
@@ -13673,8 +19556,6 @@ function ($animate, $sce, $compile, $templateRequest) {
         // // in TWBS, so we need the primary position.
         var position = $uibPosition.parsePlacement(scope.placement);
         element.addClass(position[0]);
-      } else {
-        element.addClass('top');
       }
 
       if (scope.popupClass) {
@@ -13739,7 +19620,7 @@ angular.module('ui.bootstrap.popover', ['ui.bootstrap.tooltip'])
 .directive('uibPopoverTemplatePopup', function() {
   return {
     replace: true,
-    scope: { title: '@', contentExp: '&', placement: '@', popupClass: '@', animation: '&', isOpen: '&',
+    scope: { uibTitle: '@', contentExp: '&', placement: '@', popupClass: '@', animation: '&', isOpen: '&',
       originScope: '&' },
     templateUrl: 'uib/template/popover/popover-template.html'
   };
@@ -13754,7 +19635,7 @@ angular.module('ui.bootstrap.popover', ['ui.bootstrap.tooltip'])
 .directive('uibPopoverHtmlPopup', function() {
   return {
     replace: true,
-    scope: { contentExp: '&', title: '@', placement: '@', popupClass: '@', animation: '&', isOpen: '&' },
+    scope: { contentExp: '&', uibTitle: '@', placement: '@', popupClass: '@', animation: '&', isOpen: '&' },
     templateUrl: 'uib/template/popover/popover-html.html'
   };
 })
@@ -13768,7 +19649,7 @@ angular.module('ui.bootstrap.popover', ['ui.bootstrap.tooltip'])
 .directive('uibPopoverPopup', function() {
   return {
     replace: true,
-    scope: { title: '@', content: '@', placement: '@', popupClass: '@', animation: '&', isOpen: '&' },
+    scope: { uibTitle: '@', content: '@', placement: '@', popupClass: '@', animation: '&', isOpen: '&' },
     templateUrl: 'uib/template/popover/popover.html'
   };
 })
@@ -13789,7 +19670,7 @@ angular.module('ui.bootstrap.progressbar', [])
       animate = angular.isDefined($attrs.animate) ? $scope.$parent.$eval($attrs.animate) : progressConfig.animate;
 
   this.bars = [];
-  $scope.max = angular.isDefined($scope.max) ? $scope.max : progressConfig.max;
+  $scope.max = getMaxOrDefault();
 
   this.addBar = function(bar, element, attrs) {
     if (!animate) {
@@ -13798,7 +19679,7 @@ angular.module('ui.bootstrap.progressbar', [])
 
     this.bars.push(bar);
 
-    bar.max = $scope.max;
+    bar.max = getMaxOrDefault();
     bar.title = attrs && angular.isDefined(attrs.title) ? attrs.title : 'progressbar';
 
     bar.$watch('value', function(value) {
@@ -13829,12 +19710,17 @@ angular.module('ui.bootstrap.progressbar', [])
     });
   };
 
-  $scope.$watch('max', function(max) {
+  //$attrs.$observe('maxParam', function(maxParam) {
+  $scope.$watch('maxParam', function(maxParam) {
     self.bars.forEach(function(bar) {
-      bar.max = $scope.max;
+      bar.max = getMaxOrDefault();
       bar.recalculatePercentage();
     });
   });
+
+  function getMaxOrDefault () {
+    return angular.isDefined($scope.maxParam) ? $scope.maxParam : progressConfig.max;
+  }
 }])
 
 .directive('uibProgress', function() {
@@ -13844,7 +19730,7 @@ angular.module('ui.bootstrap.progressbar', [])
     controller: 'UibProgressController',
     require: 'uibProgress',
     scope: {
-      max: '=?'
+      maxParam: '=?max'
     },
     templateUrl: 'uib/template/progressbar/progress.html'
   };
@@ -13873,7 +19759,7 @@ angular.module('ui.bootstrap.progressbar', [])
     controller: 'UibProgressController',
     scope: {
       value: '=',
-      max: '=?',
+      maxParam: '=?max',
       type: '@'
     },
     templateUrl: 'uib/template/progressbar/progressbar.html',
@@ -13889,11 +19775,13 @@ angular.module('ui.bootstrap.rating', [])
   max: 5,
   stateOn: null,
   stateOff: null,
+  enableReset: true,
   titles : ['one', 'two', 'three', 'four', 'five']
 })
 
 .controller('UibRatingController', ['$scope', '$attrs', 'uibRatingConfig', function($scope, $attrs, ratingConfig) {
-  var ngModelCtrl = { $setViewValue: angular.noop };
+  var ngModelCtrl = { $setViewValue: angular.noop },
+    self = this;
 
   this.init = function(ngModelCtrl_) {
     ngModelCtrl = ngModelCtrl_;
@@ -13909,7 +19797,9 @@ angular.module('ui.bootstrap.rating', [])
 
     this.stateOn = angular.isDefined($attrs.stateOn) ? $scope.$parent.$eval($attrs.stateOn) : ratingConfig.stateOn;
     this.stateOff = angular.isDefined($attrs.stateOff) ? $scope.$parent.$eval($attrs.stateOff) : ratingConfig.stateOff;
-    var tmpTitles = angular.isDefined($attrs.titles) ? $scope.$parent.$eval($attrs.titles) : ratingConfig.titles ;
+    this.enableReset = angular.isDefined($attrs.enableReset) ?
+      $scope.$parent.$eval($attrs.enableReset) : ratingConfig.enableReset;
+    var tmpTitles = angular.isDefined($attrs.titles) ? $scope.$parent.$eval($attrs.titles) : ratingConfig.titles;
     this.titles = angular.isArray(tmpTitles) && tmpTitles.length > 0 ?
       tmpTitles : ratingConfig.titles;
 
@@ -13936,7 +19826,8 @@ angular.module('ui.bootstrap.rating', [])
 
   $scope.rate = function(value) {
     if (!$scope.readonly && value >= 0 && value <= $scope.range.length) {
-      ngModelCtrl.$setViewValue(ngModelCtrl.$viewValue === value ? 0 : value);
+      var newViewValue = self.enableReset && ngModelCtrl.$viewValue === value ? 0 : value;
+      ngModelCtrl.$setViewValue(newViewValue);
       ngModelCtrl.$render();
     }
   };
@@ -13963,6 +19854,7 @@ angular.module('ui.bootstrap.rating', [])
 
   this.render = function() {
     $scope.value = ngModelCtrl.$viewValue;
+    $scope.title = self.getTitle($scope.value - 1);
   };
 }])
 
@@ -13970,7 +19862,7 @@ angular.module('ui.bootstrap.rating', [])
   return {
     require: ['uibRating', 'ngModel'],
     scope: {
-      readonly: '=?',
+      readonly: '=?readOnly',
       onHover: '&',
       onLeave: '&'
     },
@@ -13988,66 +19880,121 @@ angular.module('ui.bootstrap.tabs', [])
 
 .controller('UibTabsetController', ['$scope', function ($scope) {
   var ctrl = this,
-      tabs = ctrl.tabs = $scope.tabs = [];
+    oldIndex;
+  ctrl.tabs = [];
 
-  ctrl.select = function(selectedTab) {
-    angular.forEach(tabs, function(tab) {
-      if (tab.active && tab !== selectedTab) {
-        tab.active = false;
-        tab.onDeselect();
-        selectedTab.selectCalled = false;
+  ctrl.select = function(index, evt) {
+    if (!destroyed) {
+      var previousIndex = findTabIndex(oldIndex);
+      var previousSelected = ctrl.tabs[previousIndex];
+      if (previousSelected) {
+        previousSelected.tab.onDeselect({
+          $event: evt
+        });
+        if (evt && evt.isDefaultPrevented()) {
+          return;
+        }
+        previousSelected.tab.active = false;
       }
-    });
-    selectedTab.active = true;
-    // only call select if it has not already been called
-    if (!selectedTab.selectCalled) {
-      selectedTab.onSelect();
-      selectedTab.selectCalled = true;
+
+      var selected = ctrl.tabs[index];
+      if (selected) {
+        selected.tab.onSelect({
+          $event: evt
+        });
+        selected.tab.active = true;
+        ctrl.active = selected.index;
+        oldIndex = selected.index;
+      } else if (!selected && angular.isNumber(oldIndex)) {
+        ctrl.active = null;
+        oldIndex = null;
+      }
     }
   };
 
   ctrl.addTab = function addTab(tab) {
-    tabs.push(tab);
-    // we can't run the select function on the first tab
-    // since that would select it twice
-    if (tabs.length === 1 && tab.active !== false) {
-      tab.active = true;
-    } else if (tab.active) {
-      ctrl.select(tab);
-    } else {
-      tab.active = false;
+    ctrl.tabs.push({
+      tab: tab,
+      index: tab.index
+    });
+    ctrl.tabs.sort(function(t1, t2) {
+      if (t1.index > t2.index) {
+        return 1;
+      }
+
+      if (t1.index < t2.index) {
+        return -1;
+      }
+
+      return 0;
+    });
+
+    if (tab.index === ctrl.active || !angular.isNumber(ctrl.active) && ctrl.tabs.length === 1) {
+      var newActiveIndex = findTabIndex(tab.index);
+      ctrl.select(newActiveIndex);
     }
   };
 
   ctrl.removeTab = function removeTab(tab) {
-    var index = tabs.indexOf(tab);
-    //Select a new tab if the tab to be removed is selected and not destroyed
-    if (tab.active && tabs.length > 1 && !destroyed) {
-      //If this is the last tab, select the previous tab. else, the next tab.
-      var newActiveIndex = index === tabs.length - 1 ? index - 1 : index + 1;
-      ctrl.select(tabs[newActiveIndex]);
+    var index;
+    for (var i = 0; i < ctrl.tabs.length; i++) {
+      if (ctrl.tabs[i].tab === tab) {
+        index = i;
+        break;
+      }
     }
-    tabs.splice(index, 1);
+
+    if (ctrl.tabs[index].index === ctrl.active) {
+      var newActiveTabIndex = index === ctrl.tabs.length - 1 ?
+        index - 1 : index + 1 % ctrl.tabs.length;
+      ctrl.select(newActiveTabIndex);
+    }
+
+    ctrl.tabs.splice(index, 1);
   };
+
+  $scope.$watch('tabset.active', function(val) {
+    if (angular.isNumber(val) && val !== oldIndex) {
+      ctrl.select(findTabIndex(val));
+    }
+  });
 
   var destroyed;
   $scope.$on('$destroy', function() {
     destroyed = true;
   });
+
+  function findTabIndex(index) {
+    for (var i = 0; i < ctrl.tabs.length; i++) {
+      if (ctrl.tabs[i].index === index) {
+        return i;
+      }
+    }
+  }
 }])
 
 .directive('uibTabset', function() {
   return {
     transclude: true,
     replace: true,
-    scope: {
+    scope: {},
+    bindToController: {
+      active: '=?',
       type: '@'
     },
     controller: 'UibTabsetController',
-    templateUrl: 'uib/template/tabs/tabset.html',
+    controllerAs: 'tabset',
+    templateUrl: function(element, attrs) {
+      return attrs.templateUrl || 'uib/template/tabs/tabset.html';
+    },
     link: function(scope, element, attrs) {
-      scope.vertical = angular.isDefined(attrs.vertical) ? scope.$parent.$eval(attrs.vertical) : false;
-      scope.justified = angular.isDefined(attrs.justified) ? scope.$parent.$eval(attrs.justified) : false;
+      scope.vertical = angular.isDefined(attrs.vertical) ?
+        scope.$parent.$eval(attrs.vertical) : false;
+      scope.justified = angular.isDefined(attrs.justified) ?
+        scope.$parent.$eval(attrs.justified) : false;
+      if (angular.isUndefined(attrs.active)) {
+        scope.active = 0;
+      }
     }
   };
 })
@@ -14056,11 +20003,14 @@ angular.module('ui.bootstrap.tabs', [])
   return {
     require: '^uibTabset',
     replace: true,
-    templateUrl: 'uib/template/tabs/tab.html',
+    templateUrl: function(element, attrs) {
+      return attrs.templateUrl || 'uib/template/tabs/tab.html';
+    },
     transclude: true,
     scope: {
-      active: '=?',
       heading: '@',
+      index: '=?',
+      classes: '@?',
       onSelect: '&select', //This callback is called in contentHeadingTransclude
                           //once it inserts the tab's content into the dom
       onDeselect: '&deselect'
@@ -14070,12 +20020,6 @@ angular.module('ui.bootstrap.tabs', [])
     },
     controllerAs: 'tab',
     link: function(scope, elm, attrs, tabsetCtrl, transclude) {
-      scope.$watch('active', function(active) {
-        if (active) {
-          tabsetCtrl.select(scope);
-        }
-      });
-
       scope.disabled = false;
       if (attrs.disable) {
         scope.$parent.$watch($parse(attrs.disable), function(value) {
@@ -14083,9 +20027,29 @@ angular.module('ui.bootstrap.tabs', [])
         });
       }
 
-      scope.select = function() {
+      if (angular.isUndefined(attrs.index)) {
+        if (tabsetCtrl.tabs && tabsetCtrl.tabs.length) {
+          scope.index = Math.max.apply(null, tabsetCtrl.tabs.map(function(t) { return t.index; })) + 1;
+        } else {
+          scope.index = 0;
+        }
+      }
+
+      if (angular.isUndefined(attrs.classes)) {
+        scope.classes = '';
+      }
+
+      scope.select = function(evt) {
         if (!scope.disabled) {
-          scope.active = true;
+          var index;
+          for (var i = 0; i < tabsetCtrl.tabs.length; i++) {
+            if (tabsetCtrl.tabs[i].tab === scope) {
+              index = i;
+              break;
+            }
+          }
+
+          tabsetCtrl.select(index, evt);
         }
       };
 
@@ -14121,7 +20085,7 @@ angular.module('ui.bootstrap.tabs', [])
     restrict: 'A',
     require: '^uibTabset',
     link: function(scope, elm, attrs) {
-      var tab = scope.$eval(attrs.uibTabContentTransclude);
+      var tab = scope.$eval(attrs.uibTabContentTransclude).tab;
 
       //Now our tab is ready to be transcluded: both the tab heading area
       //and the tab content area are loaded.  Transclude 'em both.
@@ -14145,7 +20109,8 @@ angular.module('ui.bootstrap.tabs', [])
       node.hasAttribute('x-uib-tab-heading') ||
       node.tagName.toLowerCase() === 'uib-tab-heading' ||
       node.tagName.toLowerCase() === 'data-uib-tab-heading' ||
-      node.tagName.toLowerCase() === 'x-uib-tab-heading'
+      node.tagName.toLowerCase() === 'x-uib-tab-heading' ||
+      node.tagName.toLowerCase() === 'uib:tab-heading'
     );
   }
 });
@@ -14168,8 +20133,10 @@ angular.module('ui.bootstrap.timepicker', [])
 
 .controller('UibTimepickerController', ['$scope', '$element', '$attrs', '$parse', '$log', '$locale', 'uibTimepickerConfig', function($scope, $element, $attrs, $parse, $log, $locale, timepickerConfig) {
   var selected = new Date(),
-      ngModelCtrl = { $setViewValue: angular.noop }, // nullModelCtrl
-      meridians = angular.isDefined($attrs.meridians) ? $scope.$parent.$eval($attrs.meridians) : timepickerConfig.meridians || $locale.DATETIME_FORMATS.AMPMS;
+    watchers = [],
+    ngModelCtrl = { $setViewValue: angular.noop }, // nullModelCtrl
+    meridians = angular.isDefined($attrs.meridians) ? $scope.$parent.$eval($attrs.meridians) : timepickerConfig.meridians || $locale.DATETIME_FORMATS.AMPMS,
+    padHours = angular.isDefined($attrs.padHours) ? $scope.$parent.$eval($attrs.padHours) : true;
 
   $scope.tabindex = angular.isDefined($attrs.tabindex) ? $attrs.tabindex : 0;
   $element.removeAttr('tabindex');
@@ -14203,35 +20170,35 @@ angular.module('ui.bootstrap.timepicker', [])
 
   var hourStep = timepickerConfig.hourStep;
   if ($attrs.hourStep) {
-    $scope.$parent.$watch($parse($attrs.hourStep), function(value) {
+    watchers.push($scope.$parent.$watch($parse($attrs.hourStep), function(value) {
       hourStep = +value;
-    });
+    }));
   }
 
   var minuteStep = timepickerConfig.minuteStep;
   if ($attrs.minuteStep) {
-    $scope.$parent.$watch($parse($attrs.minuteStep), function(value) {
+    watchers.push($scope.$parent.$watch($parse($attrs.minuteStep), function(value) {
       minuteStep = +value;
-    });
+    }));
   }
 
   var min;
-  $scope.$parent.$watch($parse($attrs.min), function(value) {
+  watchers.push($scope.$parent.$watch($parse($attrs.min), function(value) {
     var dt = new Date(value);
     min = isNaN(dt) ? undefined : dt;
-  });
+  }));
 
   var max;
-  $scope.$parent.$watch($parse($attrs.max), function(value) {
+  watchers.push($scope.$parent.$watch($parse($attrs.max), function(value) {
     var dt = new Date(value);
     max = isNaN(dt) ? undefined : dt;
-  });
+  }));
 
   var disabled = false;
   if ($attrs.ngDisabled) {
-    $scope.$parent.$watch($parse($attrs.ngDisabled), function(value) {
+    watchers.push($scope.$parent.$watch($parse($attrs.ngDisabled), function(value) {
       disabled = value;
-    });
+    }));
   }
 
   $scope.noIncrementHours = function() {
@@ -14280,22 +20247,22 @@ angular.module('ui.bootstrap.timepicker', [])
 
   var secondStep = timepickerConfig.secondStep;
   if ($attrs.secondStep) {
-    $scope.$parent.$watch($parse($attrs.secondStep), function(value) {
+    watchers.push($scope.$parent.$watch($parse($attrs.secondStep), function(value) {
       secondStep = +value;
-    });
+    }));
   }
 
   $scope.showSeconds = timepickerConfig.showSeconds;
   if ($attrs.showSeconds) {
-    $scope.$parent.$watch($parse($attrs.showSeconds), function(value) {
+    watchers.push($scope.$parent.$watch($parse($attrs.showSeconds), function(value) {
       $scope.showSeconds = !!value;
-    });
+    }));
   }
 
   // 12H / 24H mode
   $scope.showMeridian = timepickerConfig.showMeridian;
   if ($attrs.showMeridian) {
-    $scope.$parent.$watch($parse($attrs.showMeridian), function(value) {
+    watchers.push($scope.$parent.$watch($parse($attrs.showMeridian), function(value) {
       $scope.showMeridian = !!value;
 
       if (ngModelCtrl.$error.time) {
@@ -14308,7 +20275,7 @@ angular.module('ui.bootstrap.timepicker', [])
       } else {
         updateTemplate();
       }
-    });
+    }));
   }
 
   // Get $scope.hours in 24H mode if valid
@@ -14316,7 +20283,7 @@ angular.module('ui.bootstrap.timepicker', [])
     var hours = +$scope.hours;
     var valid = $scope.showMeridian ? hours > 0 && hours < 13 :
       hours >= 0 && hours < 24;
-    if (!valid) {
+    if (!valid || $scope.hours === '') {
       return undefined;
     }
 
@@ -14333,7 +20300,11 @@ angular.module('ui.bootstrap.timepicker', [])
 
   function getMinutesFromTemplate() {
     var minutes = +$scope.minutes;
-    return minutes >= 0 && minutes < 60 ? minutes : undefined;
+    var valid = minutes >= 0 && minutes < 60;
+    if (!valid || $scope.minutes === '') {
+      return undefined;
+    }
+    return minutes;
   }
 
   function getSecondsFromTemplate() {
@@ -14341,12 +20312,12 @@ angular.module('ui.bootstrap.timepicker', [])
     return seconds >= 0 && seconds < 60 ? seconds : undefined;
   }
 
-  function pad(value) {
+  function pad(value, noPad) {
     if (value === null) {
       return '';
     }
 
-    return angular.isDefined(value) && value.toString().length < 2 ?
+    return angular.isDefined(value) && value.toString().length < 2 && !noPad ?
       '0' + value : value.toString();
   }
 
@@ -14473,11 +20444,13 @@ angular.module('ui.bootstrap.timepicker', [])
 
     hoursInputEl.bind('blur', function(e) {
       ngModelCtrl.$setTouched();
-      if ($scope.hours === null || $scope.hours === '') {
+      if (modelIsEmpty()) {
+        makeValid();
+      } else if ($scope.hours === null || $scope.hours === '') {
         invalidate(true);
       } else if (!$scope.invalidHours && $scope.hours < 10) {
         $scope.$apply(function() {
-          $scope.hours = pad($scope.hours);
+          $scope.hours = pad($scope.hours, !padHours);
         });
       }
     });
@@ -14503,7 +20476,9 @@ angular.module('ui.bootstrap.timepicker', [])
 
     minutesInputEl.bind('blur', function(e) {
       ngModelCtrl.$setTouched();
-      if ($scope.minutes === null) {
+      if (modelIsEmpty()) {
+        makeValid();
+      } else if ($scope.minutes === null) {
         invalidate(undefined, true);
       } else if (!$scope.invalidMinutes && $scope.minutes < 10) {
         $scope.$apply(function() {
@@ -14526,7 +20501,9 @@ angular.module('ui.bootstrap.timepicker', [])
     };
 
     secondsInputEl.bind('blur', function(e) {
-      if (!$scope.invalidSeconds && $scope.seconds < 10) {
+      if (modelIsEmpty()) {
+        makeValid();
+      } else if (!$scope.invalidSeconds && $scope.seconds < 10) {
         $scope.$apply( function() {
           $scope.seconds = pad($scope.seconds);
         });
@@ -14586,7 +20563,7 @@ angular.module('ui.bootstrap.timepicker', [])
         hours = hours === 0 || hours === 12 ? 12 : hours % 12; // Convert 24 to 12 hour system
       }
 
-      $scope.hours = keyboardChange === 'h' ? hours : pad(hours);
+      $scope.hours = keyboardChange === 'h' ? hours : pad(hours, !padHours);
       if (keyboardChange !== 'm') {
         $scope.minutes = pad(minutes);
       }
@@ -14613,6 +20590,12 @@ angular.module('ui.bootstrap.timepicker', [])
     var newDate = new Date(date);
     newDate.setHours(dt.getHours(), dt.getMinutes(), dt.getSeconds());
     return newDate;
+  }
+
+  function modelIsEmpty() {
+    return ($scope.hours === null || $scope.hours === '') &&
+      ($scope.minutes === null || $scope.minutes === '') &&
+      (!$scope.showSeconds || $scope.showSeconds && ($scope.seconds === null || $scope.seconds === ''));
   }
 
   $scope.showSpinners = angular.isDefined($attrs.showSpinners) ?
@@ -14670,6 +20653,12 @@ angular.module('ui.bootstrap.timepicker', [])
   $scope.blur = function() {
     ngModelCtrl.$setTouched();
   };
+
+  $scope.$on('$destroy', function() {
+    while (watchers.length) {
+      watchers.shift()();
+    }
+  });
 }])
 
 .directive('uibTimepicker', ['uibTimepickerConfig', function(uibTimepickerConfig) {
@@ -14733,6 +20722,10 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
       minLength = 1;
     }
 
+    originalScope.$watch(attrs.typeaheadMinLength, function (newVal) {
+        minLength = !newVal && newVal !== 0 ? 1 : newVal;
+    });
+    
     //minimal wait time after last character typed before typeahead kicks-in
     var waitTime = originalScope.$eval(attrs.typeaheadWaitMs) || 0;
 
@@ -14819,6 +20812,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
       element.after(inputsContainer);
       hintInputElem = element.clone();
       hintInputElem.attr('placeholder', '');
+      hintInputElem.attr('tabindex', '-1');
       hintInputElem.val('');
       hintInputElem.css({
         'position': 'absolute',
@@ -14941,10 +20935,11 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
 
             if (showHint) {
               var firstLabel = scope.matches[0].label;
-              if (inputValue.length > 0 && firstLabel.slice(0, inputValue.length).toUpperCase() === inputValue.toUpperCase()) {
+              if (angular.isString(inputValue) &&
+                inputValue.length > 0 &&
+                firstLabel.slice(0, inputValue.length).toUpperCase() === inputValue.toUpperCase()) {
                 hintInputElem.val(inputValue + firstLabel.slice(inputValue.length));
-              }
-              else {
+              } else {
                 hintInputElem.val('');
               }
             }
@@ -15058,8 +21053,13 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
         return;
       }
 
-      // if there's nothing selected (i.e. focusFirst) and enter or tab is hit, clear the results
-      if (scope.activeIdx === -1 && (evt.which === 9 || evt.which === 13)) {
+      /**
+       * if there's nothing selected (i.e. focusFirst) and enter or tab is hit
+       * or
+       * shift + tab is pressed to bring focus to the previous element
+       * then clear the results
+       */
+      if (scope.activeIdx === -1 && (evt.which === 9 || evt.which === 13) || evt.which === 9 && !!evt.shiftKey) {
         resetMatches();
         scope.$digest();
         return;
@@ -15084,7 +21084,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
           evt.stopPropagation();
 
           resetMatches();
-          scope.$digest();
+          originalScope.$digest();
           break;
         case 38:
           scope.activeIdx = (scope.activeIdx > 0 ? scope.activeIdx : scope.matches.length) - 1;
@@ -15124,7 +21124,10 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
         });
       }
       if (!isEditable && modelCtrl.$error.editable) {
-        modelCtrl.$viewValue = '';
+        modelCtrl.$setViewValue();
+        // Reset validity as we are clearing
+        modelCtrl.$setValidity('editable', true);
+        modelCtrl.$setValidity('parse', true);
         element.val('');
       }
       hasFocus = false;
@@ -15138,7 +21141,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
       if (element[0] !== evt.target && evt.which !== 3 && scope.matches.length !== 0) {
         resetMatches();
         if (!$rootScope.$$phase) {
-          scope.$digest();
+          originalScope.$digest();
         }
       }
     };
@@ -15343,13 +21346,13 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.debounce', 'ui.bootstrap
 angular.module("uib/template/accordion/accordion-group.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("uib/template/accordion/accordion-group.html",
     "<div class=\"panel\" ng-class=\"panelClass || 'panel-default'\">\n" +
-    "  <div class=\"panel-heading\" ng-keypress=\"toggleOpen($event)\">\n" +
+    "  <div role=\"tab\" id=\"{{::headingId}}\" aria-selected=\"{{isOpen}}\" class=\"panel-heading\" ng-keypress=\"toggleOpen($event)\">\n" +
     "    <h4 class=\"panel-title\">\n" +
-    "      <div tabindex=\"0\" class=\"accordion-toggle\" ng-click=\"toggleOpen()\" uib-accordion-transclude=\"heading\"><span ng-class=\"{'text-muted': isDisabled}\">{{heading}}</span></div>\n" +
+    "      <a role=\"button\" data-toggle=\"collapse\" href aria-expanded=\"{{isOpen}}\" aria-controls=\"{{::panelId}}\" tabindex=\"0\" class=\"accordion-toggle\" ng-click=\"toggleOpen()\" uib-accordion-transclude=\"heading\"><span uib-accordion-header ng-class=\"{'text-muted': isDisabled}\">{{heading}}</span></a>\n" +
     "    </h4>\n" +
     "  </div>\n" +
-    "  <div class=\"panel-collapse collapse\" uib-collapse=\"!isOpen\">\n" +
-    "	  <div class=\"panel-body\" ng-transclude></div>\n" +
+    "  <div id=\"{{::panelId}}\" aria-labelledby=\"{{::headingId}}\" aria-hidden=\"{{!isOpen}}\" role=\"tabpanel\" class=\"panel-collapse collapse\" uib-collapse=\"!isOpen\">\n" +
+    "    <div class=\"panel-body\" ng-transclude></div>\n" +
     "  </div>\n" +
     "</div>\n" +
     "");
@@ -15357,7 +21360,7 @@ angular.module("uib/template/accordion/accordion-group.html", []).run(["$templat
 
 angular.module("uib/template/accordion/accordion.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("uib/template/accordion/accordion.html",
-    "<div class=\"panel-group\" ng-transclude></div>");
+    "<div role=\"tablist\" class=\"panel-group\" ng-transclude></div>");
 }]);
 
 angular.module("uib/template/alert/alert.html", []).run(["$templateCache", function($templateCache) {
@@ -15376,11 +21379,11 @@ angular.module("uib/template/carousel/carousel.html", []).run(["$templateCache",
   $templateCache.put("uib/template/carousel/carousel.html",
     "<div ng-mouseenter=\"pause()\" ng-mouseleave=\"play()\" class=\"carousel\" ng-swipe-right=\"prev()\" ng-swipe-left=\"next()\">\n" +
     "  <div class=\"carousel-inner\" ng-transclude></div>\n" +
-    "  <a role=\"button\" href class=\"left carousel-control\" ng-click=\"prev()\" ng-show=\"slides.length > 1\">\n" +
+    "  <a role=\"button\" href class=\"left carousel-control\" ng-click=\"prev()\" ng-class=\"{ disabled: isPrevDisabled() }\" ng-show=\"slides.length > 1\">\n" +
     "    <span aria-hidden=\"true\" class=\"glyphicon glyphicon-chevron-left\"></span>\n" +
     "    <span class=\"sr-only\">previous</span>\n" +
     "  </a>\n" +
-    "  <a role=\"button\" href class=\"right carousel-control\" ng-click=\"next()\" ng-show=\"slides.length > 1\">\n" +
+    "  <a role=\"button\" href class=\"right carousel-control\" ng-click=\"next()\" ng-class=\"{ disabled: isNextDisabled() }\" ng-show=\"slides.length > 1\">\n" +
     "    <span aria-hidden=\"true\" class=\"glyphicon glyphicon-chevron-right\"></span>\n" +
     "    <span class=\"sr-only\">next</span>\n" +
     "  </a>\n" +
@@ -15389,7 +21392,8 @@ angular.module("uib/template/carousel/carousel.html", []).run(["$templateCache",
     "      <span class=\"sr-only\">slide {{ $index + 1 }} of {{ slides.length }}<span ng-if=\"isActive(slide)\">, currently active</span></span>\n" +
     "    </li>\n" +
     "  </ol>\n" +
-    "</div>");
+    "</div>\n" +
+    "");
 }]);
 
 angular.module("uib/template/carousel/slide.html", []).run(["$templateCache", function($templateCache) {
@@ -15406,7 +21410,8 @@ angular.module("uib/template/datepicker/datepicker.html", []).run(["$templateCac
     "  <uib-daypicker ng-switch-when=\"day\" tabindex=\"0\"></uib-daypicker>\n" +
     "  <uib-monthpicker ng-switch-when=\"month\" tabindex=\"0\"></uib-monthpicker>\n" +
     "  <uib-yearpicker ng-switch-when=\"year\" tabindex=\"0\"></uib-yearpicker>\n" +
-    "</div>");
+    "</div>\n" +
+    "");
 }]);
 
 angular.module("uib/template/datepicker/day.html", []).run(["$templateCache", function($templateCache) {
@@ -15415,7 +21420,7 @@ angular.module("uib/template/datepicker/day.html", []).run(["$templateCache", fu
     "  <thead>\n" +
     "    <tr>\n" +
     "      <th><button type=\"button\" class=\"btn btn-default btn-sm pull-left uib-left\" ng-click=\"move(-1)\" tabindex=\"-1\"><i class=\"glyphicon glyphicon-chevron-left\"></i></button></th>\n" +
-    "      <th colspan=\"{{::5 + showWeeks}}\"><button id=\"{{::uniqueId}}-title\" role=\"heading\" aria-live=\"assertive\" aria-atomic=\"true\" type=\"button\" class=\"btn btn-default btn-sm uib-title\" ng-click=\"toggleMode()\" ng-disabled=\"datepickerMode === maxMode\" tabindex=\"-1\" style=\"width:100%;\"><strong>{{title}}</strong></button></th>\n" +
+    "      <th colspan=\"{{::5 + showWeeks}}\"><button id=\"{{::uniqueId}}-title\" role=\"heading\" aria-live=\"assertive\" aria-atomic=\"true\" type=\"button\" class=\"btn btn-default btn-sm uib-title\" ng-click=\"toggleMode()\" ng-disabled=\"datepickerMode === maxMode\" tabindex=\"-1\"><strong>{{title}}</strong></button></th>\n" +
     "      <th><button type=\"button\" class=\"btn btn-default btn-sm pull-right uib-right\" ng-click=\"move(1)\" tabindex=\"-1\"><i class=\"glyphicon glyphicon-chevron-right\"></i></button></th>\n" +
     "    </tr>\n" +
     "    <tr>\n" +
@@ -15429,7 +21434,7 @@ angular.module("uib/template/datepicker/day.html", []).run(["$templateCache", fu
     "      <td ng-repeat=\"dt in row\" class=\"uib-day text-center\" role=\"gridcell\"\n" +
     "        id=\"{{::dt.uid}}\"\n" +
     "        ng-class=\"::dt.customClass\">\n" +
-    "        <button type=\"button\" style=\"min-width:100%;\" class=\"btn btn-default btn-sm\"\n" +
+    "        <button type=\"button\" class=\"btn btn-default btn-sm\"\n" +
     "          uib-is-class=\"\n" +
     "            'btn-info' for selectedDt,\n" +
     "            'active' for activeDt\n" +
@@ -15450,7 +21455,7 @@ angular.module("uib/template/datepicker/month.html", []).run(["$templateCache", 
     "  <thead>\n" +
     "    <tr>\n" +
     "      <th><button type=\"button\" class=\"btn btn-default btn-sm pull-left uib-left\" ng-click=\"move(-1)\" tabindex=\"-1\"><i class=\"glyphicon glyphicon-chevron-left\"></i></button></th>\n" +
-    "      <th><button id=\"{{::uniqueId}}-title\" role=\"heading\" aria-live=\"assertive\" aria-atomic=\"true\" type=\"button\" class=\"btn btn-default btn-sm uib-title\" ng-click=\"toggleMode()\" ng-disabled=\"datepickerMode === maxMode\" tabindex=\"-1\" style=\"width:100%;\"><strong>{{title}}</strong></button></th>\n" +
+    "      <th><button id=\"{{::uniqueId}}-title\" role=\"heading\" aria-live=\"assertive\" aria-atomic=\"true\" type=\"button\" class=\"btn btn-default btn-sm uib-title\" ng-click=\"toggleMode()\" ng-disabled=\"datepickerMode === maxMode\" tabindex=\"-1\"><strong>{{title}}</strong></button></th>\n" +
     "      <th><button type=\"button\" class=\"btn btn-default btn-sm pull-right uib-right\" ng-click=\"move(1)\" tabindex=\"-1\"><i class=\"glyphicon glyphicon-chevron-right\"></i></button></th>\n" +
     "    </tr>\n" +
     "  </thead>\n" +
@@ -15459,7 +21464,7 @@ angular.module("uib/template/datepicker/month.html", []).run(["$templateCache", 
     "      <td ng-repeat=\"dt in row\" class=\"uib-month text-center\" role=\"gridcell\"\n" +
     "        id=\"{{::dt.uid}}\"\n" +
     "        ng-class=\"::dt.customClass\">\n" +
-    "        <button type=\"button\" style=\"min-width:100%;\" class=\"btn btn-default\"\n" +
+    "        <button type=\"button\" class=\"btn btn-default\"\n" +
     "          uib-is-class=\"\n" +
     "            'btn-info' for selectedDt,\n" +
     "            'active' for activeDt\n" +
@@ -15471,21 +21476,6 @@ angular.module("uib/template/datepicker/month.html", []).run(["$templateCache", 
     "    </tr>\n" +
     "  </tbody>\n" +
     "</table>\n" +
-    "");
-}]);
-
-angular.module("uib/template/datepicker/popup.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("uib/template/datepicker/popup.html",
-    "<ul class=\"uib-datepicker-popup dropdown-menu\" dropdown-nested ng-if=\"isOpen\" style=\"display: block\" ng-style=\"{top: position.top+'px', left: position.left+'px'}\" ng-keydown=\"keydown($event)\" ng-click=\"$event.stopPropagation()\">\n" +
-    "	<li ng-transclude></li>\n" +
-    "	<li ng-if=\"showButtonBar\" style=\"padding:10px 9px 2px\" class=\"uib-button-bar\">\n" +
-    "		<span class=\"btn-group pull-left\">\n" +
-    "			<button type=\"button\" class=\"btn btn-sm btn-info uib-datepicker-current\" ng-click=\"select('today')\" ng-disabled=\"isDisabled('today')\">{{ getText('current') }}</button>\n" +
-    "			<button type=\"button\" class=\"btn btn-sm btn-danger uib-clear\" ng-click=\"select(null)\">{{ getText('clear') }}</button>\n" +
-    "		</span>\n" +
-    "		<button type=\"button\" class=\"btn btn-sm btn-success pull-right uib-close\" ng-click=\"close()\">{{ getText('close') }}</button>\n" +
-    "	</li>\n" +
-    "</ul>\n" +
     "");
 }]);
 
@@ -15495,7 +21485,7 @@ angular.module("uib/template/datepicker/year.html", []).run(["$templateCache", f
     "  <thead>\n" +
     "    <tr>\n" +
     "      <th><button type=\"button\" class=\"btn btn-default btn-sm pull-left uib-left\" ng-click=\"move(-1)\" tabindex=\"-1\"><i class=\"glyphicon glyphicon-chevron-left\"></i></button></th>\n" +
-    "      <th colspan=\"{{::columns - 2}}\"><button id=\"{{::uniqueId}}-title\" role=\"heading\" aria-live=\"assertive\" aria-atomic=\"true\" type=\"button\" class=\"btn btn-default btn-sm uib-title\" ng-click=\"toggleMode()\" ng-disabled=\"datepickerMode === maxMode\" tabindex=\"-1\" style=\"width:100%;\"><strong>{{title}}</strong></button></th>\n" +
+    "      <th colspan=\"{{::columns - 2}}\"><button id=\"{{::uniqueId}}-title\" role=\"heading\" aria-live=\"assertive\" aria-atomic=\"true\" type=\"button\" class=\"btn btn-default btn-sm uib-title\" ng-click=\"toggleMode()\" ng-disabled=\"datepickerMode === maxMode\" tabindex=\"-1\"><strong>{{title}}</strong></button></th>\n" +
     "      <th><button type=\"button\" class=\"btn btn-default btn-sm pull-right uib-right\" ng-click=\"move(1)\" tabindex=\"-1\"><i class=\"glyphicon glyphicon-chevron-right\"></i></button></th>\n" +
     "    </tr>\n" +
     "  </thead>\n" +
@@ -15504,7 +21494,7 @@ angular.module("uib/template/datepicker/year.html", []).run(["$templateCache", f
     "      <td ng-repeat=\"dt in row\" class=\"uib-year text-center\" role=\"gridcell\"\n" +
     "        id=\"{{::dt.uid}}\"\n" +
     "        ng-class=\"::dt.customClass\">\n" +
-    "        <button type=\"button\" style=\"min-width:100%;\" class=\"btn btn-default\"\n" +
+    "        <button type=\"button\" class=\"btn btn-default\"\n" +
     "          uib-is-class=\"\n" +
     "            'btn-info' for selectedDt,\n" +
     "            'active' for activeDt\n" +
@@ -15516,6 +21506,23 @@ angular.module("uib/template/datepicker/year.html", []).run(["$templateCache", f
     "    </tr>\n" +
     "  </tbody>\n" +
     "</table>\n" +
+    "");
+}]);
+
+angular.module("uib/template/datepickerPopup/popup.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("uib/template/datepickerPopup/popup.html",
+    "<div>\n" +
+    "  <ul class=\"uib-datepicker-popup dropdown-menu uib-position-measure\" dropdown-nested ng-if=\"isOpen\" ng-keydown=\"keydown($event)\" ng-click=\"$event.stopPropagation()\">\n" +
+    "    <li ng-transclude></li>\n" +
+    "    <li ng-if=\"showButtonBar\" class=\"uib-button-bar\">\n" +
+    "      <span class=\"btn-group pull-left\">\n" +
+    "        <button type=\"button\" class=\"btn btn-sm btn-info uib-datepicker-current\" ng-click=\"select('today', $event)\" ng-disabled=\"isDisabled('today')\">{{ getText('current') }}</button>\n" +
+    "        <button type=\"button\" class=\"btn btn-sm btn-danger uib-clear\" ng-click=\"select(null, $event)\">{{ getText('clear') }}</button>\n" +
+    "      </span>\n" +
+    "      <button type=\"button\" class=\"btn btn-sm btn-success pull-right uib-close\" ng-click=\"close($event)\">{{ getText('close') }}</button>\n" +
+    "    </li>\n" +
+    "  </ul>\n" +
+    "</div>\n" +
     "");
 }]);
 
@@ -15535,7 +21542,7 @@ angular.module("uib/template/modal/window.html", []).run(["$templateCache", func
     "    uib-modal-animation-class=\"fade\"\n" +
     "    modal-in-class=\"in\"\n" +
     "    ng-style=\"{'z-index': 1050 + index*10, display: 'block'}\">\n" +
-    "    <div class=\"modal-dialog\" ng-class=\"size ? 'modal-' + size : ''\"><div class=\"modal-content\" uib-modal-transclude></div></div>\n" +
+    "    <div class=\"modal-dialog {{size ? 'modal-' + size : ''}}\"><div class=\"modal-content\" uib-modal-transclude></div></div>\n" +
     "</div>\n" +
     "");
 }]);
@@ -15569,18 +21576,6 @@ angular.module("uib/template/tooltip/tooltip-html-popup.html", []).run(["$templa
     "  ng-class=\"{ in: isOpen() }\">\n" +
     "  <div class=\"tooltip-arrow\"></div>\n" +
     "  <div class=\"tooltip-inner\" ng-bind-html=\"contentExp()\"></div>\n" +
-    "</div>\n" +
-    "");
-}]);
-
-angular.module("template/tooltip/tooltip-html-unsafe-popup.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("template/tooltip/tooltip-html-unsafe-popup.html",
-    "<div class=\"tooltip\"\n" +
-    "  tooltip-animation-class=\"fade\"\n" +
-    "  tooltip-classes\n" +
-    "  ng-class=\"{ in: isOpen() }\">\n" +
-    "  <div class=\"tooltip-arrow\"></div>\n" +
-    "  <div class=\"tooltip-inner\" bind-html-unsafe=\"content\"></div>\n" +
     "</div>\n" +
     "");
 }]);
@@ -15620,7 +21615,7 @@ angular.module("uib/template/popover/popover-html.html", []).run(["$templateCach
     "  <div class=\"arrow\"></div>\n" +
     "\n" +
     "  <div class=\"popover-inner\">\n" +
-    "      <h3 class=\"popover-title\" ng-bind=\"title\" ng-if=\"title\"></h3>\n" +
+    "      <h3 class=\"popover-title\" ng-bind=\"uibTitle\" ng-if=\"uibTitle\"></h3>\n" +
     "      <div class=\"popover-content\" ng-bind-html=\"contentExp()\"></div>\n" +
     "  </div>\n" +
     "</div>\n" +
@@ -15636,7 +21631,7 @@ angular.module("uib/template/popover/popover-template.html", []).run(["$template
     "  <div class=\"arrow\"></div>\n" +
     "\n" +
     "  <div class=\"popover-inner\">\n" +
-    "      <h3 class=\"popover-title\" ng-bind=\"title\" ng-if=\"title\"></h3>\n" +
+    "      <h3 class=\"popover-title\" ng-bind=\"uibTitle\" ng-if=\"uibTitle\"></h3>\n" +
     "      <div class=\"popover-content\"\n" +
     "        uib-tooltip-template-transclude=\"contentExp()\"\n" +
     "        tooltip-template-transclude-scope=\"originScope()\"></div>\n" +
@@ -15654,7 +21649,7 @@ angular.module("uib/template/popover/popover.html", []).run(["$templateCache", f
     "  <div class=\"arrow\"></div>\n" +
     "\n" +
     "  <div class=\"popover-inner\">\n" +
-    "      <h3 class=\"popover-title\" ng-bind=\"title\" ng-if=\"title\"></h3>\n" +
+    "      <h3 class=\"popover-title\" ng-bind=\"uibTitle\" ng-if=\"uibTitle\"></h3>\n" +
     "      <div class=\"popover-content\" ng-bind=\"content\"></div>\n" +
     "  </div>\n" +
     "</div>\n" +
@@ -15682,17 +21677,17 @@ angular.module("uib/template/progressbar/progressbar.html", []).run(["$templateC
 
 angular.module("uib/template/rating/rating.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("uib/template/rating/rating.html",
-    "<span ng-mouseleave=\"reset()\" ng-keydown=\"onKeydown($event)\" tabindex=\"0\" role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"{{range.length}}\" aria-valuenow=\"{{value}}\">\n" +
+    "<span ng-mouseleave=\"reset()\" ng-keydown=\"onKeydown($event)\" tabindex=\"0\" role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"{{range.length}}\" aria-valuenow=\"{{value}}\" aria-valuetext=\"{{title}}\">\n" +
     "    <span ng-repeat-start=\"r in range track by $index\" class=\"sr-only\">({{ $index < value ? '*' : ' ' }})</span>\n" +
-    "    <i ng-repeat-end ng-mouseenter=\"enter($index + 1)\" ng-click=\"rate($index + 1)\" class=\"glyphicon\" ng-class=\"$index < value && (r.stateOn || 'glyphicon-star') || (r.stateOff || 'glyphicon-star-empty')\" ng-attr-title=\"{{r.title}}\" aria-valuetext=\"{{r.title}}\"></i>\n" +
+    "    <i ng-repeat-end ng-mouseenter=\"enter($index + 1)\" ng-click=\"rate($index + 1)\" class=\"glyphicon\" ng-class=\"$index < value && (r.stateOn || 'glyphicon-star') || (r.stateOff || 'glyphicon-star-empty')\" ng-attr-title=\"{{r.title}}\"></i>\n" +
     "</span>\n" +
     "");
 }]);
 
 angular.module("uib/template/tabs/tab.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("uib/template/tabs/tab.html",
-    "<li ng-class=\"{active: active, disabled: disabled}\" class=\"uib-tab\">\n" +
-    "  <div ng-click=\"select()\" uib-tab-heading-transclude>{{heading}}</div>\n" +
+    "<li ng-class=\"[{active: active, disabled: disabled}, classes]\" class=\"uib-tab nav-item\">\n" +
+    "  <a href ng-click=\"select($event)\" class=\"nav-link\" uib-tab-heading-transclude>{{heading}}</a>\n" +
     "</li>\n" +
     "");
 }]);
@@ -15700,11 +21695,11 @@ angular.module("uib/template/tabs/tab.html", []).run(["$templateCache", function
 angular.module("uib/template/tabs/tabset.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("uib/template/tabs/tabset.html",
     "<div>\n" +
-    "  <ul class=\"nav nav-{{type || 'tabs'}}\" ng-class=\"{'nav-stacked': vertical, 'nav-justified': justified}\" ng-transclude></ul>\n" +
+    "  <ul class=\"nav nav-{{tabset.type || 'tabs'}}\" ng-class=\"{'nav-stacked': vertical, 'nav-justified': justified}\" ng-transclude></ul>\n" +
     "  <div class=\"tab-content\">\n" +
-    "    <div class=\"tab-pane\" \n" +
-    "         ng-repeat=\"tab in tabs\" \n" +
-    "         ng-class=\"{active: tab.active}\"\n" +
+    "    <div class=\"tab-pane\"\n" +
+    "         ng-repeat=\"tab in tabset.tabs\"\n" +
+    "         ng-class=\"{active: tabset.active === tab.index}\"\n" +
     "         uib-tab-content-transclude=\"tab\">\n" +
     "    </div>\n" +
     "  </div>\n" +
@@ -15726,15 +21721,15 @@ angular.module("uib/template/timepicker/timepicker.html", []).run(["$templateCac
     "    </tr>\n" +
     "    <tr>\n" +
     "      <td class=\"form-group uib-time hours\" ng-class=\"{'has-error': invalidHours}\">\n" +
-    "        <input style=\"width:50px;\" type=\"text\" placeholder=\"HH\" ng-model=\"hours\" ng-change=\"updateHours()\" class=\"form-control text-center\" ng-readonly=\"::readonlyInput\" maxlength=\"2\" tabindex=\"{{::tabindex}}\" ng-disabled=\"noIncrementHours()\" ng-blur=\"blur()\">\n" +
+    "        <input type=\"text\" placeholder=\"HH\" ng-model=\"hours\" ng-change=\"updateHours()\" class=\"form-control text-center\" ng-readonly=\"::readonlyInput\" maxlength=\"2\" tabindex=\"{{::tabindex}}\" ng-disabled=\"noIncrementHours()\" ng-blur=\"blur()\">\n" +
     "      </td>\n" +
     "      <td class=\"uib-separator\">:</td>\n" +
     "      <td class=\"form-group uib-time minutes\" ng-class=\"{'has-error': invalidMinutes}\">\n" +
-    "        <input style=\"width:50px;\" type=\"text\" placeholder=\"MM\" ng-model=\"minutes\" ng-change=\"updateMinutes()\" class=\"form-control text-center\" ng-readonly=\"::readonlyInput\" maxlength=\"2\" tabindex=\"{{::tabindex}}\" ng-disabled=\"noIncrementMinutes()\" ng-blur=\"blur()\">\n" +
+    "        <input type=\"text\" placeholder=\"MM\" ng-model=\"minutes\" ng-change=\"updateMinutes()\" class=\"form-control text-center\" ng-readonly=\"::readonlyInput\" maxlength=\"2\" tabindex=\"{{::tabindex}}\" ng-disabled=\"noIncrementMinutes()\" ng-blur=\"blur()\">\n" +
     "      </td>\n" +
     "      <td ng-show=\"showSeconds\" class=\"uib-separator\">:</td>\n" +
     "      <td class=\"form-group uib-time seconds\" ng-class=\"{'has-error': invalidSeconds}\" ng-show=\"showSeconds\">\n" +
-    "        <input style=\"width:50px;\" type=\"text\" ng-model=\"seconds\" ng-change=\"updateSeconds()\" class=\"form-control text-center\" ng-readonly=\"readonlyInput\" maxlength=\"2\" tabindex=\"{{::tabindex}}\" ng-disabled=\"noIncrementSeconds()\" ng-blur=\"blur()\">\n" +
+    "        <input type=\"text\" placeholder=\"SS\" ng-model=\"seconds\" ng-change=\"updateSeconds()\" class=\"form-control text-center\" ng-readonly=\"readonlyInput\" maxlength=\"2\" tabindex=\"{{::tabindex}}\" ng-disabled=\"noIncrementSeconds()\" ng-blur=\"blur()\">\n" +
     "      </td>\n" +
     "      <td ng-show=\"showMeridian\" class=\"uib-time am-pm\"><button type=\"button\" ng-class=\"{disabled: noToggleMeridian()}\" class=\"btn btn-default text-center\" ng-click=\"toggleMeridian()\" ng-disabled=\"noToggleMeridian()\" tabindex=\"{{::tabindex}}\">{{meridian}}</button></td>\n" +
     "    </tr>\n" +
@@ -15753,21 +21748,29 @@ angular.module("uib/template/timepicker/timepicker.html", []).run(["$templateCac
 
 angular.module("uib/template/typeahead/typeahead-match.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("uib/template/typeahead/typeahead-match.html",
-    "<a href tabindex=\"-1\" ng-bind-html=\"match.label | uibTypeaheadHighlight:query\"></a>\n" +
+    "<a href\n" +
+    "   tabindex=\"-1\"\n" +
+    "   ng-bind-html=\"match.label | uibTypeaheadHighlight:query\"\n" +
+    "   ng-attr-title=\"{{match.label}}\"></a>\n" +
     "");
 }]);
 
 angular.module("uib/template/typeahead/typeahead-popup.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("uib/template/typeahead/typeahead-popup.html",
-    "<ul class=\"dropdown-menu\" ng-show=\"isOpen() && !moveInProgress\" ng-style=\"{top: position().top+'px', left: position().left+'px'}\" style=\"display: block;\" role=\"listbox\" aria-hidden=\"{{!isOpen()}}\">\n" +
+    "<ul class=\"dropdown-menu\" ng-show=\"isOpen() && !moveInProgress\" ng-style=\"{top: position().top+'px', left: position().left+'px'}\" role=\"listbox\" aria-hidden=\"{{!isOpen()}}\">\n" +
     "    <li ng-repeat=\"match in matches track by $index\" ng-class=\"{active: isActive($index) }\" ng-mouseenter=\"selectActive($index)\" ng-click=\"selectMatch($index, $event)\" role=\"option\" id=\"{{::match.id}}\">\n" +
     "        <div uib-typeahead-match index=\"$index\" match=\"match\" query=\"query\" template-url=\"templateUrl\"></div>\n" +
     "    </li>\n" +
     "</ul>\n" +
     "");
 }]);
-angular.module('ui.bootstrap.carousel').run(function() {!angular.$$csp().noInlineStyle && angular.element(document).find('head').prepend('<style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style>'); });
-angular.module('ui.bootstrap.tabs').run(function() {!angular.$$csp().noInlineStyle && angular.element(document).find('head').prepend('<style type="text/css">.uib-tab > div{position:relative;display:block;padding:10px 15px;outline:0;color:#337ab7;}.uib-tab > div:focus,.uib-tab > div:hover{background-color:#eee;color:#23527c;}.uib-tab.disabled > div{color:#777;}.uib-tab.disabled > div:focus,.uib-tab.disabled > div:hover{color:#777;cursor:not-allowed;background-color:transparent;}.nav-tabs > .uib-tab > div{margin-right:2px;line-height:1.42857143;border:1px solid transparent;border-radius:4px 4px 0 0;}.nav-tabs > .uib-tab > div:hover{border-color:#eee #eee #ddd;}.nav-tabs > .uib-tab.active > div,.nav-tabs > .uib-tab.active > div:focus,.nav-tabs > .uib-tab.active > div:hover{color:#555;cursor:default;background-color:#fff;border-color:#ddd #ddd transparent #ddd;}.nav-pills > .uib-tab > div{border-radius:4px;}.nav-pills > .uib-tab.active > div,.nav-pills > .uib-tab.active > div:focus,.nav-pills > .uib-tab.active > div:hover{color:#fff;background-color:#337ab7;}</style>'); });/**
+angular.module('ui.bootstrap.carousel').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibCarouselCss && angular.element(document).find('head').prepend('<style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style>'); angular.$$uibCarouselCss = true; });
+angular.module('ui.bootstrap.datepicker').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibDatepickerCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-datepicker .uib-title{width:100%;}.uib-day button,.uib-month button,.uib-year button{min-width:100%;}.uib-left,.uib-right{width:100%}</style>'); angular.$$uibDatepickerCss = true; });
+angular.module('ui.bootstrap.position').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibPositionCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-position-measure{display:block !important;visibility:hidden !important;position:absolute !important;top:-9999px !important;left:-9999px !important;}.uib-position-scrollbar-measure{position:absolute !important;top:-9999px !important;width:50px !important;height:50px !important;overflow:scroll !important;}.uib-position-body-scrollbar-measure{overflow:scroll !important;}</style>'); angular.$$uibPositionCss = true; });
+angular.module('ui.bootstrap.datepickerPopup').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibDatepickerpopupCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-datepicker-popup.dropdown-menu{display:block;float:none;margin:0;}.uib-button-bar{padding:10px 9px 2px;}</style>'); angular.$$uibDatepickerpopupCss = true; });
+angular.module('ui.bootstrap.tooltip').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTooltipCss && angular.element(document).find('head').prepend('<style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style>'); angular.$$uibTooltipCss = true; });
+angular.module('ui.bootstrap.timepicker').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTimepickerCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-time input{width:50px;}</style>'); angular.$$uibTimepickerCss = true; });
+angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTypeaheadCss && angular.element(document).find('head').prepend('<style type="text/css">[uib-typeahead-popup].dropdown-menu{display:block;}</style>'); angular.$$uibTypeaheadCss = true; });/**
  *                                                  ANGULAR UI BOOTSTRAP - EXTENDED TEMPLATES
  * ***************************************************************************************************************************
  */
@@ -15820,6 +21823,73 @@ angular.module('ui.bootstrap.ext', ['ui.bootstrap'])
         }
     };
 }])
+
+// FIX: openScope is undefined when dropdown is in modal
+.service('uibDropdownService', ['$document', '$rootScope', function($document, $rootScope) {
+    var openScope = null;
+
+    this.open = function(dropdownScope, element) {
+        if (!openScope) {
+            $document.on('click', closeDropdown);
+            element.on('keydown', keybindFilter);
+        }
+
+        if (openScope && openScope !== dropdownScope) {
+            openScope.isOpen = false;
+        }
+
+        openScope = dropdownScope;
+    };
+
+    this.close = function(dropdownScope, element) {
+        if (openScope === dropdownScope) {
+            openScope = null;
+            $document.off('click', closeDropdown);
+            element.off('keydown', keybindFilter);
+        }
+    };
+
+    var closeDropdown = function(evt) {
+        // This method may still be called during the same mouse event that
+        // unbound this event handler. So check openScope before proceeding.
+        if (!openScope) { return; }
+
+        if (evt && openScope.getAutoClose() === 'disabled') { return; }
+
+        if (evt && evt.which === 3) { return; }
+
+        var toggleElement = openScope.getToggleElement();
+        if (evt && toggleElement && toggleElement[0].contains(evt.target)) {
+            return;
+        }
+
+        var dropdownElement = openScope.getDropdownElement();
+        if (evt && openScope.getAutoClose() === 'outsideClick' &&
+            dropdownElement && dropdownElement[0].contains(evt.target)) {
+            return;
+        }
+
+        openScope.isOpen = false;
+
+        if (!$rootScope.$$phase) {
+            openScope.$apply();
+        }
+    };
+
+    var keybindFilter = function(evt) {
+        if (evt.which === 27) {
+            evt.stopPropagation();
+            if(openScope) openScope.focusToggleElement();
+            closeDropdown();
+        } else if (openScope && openScope.isKeynavEnabled() && [38, 40].indexOf(evt.which) !== -1 && openScope.isOpen) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            openScope.focusDropdownEntry(evt.which);
+        }
+    };
+}])
+
+// FIX: keyboard nav when dropdown menu is not in DOM, if(elems[self.selectedOption]) elems[self.selectedOption].focus();
 .controller('UibDropdownController', ['$scope', '$element', '$attrs', '$parse', 'uibDropdownConfig', 'uibDropdownService', '$animate', '$uibPosition', '$document', '$compile', '$templateRequest', function($scope, $element, $attrs, $parse, dropdownConfig, uibDropdownService, $animate, $position, $document, $compile, $templateRequest) {
     var self = this,
         scope = $scope.$new(), // create a child scope so we are not polluting original one
@@ -15870,7 +21940,12 @@ angular.module('ui.bootstrap.ext', ['ui.bootstrap'])
     };
 
     this.toggle = function(open) {
-        return scope.isOpen = arguments.length ? !!open : !scope.isOpen;
+        scope.isOpen = arguments.length ? !!open : !scope.isOpen;
+        if (angular.isFunction(setIsOpen)) {
+            setIsOpen(scope, scope.isOpen);
+        }
+
+        return scope.isOpen;
     };
 
     // Allow other directives to watch status
@@ -15973,12 +22048,15 @@ angular.module('ui.bootstrap.ext', ['ui.bootstrap'])
         }
 
         var openContainer = appendTo ? appendTo : $element;
+        var hasOpenClass = openContainer.hasClass(appendTo ? appendToOpenClass : openClass);
 
-        $animate[isOpen ? 'addClass' : 'removeClass'](openContainer, appendTo ? appendToOpenClass : openClass).then(function() {
-            if (angular.isDefined(isOpen) && isOpen !== wasOpen) {
-                toggleInvoker($scope, { open: !!isOpen });
-            }
-        });
+        if (hasOpenClass === !isOpen) {
+            $animate[isOpen ? 'addClass' : 'removeClass'](openContainer, appendTo ? appendToOpenClass : openClass).then(function() {
+                if (angular.isDefined(isOpen) && isOpen !== wasOpen) {
+                    toggleInvoker($scope, { open: !!isOpen });
+                }
+            });
+        }
 
         if (isOpen) {
             if (self.dropdownMenuTemplateUrl) {
@@ -15993,7 +22071,7 @@ angular.module('ui.bootstrap.ext', ['ui.bootstrap'])
             }
 
             scope.focusToggleElement();
-            uibDropdownService.open(scope);
+            uibDropdownService.open(scope, $element);
         } else {
             if (self.dropdownMenuTemplateUrl) {
                 if (templateScope) {
@@ -16004,18 +22082,12 @@ angular.module('ui.bootstrap.ext', ['ui.bootstrap'])
                 self.dropdownMenu = newEl;
             }
 
-            uibDropdownService.close(scope);
+            uibDropdownService.close(scope, $element);
             self.selectedOption = null;
         }
 
         if (angular.isFunction(setIsOpen)) {
             setIsOpen($scope, isOpen);
-        }
-    });
-
-    $scope.$on('$locationChangeSuccess', function() {
-        if (scope.getAutoClose() !== 'disabled') {
-            scope.isOpen = false;
         }
     });
 }]);
