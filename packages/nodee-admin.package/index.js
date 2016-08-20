@@ -642,7 +642,7 @@ function install(){
     }
     
     // mailer test
-    framework.route(basePath + 'mailers/test', testMailer, { flags:['post','json','authorize','!admin','!adminarea'], timeout: 30000 });
+    framework.route(basePath + 'mailers/test', testMailer, ['post','json','authorize','!admin','!adminarea',30000]); // timeout 30 seconds
     function testMailer(){
         var ctrl = this;
         
