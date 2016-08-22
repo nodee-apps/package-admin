@@ -498,6 +498,20 @@ function install(){
     // load "nodee-total" module
     var nodee = MODULE('nodee-total');
     
+    // notify nodee-total, that this package is starting
+    nodee.setReady('nodee-admin', false);
+    nodee.setHealthy('nodee-admin', true);
+    
+    var modelsCount = 2, modelsInited = 0;
+    function checkReadyness(){
+        modelsInited++;
+        
+        // notify nodee-total, that this package is ready
+        if(modelsInited === modelsCount) nodee.setReady('nodee-admin', true);
+    }
+    
+    Model('AdminConfig').init(checkReadyness);
+    
     // use local vairables, because of async config loading
     var _mailersCfg, _forgotpassCfg;
     
@@ -512,7 +526,7 @@ function install(){
         },
         forgotPassSubject: function(){ return _forgotpassCfg.emailSubject; },
         forgotPassEmail: function(){ return _forgotpassCfg.emailTemplate; }
-    });
+    }, checkReadyness);
     
     var _forgotpass = auth.forgotpass;
     auth.forgotpass = function(){

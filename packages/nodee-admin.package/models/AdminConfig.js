@@ -64,4 +64,5 @@ AdminConfig.prototype.clearCache = function(){
     cfg.constructor.collection().findId(cfg.id).clearCache('one');
 };
 
-AdminConfig.init();
+// init in index.js
+// AdminConfig.init();
