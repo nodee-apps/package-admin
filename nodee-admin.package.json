@@ -1,0 +1,38 @@
+{
+    "name":"nodee-admin",
+    "version":"1.0.0",
+    "dependencies":[ "nodee-total" ],
+    "config":{
+        "admin-base-path": {
+            "description": "Admin area base path, all resources inside need user to be authenticated with role 'adminarea' or 'admin'",
+            "value": "/admin",
+            "required": true
+        },
+        "admin-config-caching": {
+            "description": "Leave blank if app will scale horizontally",
+            "value": "1m"
+        },
+        
+        "admin-config-datasource": {
+            "description": "Admin config data source - do not use JsonFileDataSource in production",
+            "value": [ "MongoDataSource", "JsonFileDataSource" ],
+            "required": true
+        },
+        "admin-config-datasource-host":{
+            "description": "Leave blank to inherit from primary datasource",
+            "value": ""
+        },
+        "admin-config-datasource-port":{
+            "description": "Leave blank to inherit from primary datasource",
+            "value": ""
+        },
+        "admin-config-datasource-database":{
+            "description": "Leave blank to inherit from primary datasource",
+            "value": ""
+        },
+        "admin-config-datasource-collection":{
+            "description": "Leave blank to use default 'admin_configs'",
+            "value": ""
+        }
+    }
+}

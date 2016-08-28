@@ -28,7 +28,7 @@ var basePath = unifyPath( framework.config['admin-base-path'] || '/admin/' );
 var admin = module.exports = {
     // module info
     name: 'nodee-admin',
-    version: '0.7.0',
+    // version: '0.7.0', - moved to nodee-admin.package.json
     
     basePath: basePath,
     
