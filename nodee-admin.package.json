@@ -26,6 +26,14 @@
             "description": "Leave blank to inherit from primary datasource",
             "value": ""
         },
+        "admin-config-datasource-username":{
+            "description": "Leave blank to inherit from primary datasource",
+            "value": ""
+        },
+        "admin-config-datasource-password":{
+            "description": "Leave blank to inherit from primary datasource",
+            "value": ""
+        },
         "admin-config-datasource-database":{
             "description": "Leave blank to inherit from primary datasource",
             "value": ""
