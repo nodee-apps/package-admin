@@ -30,7 +30,9 @@
                         <td colspan="10" class="grid-row-details">
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <div ng-include="item.templateUrl"></div>
+                                    <ng-form name="configForm">
+                                        <div ng-include="item.templateUrl"></div>
+                                    </ng-form>
                                     <div class="text-right">
                                         <button class="btn btn-default btn-sm" ng-click="resetConfig(id,item)">
                                             <i class="fa fa-fw fa-exclamation"></i>
@@ -40,7 +42,7 @@
                                             <i class="fa fa-fw fa-refresh"></i>
                                             <span class="hidden-xs">{{::'Reload'|translate}}</span>
                                         </button>
-                                        <button class="btn btn-success btn-sm" ng-click="updateConfig(id,item)">
+                                        <button class="btn btn-success btn-sm" ng-disabled="!configForm.$valid" ng-click="updateConfig(id,item)">
                                             <i class="fa fa-fw fa-check"></i>
                                             <span class="hidden-xs">{{::'Save Changes'|translate}}</span>
                                         </button>
