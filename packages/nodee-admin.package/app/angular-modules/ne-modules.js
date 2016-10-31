@@ -4523,7 +4523,8 @@ angular.module('neObject',[])
     return {
         isObject: isObject,
         isArray: isArray,
-        extendReservedInstances: [], // [File, FileList, Blob],
+        sortArray: sortArray,
+        extendReservedInstances: [File, FileList, Blob],
         extend: extend,
         merge: extend,
         setObjValue: deepSet,
