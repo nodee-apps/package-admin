@@ -329,7 +329,7 @@ var admin = module.exports = {
     
     styles: [
         // 3rd-party
-        framework.isDebug ? '/3rd-party/font-awesome/css/font-awesome.css' : '//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css',
+        framework.isDebug ? '/3rd-party/font-awesome/css/font-awesome.css' : '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
         
         // admin theme
         basePath + 'theme/ne-theme.css'
@@ -337,9 +337,9 @@ var admin = module.exports = {
     
     // 3rd-party tools & libs, such as ase editor, or jquery, ...
     libs: [
-        framework.isDebug ? '/3rd-party/angular/angular.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js',
-        framework.isDebug ? '/3rd-party/angular/angular-route.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.min.js',
-        framework.isDebug ? '/3rd-party/angular/angular-cookies.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-cookies.min.js'
+        framework.isDebug ? '/3rd-party/angular/angular.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js',
+        framework.isDebug ? '/3rd-party/angular/angular-route.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-route.min.js',
+        framework.isDebug ? '/3rd-party/angular/angular-cookies.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-cookies.min.js'
     ],
     
     // admin scripts, will be loaded
@@ -428,7 +428,7 @@ var admin = module.exports = {
 
 module.exports.id = 'nodee-admin';
 module.exports.name = 'nodee-admin';
-module.exports.version = '0.6.0';
+// module.exports.version = '0.6.0'; - moved to nodee-admin.package.json
 module.exports.dependencies = ['nodee-total'];
 module.exports.install = install;
 
