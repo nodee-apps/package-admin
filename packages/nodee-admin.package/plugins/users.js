@@ -29,8 +29,8 @@ module.exports.install = function(admin){
         { route:'/', collection:'all', flags:[ 'get' ], count:true },
         { route:'/exists', collection:'exists', flags:['get'] },
         { route:'/{id}', collection:'one', flags:[ 'get' ] },
-        { route:'/', instance:'create', flags:[ 'post', 'json' ] },
-        { route:'/{id}', instance:'create', afterValidation:hashPass, flags:[ 'post', 'json' ] },
+        { route:'/', instance:'create', afterValidation:hashPass, flags:[ 'post', 'json' ] },
+        { route:'/{id}', instance:'create', flags:[ 'post', 'json' ] },
         { route:'/{id}', instance:'update', afterValidation:disableSelfDisable, flags:[ 'put', 'json' ] },
         { route:'/{id}', instance:'remove', afterValidation:disableSelfRemove, flags:[ 'delete' ] },
         

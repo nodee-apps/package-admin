@@ -3120,7 +3120,7 @@ angular.module('neGrid',['neObject','neLocal'])
         return this.setSort(sort);
     }
     
-    function load(cb){
+    function load(cb, errCb){
         var grid = this;
         if(!grid.interceptLoad || (grid.interceptLoad && grid.interceptLoad(grid.query)!==false)){            
             grid.disabled = true;
@@ -3129,7 +3129,7 @@ angular.module('neGrid',['neObject','neLocal'])
                 grid.fillItems(items, pagination);
                 if(cb) cb();
                 grid.disabled = false;
-            });
+            }, errCb);
         }
         return grid;
     }
@@ -3199,18 +3199,18 @@ angular.module('neGrid',['neObject','neLocal'])
         return grid;
     }
     
-    function createItem(item,cb){
+    function createItem(item, cb, errCb){
         var grid = this;
         
         grid.getResourceMethod('create', item)(item, function(data){
             grid.setPage('first', cb);
             if(typeof grid.onCreate === 'function') grid.onCreate(item);
             if(!grid.autoLoad) grid.load(cb);
-        });
+        }, errCb);
         return grid;
     }
     
-    function updateItem(item, cb){
+    function updateItem(item, cb, errCb){
         var grid = this;
         grid.getResourceMethod('update', item)(item, function(data){
             var index = grid.items.indexOf(item);
@@ -3218,11 +3218,11 @@ angular.module('neGrid',['neObject','neLocal'])
             grid.items[ index ] = object.extend('data', grid.items[ index ], data);
             if(grid.onUpdate) grid.onUpdate(grid.items[ index ], oldItem);
             if(cb) cb(grid.items[ index ]);
-        });
+        }, errCb);
         return grid;
     }
     
-    function refreshItem(item, cb){
+    function refreshItem(item, cb, errCb){
         var grid = this;
         var idKey = grid.idKey;
         var idQuery = {};
@@ -3232,17 +3232,17 @@ angular.module('neGrid',['neObject','neLocal'])
             var index = grid.items.indexOf(item);
             grid.items[ index ] = object.extend('data', grid.items[ index ], items[0]);
             if(cb) cb(grid.items[ index ]);
-        });
+        }, errCb);
         return grid;
     }
     
-    function removeItem(item, cb){
+    function removeItem(item, cb, errCb){
         var grid = this;
         grid.getResourceMethod('remove',item)(item, function(data){
             grid.items.splice(grid.items.indexOf(item), 1);
             if(grid.onRemove) grid.onRemove(item);
             if(cb) cb(item);
-        });
+        }, errCb);
         return grid;
     }
     
@@ -6544,7 +6544,7 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
             
             var httpOpts = response.config,
                 cmdOpts = opts.commands[cmdName],
-                data = applyTransformators(response.data, cmdOpts.transformResponse),
+                data = applyTransformators(copyData(response.data), cmdOpts.transformResponse),
                 status = response.status,
                 headers = response.headers,
                 isList = cmdOpts.isList,
@@ -6568,7 +6568,7 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
         return function(response){
             var httpOpts = response.config,
                 cmdOpts = opts.commands[cmdName],
-                data = applyTransformators(response.data, cmdOpts.transformResponse),
+                data = applyTransformators(copyData(response.data), cmdOpts.transformResponse),
                 status = response.status,
                 headers = response.headers,
                 responseErrorCbs = errorCbs.concat([ 
@@ -6760,6 +6760,10 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
         
         if(query.$page === 0) throw new Error('NeRestResource: query.$page is equal to zero, must be greater');
         
+        // do not modify source objects, make a copy than modify
+        query = copyData(query);
+        if(data) data = copyData(data);
+        
         // replace default pagination props by custom if defined in query
         query = replacePaginationProps(query, pageKey, limitKey, sortKey, object);
         if(data) data = replacePaginationProps(data, pageKey, limitKey, sortKey, object);
@@ -6803,20 +6807,24 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
     }
     
     
+    function copyData(data){
+        var copy = data;
+        if(Object.prototype.toString.call(data) === '[object Object]') copy = object.extend(true, {}, data);
+        if(Array.isArray(data)) copy = object.extend(true, [], data);
+        return copy;
+    }
+                                
     /*
      * REQ/RES TRANSFORMATORS
      */
     
     function applyTransformators(data, transforms){
         transforms = transforms || {};
-        var copy = data;
-        if(Object.prototype.toString.call(data) === '[object Object]') copy = object.extend(true, {}, data);
-        if(Array.isArray(data)) copy = object.extend(true, [], data);
         
         for(var id in transforms){
-            if(Resource.dataTransformators[ id ]) Resource.dataTransformators[ id ]( copy, transforms[id] );
+            if(Resource.dataTransformators[ id ]) Resource.dataTransformators[ id ]( data, transforms[id] );
         }
-        return copy;
+        return data;
     }
     
     return Resource;
@@ -7710,7 +7718,7 @@ angular.module('neTree',['neObject'])
         return this.setSort(parent, sort);
     }
     
-    function load(parent, loadMode, cb){
+    function load(parent, loadMode, cb, errCb){
         var tree = this;
         if(arguments.length===2 && typeof arguments[1]==='function'){
             cb = arguments[1];
@@ -7740,7 +7748,7 @@ angular.module('neTree',['neObject'])
                     tree.fillItems(parent, items, pagination, loadMode);
                     if(cb) cb(items);
                     tree.disabled = false;
-                });
+                }, errCb);
 
             }
         }
@@ -7886,7 +7894,7 @@ angular.module('neTree',['neObject'])
         return this.createItem(this.getParentOf(item), copy, appendChild, cb);
     }
     
-    function createItem(parent, item, appendChild, cb){
+    function createItem(parent, item, appendChild, cb, errCb){
         var tree = this;
         
         if(typeof arguments[1] === 'boolean'){
@@ -7941,20 +7949,20 @@ angular.module('neTree',['neObject'])
                     }
                 });
             }
-        });
+        }, errCb);
         return tree;
     }
     
     
-    function updateItem(item, cb){
+    function updateItem(item, cb, errCb){
         this.getResourceMethod('update', item)(item, function(data){
             item = object.extend('data', item, data);
             if(cb) cb(item);
-        });
+        }, errCb);
         return this;
     }
     
-    function refreshItem(item, cb){
+    function refreshItem(item, cb, errCb){
         var idKey = this.idKey;
         var idQuery = {};
         idQuery[ idKey ] = object.deepGet(item, idKey);
@@ -7966,7 +7974,7 @@ angular.module('neTree',['neObject'])
                 if(cb) cb(item);  
             })
             else if(cb) cb(item);
-        });
+        }, errCb);
         return this;
     }
     
@@ -8015,7 +8023,7 @@ angular.module('neTree',['neObject'])
     //    });
     }
     
-    function removeItem(item, cb){
+    function removeItem(item, cb, errCb){
         var tree = this;
         
         tree.getResourceMethod('remove',item)(item, function(){
@@ -8026,7 +8034,7 @@ angular.module('neTree',['neObject'])
             else tree.items.splice(tree.items.indexOf(item), 1);
             
             if(typeof cb ==='function') cb();
-        });
+        }, errCb);
     }
     
     function focusItem(item, toggle){
