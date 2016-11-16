@@ -1,6 +1,6 @@
 {
     "name":"nodee-admin",
-    "version":"1.0.6",
+    "version":"1.0.7",
     "dependencies":[ "nodee-total" ],
     "config":{
         "admin-base-path": {
