@@ -314,6 +314,14 @@ angular.module('neAdmin',['neDirectives',
             test:{
                 url:'test',
                 method:'POST',
+            },
+            testEmail:{
+                url:'test-email',
+                method:'POST',
+            },
+            testEmailTemplate:{
+                url:'test-email-template',
+                method:'POST',
             }
         }
     });
@@ -518,6 +526,20 @@ angular.module('neAdmin',['neDirectives',
         }, function(data, status){
             if(status === 408) notify.error('Email Sending Error', 'Timeout');
             else notify.error('Email Sending Error', data);
+            return true;
+        });
+    };
+
+    $scope.testEmailTemplate = function(item, mailer, subject, body, cb){
+        admin.mailers.testEmailTemplate({
+            to: '@user.email',
+            subject: subject,
+            body: body
+        }, function(data){
+            item.$validErrs = {};
+            if(cb) cb(mailer, subject, body);
+        }, function(data){
+            item.$validErrs = data;
             return true;
         });
     };

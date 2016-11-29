@@ -49,3 +49,6 @@ packages/nodee-admin.package/app/angular-modules/*.command
 # theme sources
 packages/nodee-admin.package/app/theme/src
 packages/nodee-admin.package/app/theme/*.command
+
+# IDE config
+.vscode

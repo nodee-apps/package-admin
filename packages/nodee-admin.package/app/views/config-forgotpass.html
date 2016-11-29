@@ -31,9 +31,17 @@
                 <label class="col-sm-3 control-label">{{::'Test Email'|translate}}</label>
                 <div class="col-sm-7">
                     <button class="btn btn-default btn-sm" 
-                            ng-click="sendEmail(item.$mailers[ item.config.mailer ], item.config.emailSubject, item.config.emailTemplate)">
+                            ng-click="testEmailTemplate(item, item.$mailers[ item.config.mailer ], item.config.emailSubject, item.config.emailTemplate, sendEmail)">
                         <i class="fa fa-fw fa-envelope"></i> {{::'Send Me Test Email'|translate}}
                     </button>
+                    <button class="btn btn-default btn-sm" 
+                            ng-click="testEmailTemplate(item, item.$mailers[ item.config.mailer ], item.config.emailSubject, item.config.emailTemplate)">
+                        <i class="fa fa-fw fa-check-circle-o"></i> {{::'Validate Email Template'|translate}}
+                    </button>
+                    <div>
+                        <span ng-if="item.$validErrs.subject" class="text-danger"><i class="fa fa-fw fa-exclamation-triangle"></i>{{::'Subject'|translate}} {{item.$validErrs.subject|translate}}</span>
+                        <span ng-if="item.$validErrs.body" class="text-danger"><i class="fa fa-fw fa-exclamation-triangle"></i>{{::'Body'|translate}} {{item.$validErrs.body|translate}}</span>
+                    </div>
                 </div>
             </div>
         </fieldset>

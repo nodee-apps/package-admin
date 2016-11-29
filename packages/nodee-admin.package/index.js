@@ -1,8 +1,9 @@
 'use strict';
 
 var Model = require('nodee-model'),
-    object = require('nodee-utils').object,
-    fsExt = require('nodee-utils').fsExt,
+    neUtils = require('nodee-utils'),
+    object = neUtils.object,
+    fsExt = neUtils.fsExt,
     usersPlugin = require('./plugins/users.js');
 
 /*
@@ -54,6 +55,8 @@ var admin = module.exports = {
                 description: 'Administration Area Language Settings',
                 templateUrl: basePath + 'views/config-language.html',
                 icon: 'fa-language',
+                allowReadRoles:[], // all
+                allowWriteRoles:['admin'], // only admin can write
                 array: false, // will be validated as array of Models
                 keyValue: false, // will be validated as key - Model
                 defaultValue:{ defaultLanguage:'en-us' },
@@ -66,6 +69,8 @@ var admin = module.exports = {
                 description: 'Outgoing Mail Servers',
                 templateUrl: basePath + 'views/config-mailer.html',
                 icon: 'fa-envelope-o',
+                allowReadRoles:['admin'], // onlya admin can read
+                allowWriteRoles:['admin'], // only admin can write
                 array: false, // will be validated as array of Models
                 keyValue: true, // will be validated as key - Model
                 defaultValue:{},
@@ -88,11 +93,13 @@ var admin = module.exports = {
                 description: 'Forgot Password Email Settings',
                 templateUrl: basePath + 'views/config-forgotpass.html',
                 icon: 'fa-envelope',
+                allowReadRoles:[], // all
+                allowWriteRoles:['admin'], // only admin can write
                 array: false, // will be validated as array of Models
                 keyValue: false, // will be validated as key - Model
                 defaultValue: { 
                     emailSubject: 'Password Changed',
-                    emailTemplate: '<p>\nDear User,\n</p>\n<p>\nYour password was changed to: <strong>[[new_password]]</strong>\n</p>\n<p>\n<strong>We strongly recommend to change your password after login</strong>\n</p>\n<p>\nThank you\n</p>'
+                    emailTemplate: '<p>\nDear User,\n</p>\n<p>\nYour password was changed to: <strong>@new_password</strong>\n</p>\n<p>\n<strong>We strongly recommend to change your password after login</strong>\n</p>\n<p>\nThank you\n</p>'
                 },
                 Model: Model.define({
                     emailSubject:{ required:true, isString:true },
@@ -622,6 +629,20 @@ function install(){
     framework.route(basePath + 'config/{id}/default', getDefaultConfig, ['authorize','!admin','!adminarea']);
     function getDefaultConfig(id){
         var ctrl = this;
+        
+        var accessAllowed = false;
+        var roles = (admin.config.items[id]||{}).allowReadRoles;
+        
+        if(roles && roles.length){
+            for(var i=0;i<roles.length;i++){
+                if((ctrl.user.roles||[]).indexOf(roles[i]) > -1){
+                    accessAllowed = true;
+                    break;
+                }
+            }
+            if(!accessAllowed) return ctrl.view403();
+        }
+        
         ctrl.json({ data: admin.config.getDefault(id) });
     }
     
@@ -629,6 +650,20 @@ function install(){
     framework.route(basePath + 'config/{id}', getConfig, ['authorize','!admin','!adminarea']);
     function getConfig(id){
         var ctrl = this;
+        
+        var accessAllowed = false;
+        var roles = (admin.config.items[id]||{}).allowReadRoles;
+
+        if(roles && roles.length){
+            for(var i=0;i<roles.length;i++){
+                if((ctrl.user.roles||[]).indexOf(roles[i]) > -1){
+                    accessAllowed = true;
+                    break;
+                }
+            }
+            if(!accessAllowed) return ctrl.view403();
+        }
+        
         admin.config.get(id, function(err, cfg){
             if(err)return ctrl.view500(err);
             ctrl.json({ data: cfg });
@@ -639,6 +674,19 @@ function install(){
     framework.route(basePath + 'config/{id}', setConfig, ['put','json','authorize','!admin','!adminarea']);
     function setConfig(id){
         var ctrl = this;
+        
+        var accessAllowed = false;
+        var roles = (admin.config.items[id]||{}).allowWriteRoles;
+
+        if(roles && roles.length){
+            for(var i=0;i<roles.length;i++){
+                if((ctrl.user.roles||[]).indexOf(roles[i]) > -1){
+                    accessAllowed = true;
+                    break;
+                }
+            }
+            if(!accessAllowed) return ctrl.view403();
+        }
         
         admin.config.set(id, ctrl.body, function(err, cfg){
             if(err) framework.rest.handleResponse(ctrl)(err);
@@ -675,6 +723,56 @@ function install(){
         });
     }
     
+    // email test
+    framework.route(basePath + 'mailers/test-email', testSendEmail, ['post','json','authorize','!admin','!adminarea',30000], 300); // timeout 30 seconds, upload 300kb
+    function testSendEmail(){
+        var ctrl = this;
+
+        admin.config.get('mailers', function(err, mailersCfg){
+            if(err) return framework.rest.handleResponse(ctrl)(err);
+            
+            var mailer = mailersCfg[ ctrl.body.mailer ];
+            if(!mailer) return framework.rest.handleResponse(ctrl)(new Error('Mailer config not found').details({ code:'INVALID', validErrs:{ mailer:['invalid'] } }));
+            
+            framework.sendMail({
+                to: ctrl.user.email,
+                //cc: '',
+                //bcc: '',
+                subject: ctrl.body.subject,
+                model: ctrl.body.model,
+                body: ctrl.body.body,
+                config: mailer
+
+            }, function(err){
+                if(err) ctrl.status = 400;
+                ctrl.json({ data: (err||{}).message });
+            });
+        });
+    }
+    
+    // email template validation test
+    framework.route(basePath + 'mailers/test-email-template', testEmailTemplate, ['post','json','authorize','!admin','!adminarea'], 300); // timeout 30 seconds, upload 300kb
+    function testEmailTemplate(){
+        var ctrl = this;
+        var validErrs = {};
+        
+        if(!ctrl.body.to) validErrs.to = 'required';
+        if(!ctrl.body.subject) validErrs.to = 'required';
+        if(!ctrl.body.body) validErrs.to = 'required';
+
+        try { neUtils.template.compile(ctrl.body.to || ''); } catch(err){ validErrs.to = err.message; }
+        try { neUtils.template.compile(ctrl.body.cc || ''); } catch(err){ validErrs.cc = err.message; }
+        try { neUtils.template.compile(ctrl.body.bcc || ''); } catch(err){ validErrs.bcc = err.message; }
+        try { neUtils.template.compile(ctrl.body.subject || ''); } catch(err){ validErrs.subject = err.message; }
+        try { neUtils.template.compile(ctrl.body.body || ''); } catch(err){ validErrs.body = err.message; }
+        
+        if(Object.keys(validErrs).length) {
+            ctrl.status = 400;
+            ctrl.json({ data:validErrs });
+        }
+        else ctrl.json({ data:'valid' });
+    }
+
     // add usersPlugin
     usersPlugin.install(admin);
 }
