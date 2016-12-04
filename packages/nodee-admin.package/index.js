@@ -702,7 +702,7 @@ function install(){
     }
     
     // set config item settings
-    framework.route(basePath + 'config/{id}', setConfig, ['put','json','authorize','!admin','!adminarea']);
+    framework.route(basePath + 'config/{id}', setConfig, ['put','json','authorize','!admin','!adminarea'], 3000); // max length 3000kb
     function setConfig(id){
         var ctrl = this;
         
