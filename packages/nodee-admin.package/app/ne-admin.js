@@ -336,7 +336,6 @@ angular.module('neAdmin',['neDirectives',
         }
     });
     
-    
     admin.languages = new RestResource({
         baseUrl:'languages',
         commands:{
@@ -344,6 +343,10 @@ angular.module('neAdmin',['neDirectives',
                 url:'/{id}?path={path}'
             }
         }
+    });
+
+    admin.translations = new RestResource({ 
+        baseUrl: 'translations'
     });
     
     var loadeLangPaths = {};
@@ -537,9 +540,11 @@ angular.module('neAdmin',['neDirectives',
             body: body
         }, function(data){
             item.$validErrs = {};
+            item.$valid = true;
             if(cb) cb(mailer, subject, body);
         }, function(data){
             item.$validErrs = data;
+            item.$valid = false;
             return true;
         });
     };
@@ -564,6 +569,51 @@ angular.module('neAdmin',['neDirectives',
             scope.languages = Object.keys($rootScope.languages);
             scope.languages.unshift(local.translate('default'));
         }
+    };
+}])
+.controller('AdminTranslationsCtrl', [ '$scope', 'NeGrid', 'NeQuery', 'neModals','neNotifications', 'NeRestResource', 'neLocal', 'neAdmin', function($scope, Grid, Query, modals, notify, Resource, local, admin){
+
+    admin.state.register('admin.translations', {
+        store:{ sync:true }
+    });
+    
+    $scope.grid = new Grid({
+        id: 'admin.translations',
+        resource: admin.translations,
+        autoLoad: false,
+        limit: 10,
+        onQueryChange: function(query){
+            admin.state.change(this.id, query);
+        }
+    });
+
+    $scope.query = new Query([
+        { name:'text', field: 'textFT', type: 'string' },
+        { field: 'translations', type: 'string' },
+        { field: 'createdDT', type: 'date' },
+        { field: 'modifiedDT', type: 'date' },
+        { field: 'lastLoginDT', type: 'datetime' }
+    ]);
+    
+    function gridStateWatch(newState, oldState){
+        $scope.query.fill(newState);
+        $scope.grid.setQuerySilent(newState).load();
+    }
+
+    admin.state.watch($scope.grid.id, gridStateWatch);
+    $scope.$on('$destroy', function(){ admin.state.destroy($scope.grid.id); });
+
+    $scope.languages = [];
+    admin.configs.one('translations', function(data){
+        $scope.languages = data;
+    });
+
+    $scope.createText = function(item){
+        admin.translations.create(item, function(data){
+            item.id = data.id;
+            item.modifiedDT = data.modifiedDT;
+            item.createdDT = data.createdDT;
+        });
     };
 }])
 .factory('NeUploadHandler',['neNotifications', function(notify){

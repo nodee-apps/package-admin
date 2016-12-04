@@ -12,6 +12,10 @@
             "description": "Leave blank if app will scale horizontally",
             "value": "1m"
         },
+        "admin-translations-caching": {
+            "description": "Translations chaching period",
+            "value": "10m"
+        },
         
         "admin-config-datasource": {
             "description": "Admin config data source - do not use JsonFileDataSource in production",

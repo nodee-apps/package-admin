@@ -12,6 +12,7 @@ var Model = require('nodee-model'),
 
 // init AdminConfig model
 require('./models/AdminConfig.js');
+require('./models/AdminTranslation.js');
 
 // path format to /mypath/
 function unifyPath(path){
@@ -107,6 +108,22 @@ var admin = module.exports = {
                     mailer:{ isString:true }
                 })
             },
+            translations: {
+                name: 'Translations',
+                description: 'Allowed Translations - List of Language Codes',
+                templateUrl: 'views/translations-config.html',
+                icon: 'fa-font',
+                array: false, // will be validated as array of Models
+                keyValue: true, // will be validated as key - Model
+                defaultValue:{
+                    base:{
+                        description: '' //'Base or Default language'
+                    }
+                },
+                Model: Model.define({
+                    description:{ isString:true }
+                })
+            }
         },
         
         // gets default config item data
@@ -194,6 +211,14 @@ var admin = module.exports = {
             tooltip:'NODEE'
         },
         items:[
+            {
+                id:'translations',
+                name:'Translations',
+                icon:'fa fa-fw fa-font',
+                href:'#/translations',
+                allowRoles:['admin', 'translations'],
+                children:[]
+            },
             {
                 id:'account',
                 name:'My Account', icon:'fa fa-user', href:'#/account',
@@ -501,6 +526,11 @@ function install(){
     
     // intro
     framework.mapping(basePath + 'views/intro.html', '@nodee-admin/app/views/intro.html');
+
+    // translations
+    framework.mapping(basePath + 'views/translations-config.html', '@nodee-admin/app/views/translations-config.html');
+    framework.mapping(basePath + 'views/translations.html', '@nodee-admin/app/views/translations.html');
+
     
     // load "nodee-total" module
     var nodee = MODULE('nodee-total');
@@ -509,7 +539,7 @@ function install(){
     nodee.setReady('nodee-admin', false);
     nodee.setHealthy('nodee-admin', true);
     
-    var modelsCount = 2, modelsInited = 0;
+    var modelsCount = 3, modelsInited = 0;
     function checkReadyness(){
         modelsInited++;
         
@@ -518,6 +548,7 @@ function install(){
     }
     
     Model('AdminConfig').init(checkReadyness);
+    Model('AdminTranslation').init(checkReadyness);
     
     // use local vairables, because of async config loading
     var _mailersCfg, _forgotpassCfg;
@@ -623,7 +654,7 @@ function install(){
     admin.globals.appConfig = admin.config.items;
     
     // admin route
-    admin.routes[ '/config' ] = { templateUrl: basePath + 'views/config.html', controller:'ConfigCtrl' };
+    admin.routes[ '/config' ] = { templateUrl: basePath + 'views/config.html', controller:'ConfigCtrl', load:[] };
     
     // get default config item settings
     framework.route(basePath + 'config/{id}/default', getDefaultConfig, ['authorize','!admin','!adminarea']);
@@ -708,18 +739,23 @@ function install(){
     function testMailer(){
         var ctrl = this;
         
-        framework.sendMail({
-            to: ctrl.user.email,
-            //cc: '',
-            //bcc: '',
-            subject: ctrl.body.subject,
-            // model: doc,
-            body: ctrl.body.body,
-            config: ctrl.body.mailer
+        Model('AdminTranslation').collection().cache().translations(ctrl.body.langId || 'base', function(err, locals){
+            if(err) return framework.rest.handleResponse(ctrl)(err);
 
-        }, function(err){
-            if(err) ctrl.status = 400;
-            ctrl.json({ data: (err||{}).message });
+            framework.sendMail({
+                to: ctrl.user.email,
+                //cc: '',
+                //bcc: '',
+                subject: ctrl.body.subject,
+                // model: doc,
+                body: ctrl.body.body,
+                config: ctrl.body.mailer,
+                locals: locals
+
+            }, function(err){
+                if(err) ctrl.status = 400;
+                ctrl.json({ data: (err||{}).message });
+            });
         });
     }
     
@@ -733,19 +769,24 @@ function install(){
             
             var mailer = mailersCfg[ ctrl.body.mailer ];
             if(!mailer) return framework.rest.handleResponse(ctrl)(new Error('Mailer config not found').details({ code:'INVALID', validErrs:{ mailer:['invalid'] } }));
-            
-            framework.sendMail({
-                to: ctrl.user.email,
-                //cc: '',
-                //bcc: '',
-                subject: ctrl.body.subject,
-                model: ctrl.body.model,
-                body: ctrl.body.body,
-                config: mailer
 
-            }, function(err){
-                if(err) ctrl.status = 400;
-                ctrl.json({ data: (err||{}).message });
+            Model('AdminTranslation').collection().cache().translations(ctrl.body.langId || 'base', function(err, locals){
+            if(err) return framework.rest.handleResponse(ctrl)(err);
+            
+                framework.sendMail({
+                    to: ctrl.user.email,
+                    //cc: '',
+                    //bcc: '',
+                    subject: ctrl.body.subject,
+                    model: ctrl.body.model,
+                    body: ctrl.body.body,
+                    config: mailer,
+                    locals: locals
+
+                }, function(err){
+                    if(err) ctrl.status = 400;
+                    ctrl.json({ data: (err||{}).message });
+                });
             });
         });
     }
@@ -771,6 +812,39 @@ function install(){
             ctrl.json({ data:validErrs });
         }
         else ctrl.json({ data:'valid' });
+    }
+
+    /*
+     * Translations
+     */
+
+    // admin routes
+    admin.routes[ '/translations' ] = {
+        templateUrl: 'views/translations.html',
+        controller:'AdminTranslationsCtrl',
+        reloadOnSearch: false
+    };
+    // rest routes
+    framework.rest(basePath+'translations', 'AdminTranslation', [
+        { route:'/', collection:'all', flags:[ 'get' ], count:true },
+        { route:'/exists', collection:'exists', flags:['get'] },
+        //{ route:'/{id}', collection:'one', flags:[ 'get' ] },
+        { route:'/', instance:'create', flags:[ 'post', 'json' ] },
+        { route:'/{id}', instance:'create', flags:[ 'post', 'json' ] },
+        { route:'/{id}', instance:'update', flags:[ 'put', 'json' ] },
+        { route:'/{id}', instance:'remove', flags:[ 'delete' ] },
+    ], ['authorize','!admin','!translations']);
+
+    // TODO: local views by language and section
+    framework.route('/langtranslations/{langId}', getTranslations, ['get','cors']);
+    function getTranslations(langId){
+        var ctrl = this;
+        if(langId.slice(0,5) === 'lang-') langId = langId.slice(5);
+        if(langId === 'default') langId = 'base';
+        Model('AdminTranslation').collection().cache().translations(langId, function(err, translations){
+            if(err) return ctrl.view500(err);
+            ctrl.json({ data: translations });
+        });
     }
 
     // add usersPlugin

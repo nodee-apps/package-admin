@@ -1,0 +1,42 @@
+<div class="row">
+    <div class="col-xs-12">
+        <table class="table table-condensed table-hover grid">
+            <thead>
+                <tr>
+                    <th>{{::'Language ID'|translate}}</th>
+                    <th>{{::'Description'|translate}}</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>base</td>
+                    <td>
+                        <input type="text" class="form-control input-sm" ng-model="item.config.base.description" placeholder="{{::'some description for others'|translate}}">
+                    </td>
+                    <td class="grid-row-xs"></td>
+                </tr>
+                <tr ng-repeat="(id,translation) in item.config" ng-if="id!=='base'">
+                    <td>{{id}}</td>
+                    <td>
+                        <input type="text" class="form-control input-sm" ng-model="translation.description" placeholder="{{::'some description for others'|translate}}">
+                    </td>
+                    <td class="grid-row-xs">
+                        <button class="btn btn-default btn-xs" ng-click="deleteKey(id,item.config)">
+                            <i class="fa fa-fw fa-trash-o"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="input-group" style="width:350px;">
+        <input type="text" class="form-control input-sm" ng-model="item.newId" placeholder="{{::'unique language ID, e.g. en-us, de-de, ...'|translate}}">
+        <span class="input-group-btn">
+            <button class="btn btn-default btn-sm" ng-disabled="item.config[item.newId] || !item.newId" ng-click="item.config[item.newId]={id:item.newId+''}">
+                <i class="fa fa-fw fa-plus"></i> {{::'Add Language'|translate}}
+            </button>
+        </span>
+    </div>
+</div>

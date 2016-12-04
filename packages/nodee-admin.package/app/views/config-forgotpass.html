@@ -41,6 +41,7 @@
                     <div>
                         <span ng-if="item.$validErrs.subject" class="text-danger"><i class="fa fa-fw fa-exclamation-triangle"></i>{{::'Subject'|translate}} {{item.$validErrs.subject|translate}}</span>
                         <span ng-if="item.$validErrs.body" class="text-danger"><i class="fa fa-fw fa-exclamation-triangle"></i>{{::'Body'|translate}} {{item.$validErrs.body|translate}}</span>
+                        <span ng-if="item.$valid===true" class="text-success"><i class="fa fa-fw fa-check"></i>{{::'Template is Valid'|translate}}</span>
                     </div>
                 </div>
             </div>

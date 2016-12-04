@@ -1,7 +1,3 @@
-// TODO:
-// email duplicity check if JSON data store
-// refresh users grid, after new user created
-
 angular.module('neAdmin.users', [])
 .controller('UsersCtrl', [ '$scope', 'NeGrid', 'NeQuery', 'neModals','neNotifications', 'NeRestResource', 'neLocal', 'neAdmin', function($scope, Grid, Query, modals, notify, Resource, local, admin){
 
