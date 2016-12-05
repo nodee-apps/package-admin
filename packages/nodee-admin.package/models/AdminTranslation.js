@@ -57,18 +57,16 @@ Translation.extendDefaults({
  */
 
 /*
- * collection().translations(langId, callback) - callback(err, translationsObj) result is object of key:value translations
+ * Translation.getLocals(langId, callback) - callback(err, translationsObj) result is object of key:value translations
  * if nothing found returns empty object
  */
-Translation.Collection.addMethod('translations', { cacheable:true, fetch:false }, function(langId, cb){ // cb(err, docs)
-    var query = this,
-        defaults = this._defaults,
-        ModelCnst = this.getModelConstructor();
+Translation.addMethod('getLocals', function(langId, cb){ // cb(err, locals)
+    var ModelCnst = this;
     
     var fields = { text: true };
     fields[ 'translations.'+langId ] = true;
     
-    ModelCnst.collection().fields(fields).all(function(err, ts){
+    ModelCnst.collection().cache().fields(fields).all(function(err, ts){
         if(err) return cb(err);
 
         var tsObj = {};

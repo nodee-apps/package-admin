@@ -739,7 +739,7 @@ function install(){
     function testMailer(){
         var ctrl = this;
         
-        Model('AdminTranslation').collection().cache().translations(ctrl.body.langId || 'base', function(err, locals){
+        Model('AdminTranslation').getLocals(ctrl.body.langId || 'base', function(err, locals){
             if(err) return framework.rest.handleResponse(ctrl)(err);
 
             framework.sendMail({
@@ -770,7 +770,7 @@ function install(){
             var mailer = mailersCfg[ ctrl.body.mailer ];
             if(!mailer) return framework.rest.handleResponse(ctrl)(new Error('Mailer config not found').details({ code:'INVALID', validErrs:{ mailer:['invalid'] } }));
 
-            Model('AdminTranslation').collection().cache().translations(ctrl.body.langId || 'base', function(err, locals){
+            Model('AdminTranslation').getLocals(ctrl.body.langId || 'base', function(err, locals){
             if(err) return framework.rest.handleResponse(ctrl)(err);
             
                 framework.sendMail({
@@ -841,7 +841,7 @@ function install(){
         var ctrl = this;
         if(langId.slice(0,5) === 'lang-') langId = langId.slice(5);
         if(langId === 'default') langId = 'base';
-        Model('AdminTranslation').collection().cache().translations(langId, function(err, translations){
+        Model('AdminTranslation').getLocals(langId, function(err, translations){
             if(err) return ctrl.view500(err);
             ctrl.json({ data: translations });
         });
