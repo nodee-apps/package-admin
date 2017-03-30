@@ -26,9 +26,9 @@
         <div ng-if="loginFailed">
             <span>*{{::'Wrong Email or Password'|translate}}</span>
         </div>
-        <button class="btn btn-lg btn-block btn-login"
+        <button class="btn btn-lg btn-block btn-login btn-intensive"
                 ng-click="login(reg.email, reg.pass)" 
-                ng-disabled="!loginForm.$valid">
+                ng-disabled1="!loginForm.$valid"><!-- login button will be never disabled, because of browser autocomplete -->
             {{::'Log in'|translate}}
         </button>
         <div class="pull-right" style="padding:10px;">

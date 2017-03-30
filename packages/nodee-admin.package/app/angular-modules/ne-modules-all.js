@@ -4638,13 +4638,13 @@ angular.module('neQuery',['neLocal','neObject'])
                        '            </ul>'+
                        '        </div>'+
                        '        <div class="dropdown visible-inline-block" uib-dropdown keyboard-nav>'+
-                       '            <button ng-disabled="query.field.disableOperator || disabled" class="btn btn-default btn-sm" uib-dropdown-toggle style="width:120px">'+
+                       '            <button ng-disabled="query.field.disableOperator || disabled" class="btn btn-default btn-sm btn-intensive" uib-dropdown-toggle style="width:120px">'+
                        '                <span class="class="nowrap"">{{query.operator | translate}}&nbsp;</span>'+
                        '            </button>'+
                        '            <ul class="dropdown-menu" style="min-width:210px;overflow:auto">'+
                        '                <li ng-if="!query.field.disableType" class="text-center" style="padding-top:4px">'+
                        '                    <div class="btn-group btngroup-xs">'+
-                       '                        <button class="btn btn-default btn-xs" ng-class="{\'btn-success\':(query.type.name===type)}" style="padding:2px;" uib-tooltip="{{\'qtype_\'+type | translate}}" ng-repeat="type in query.types" ng-click="query.setType(type);$event.stopPropagation();">'+
+                       '                        <button class="btn btn-default btn-xs" ng-class="{\'btn-success\':(query.type.name===type)}" style="padding:2px;" uib-tooltip="{{\'qtype_\'+type | translate}}" tooltip-append-to-body="true" ng-repeat="type in query.types" ng-click="query.setType(type);$event.stopPropagation();">'+
                        '                        {{\'qtype_short_\'+type | translate}}'+
                        '                        </button>'+
                        '                    </div>'+
@@ -4792,7 +4792,7 @@ angular.module('neQuery',['neLocal','neObject'])
                        '    </div>'+
                        '</div>'+
                        '<br ng-repeat-end>'+
-                       '<button ng-if="!query.sortBy.length" class="btn btn-default btn-sm" ng-disabled="disabled" ng-click="query.addSort();onChange()"><i class="fa fa-fw fa-signal"></i> <span class="hidden-sm">{{::\'Order By\'|translate}}</span></button>'+
+                       '<button ng-if="!query.sortBy.length" class="btn btn-default btn-sm btn-intensive" ng-disabled="disabled" ng-click="query.addSort();onChange()"><i class="fa fa-fw fa-signal"></i> <span class="hidden-sm">{{::\'Order By\'|translate}}</span></button>'+
                        '</div>');
 }])
 .directive('neQueryValue',[function(){
@@ -4812,7 +4812,7 @@ angular.module('neQuery',['neLocal','neObject'])
         template: '<div class="pull-left" ne-query="query" ne-query-change="onChange()" ne-query-disabled="disabled"></div>'+
                   '<div class="pull-left hidden-xs" style="width:20px">&nbsp;</div>'+
                   '<div class="pull-left" ne-query-sort="query" ne-query-sort-change="onChange()" ne-query-sort-disabled="disabled"></div>'+
-                  '<button ng-disabled="disabled" class="btn btn-primary btn-sm" ng-click="searchClick()" style="margin-left:2px">'+
+                  '<button ng-disabled="disabled" class="btn btn-primary btn-sm btn-intensive" ng-click="searchClick()" style="margin-left:2px">'+
                   '    <i class="fa fa-fw fa-search"></i>'+
                   '    <span class="hidden-sm">{{::\'Search\' | translate}}</span>'+
                   '</button>',

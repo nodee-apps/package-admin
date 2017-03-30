@@ -1,17 +1,13 @@
-// ===================================================
-// IMPORTANT: only for development
-// total.js - web application framework for node.js
-// http://www.totaljs.com
-// ===================================================
-
 var fs = require('fs');
-var options = {};
 
-// options.ip = '127.0.0.1';
-// options.port = parseInt(process.argv[2]);
-// options.port = 80;
-// options.config = { name: 'total.js' };
-// options.https = { key: fs.readFileSync('keys/agent2-key.pem'), cert: fs.readFileSync('keys/agent2-cert.pem')};
+/*
+ * Debug configs
+ */
+
+var childProcessDebuggerPort = 5859,
+    watchDirectories = [ '/controllers', '/definitions', '/modules', '/resources', '/components', '/models', '/source', '/packages' ];
+    watchExtensions = ['.js', '.resource', '.html'],
+    watchFiles = ['config', 'config-debug', 'config-release', 'versions'];
 
 /**
  * Release notes:
@@ -19,7 +15,6 @@ var options = {};
 
 // init total.js
 require("total.js");
-return debug();
 
 /*
  * DEBUG setup:
@@ -29,6 +24,7 @@ var directory = process.cwd();
 var path = require("path");
 
 function debug() {
+    var options = {};
     var framework = require("total.js");
     var port = parseInt(process.argv[2]);
     if (options.https) return framework.https("debug", options);
@@ -37,7 +33,7 @@ function debug() {
 
 function app() {
     var fork = require("child_process").fork;
-    var directories = [directory + "/controllers", directory + "/definitions", directory + "/modules", directory + "/resources", directory + "/components", directory + "/models", directory + "/source", directory + "/packages"];
+    var directories = [];
     var files = {};
     var force = false;
     var changes = [];
@@ -49,8 +45,19 @@ function app() {
     var prefix = "------------> ";
     var isLoaded = false;
 
+    for(var i=0;i<watchDirectories.length;i++){
+        directories.push( directory + watchDirectories[i] );
+    }
+
     function onFilter(path, isDirectory) {
-        return isDirectory ? true : path.indexOf(".js") !== -1 || path.indexOf(".resource") !== -1 || path.indexOf(".html") !== -1
+        return isDirectory || isWatchedFile(path);
+    }
+
+    function isWatchedFile(path){
+        for(var i=0;i<watchExtensions.length;i++){
+            if(path.indexOf(watchExtensions[i]) !== -1) return true;
+        }
+        return false;
     }
 
     function onComplete() {
@@ -59,7 +66,7 @@ function app() {
             var length = arr.length;
             for (var i = 0; i < length; i++) {
                 var name = arr[i];
-                if (name === "config" || name === "config-debug" || name === "config-release" || name === "versions" || name.indexOf(".js") !== -1 || name.indexOf(".resource") !== -1 || name.indexOf(".html") !== -1) self.file.push(name)
+                if (watchFiles.indexOf(name) !== -1 || isWatchedFile(name)) self.file.push(name)
             }
             length = self.file.length;
             for (var i = 0; i < length; i++) {
@@ -113,16 +120,21 @@ function app() {
     }
 
     function restart() {
-        if (app !== null) {
-            try {
-                process.kill(app.pid)
-            } catch (err) {}
-            app = null
+        if(!app) return start();
+
+        try {
+            app.on('exit', start);
+            process.kill(app.pid);
         }
+        catch(err){}
+    }
+    function start(){
         var arr = process.argv;
         arr.pop();
         arr.push("debugging");
-        app = fork(path.join(directory, "debug.js"), arr);
+        if(childProcessDebuggerPort) app = fork(path.join(directory, "debug.js"), arr, {execArgv: ['--debug='+childProcessDebuggerPort]});
+        else app = fork(path.join(directory, "debug.js"), arr);
+
         app.on("message", function(msg) {
             if (msg.substring(0, 5) === "name:") {
                 process.title = "debug: " + msg.substring(6);
@@ -132,11 +144,12 @@ function app() {
         });
         app.on("exit", function() {
             if (status !== 255) return;
-            app = null
+            app = null;
         });
         if (status === 0) app.send("debugging");
         status = 1
     }
+
     process.on("SIGTERM", end);
     process.on("SIGINT", end);
     process.on("exit", end);

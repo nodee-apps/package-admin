@@ -21,6 +21,9 @@ angular.module('neAdmin',['neDirectives',
 //    //uibDatepickerPopupConfig.closeText = 'Zavrieť';
 //    
 //}])
+.config(['$locationProvider', function($locationProvider){
+    $locationProvider.hashPrefix(''); // fallback - from angular 1.6 $location.hashPrefix is "!", and all hash links in app are not working
+}])
 .service('neAdmin.lazyLoad', ['$ocLazyLoad', function($ocLazyLoad){
     // wrap lazyLoader, for possible replacing it in future
     return $ocLazyLoad;

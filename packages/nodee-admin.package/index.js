@@ -369,9 +369,9 @@ var admin = module.exports = {
     
     // 3rd-party tools & libs, such as ase editor, or jquery, ...
     libs: [
-        framework.isDebug ? '/3rd-party/angular/angular.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js',
-        framework.isDebug ? '/3rd-party/angular/angular-route.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-route.min.js',
-        framework.isDebug ? '/3rd-party/angular/angular-cookies.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-cookies.min.js'
+        framework.isDebug ? '/3rd-party/angular/angular.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js',
+        framework.isDebug ? '/3rd-party/angular/angular-route.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular-route.min.js',
+        framework.isDebug ? '/3rd-party/angular/angular-cookies.min.js' : '//ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular-cookies.min.js'
     ],
     
     // admin scripts, will be loaded
@@ -431,6 +431,7 @@ var admin = module.exports = {
                 '});'+
             '}])'+
             '.config(["$routeProvider", function($routeProvider){' +
+                '$routeProvider.eagerInstantiationEnabled(false);'+
             
             (function(routes){
                 var result = '';
