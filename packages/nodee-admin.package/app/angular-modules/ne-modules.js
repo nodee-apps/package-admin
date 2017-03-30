@@ -3124,7 +3124,9 @@ angular.module('neGrid',['neObject','neLocal'])
         var grid = this;
         if(!grid.interceptLoad || (grid.interceptLoad && grid.interceptLoad(grid.query)!==false)){            
             grid.disabled = true;
-            grid.getResourceMethod('find')(grid.query, function(items, pagination){
+            grid.lastFindReqId = grid.getResourceMethod('find')(grid.query, function(items, pagination){
+                if(grid.lastFindReqId && grid.lastFindReqId !== this.requestId) return;
+
                 if(typeof grid.onLoad === 'function') grid.onLoad(items, pagination);
                 grid.fillItems(items, pagination);
                 if(cb) cb();
@@ -4088,22 +4090,21 @@ angular.module('neNotifications',['neLoading'])
     $templateCache.put('neNotifications/container.html',
                        '<div class="notification-container" ng-controller="NeNotificationsCtrl">'+
                        '    <div ng-show="true" class="ng-hide">'+
-                       '        <div ng-repeat="n in notifications" class="alert alert-{{n.type}}" ng-click="n.fixed=true;n.postpone()" ng-mouseenter="n.postpone()" ng-mouseleave="n.postpone(1000)">'+
+                       '        <div ng-repeat="n in notifications" class="alert alert-{{n.type}}" ng-class="{expanded:n.expanded}" ng-click="n.fixed=true;n.postpone()" ng-mouseenter="n.postpone()" ng-mouseleave="n.postpone(1000)">'+
                        '            <i class="alert-pin fa fa-thumb-tack" ng-if="n.fixed"></i>'+
+                       '            <i class="alert-expand fa" ng-class="{\'fa-expand\':!n.expanded,\'fa-compress\':n.expanded}" ng-click="n.expanded=!n.expanded;n.fixed=true"></i>'+
+                       '            <i class="alert-close fa fa-times" ng-click="n.close()"></i>'+
                        '            <table style="width:100%;word-wrap:break-word" class="table-fixed">'+
                        '                <tr>'+
-                       '                    <td style="width:15%">'+
+                       '                    <td style="width:40px">'+
                        '                        <i class="{{n.icon}}"></i>'+
                        '                    </td>'+
                        '                    <td style="padding:0px 5px">'+
-                       '                        <div ng-if="!n.include" style="overflow:auto;max-height:200px">'+
+                       '                        <div class="notification-content" ng-if="!n.include">'+
                        '                            <strong ng-if="n.title"><span ne-bind-html="{{n.title|translate}}"></span><br></strong>'+
                        '                            <span ne-bind-html="{{n.text|translate}}"></span>'+
                        '                        </div>'+
                        '                        <div ng-if="n.include" ng-include="n.include"></div>'+
-                       '                    </td>'+
-                       '                    <td style="width:20px">'+
-                       '                        <a href="" ng-click="n.close()"><i class="fa fa-fw fa-times"></i></a>'+
                        '                    </td>'+
                        '                </tr>'+
                        '            </table>'+
@@ -4111,7 +4112,7 @@ angular.module('neNotifications',['neLoading'])
                        '        <div class="alert alert-default" ng-show="loading" ng-controller="NeLoadingCtrl">'+
                        '            <table style="width:100%">'+
                        '                <tr>'+
-                       '                    <td style="width:15%">'+
+                       '                    <td style="width:40px">'+
                        '                        <i class="fa fa-fw fa-spinner fa-spin fa-2x"></i>'+
                        '                    </td>'+
                        '                    <td style="padding:0px 5px">'+
@@ -4519,6 +4520,14 @@ angular.module('neObject',[])
     function isArray(obj){
         return Array.isArray(obj);
     }
+
+    function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+
+    function guid() {
+      return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    }
     
     return {
         isObject: isObject,
@@ -4541,7 +4550,8 @@ angular.module('neObject',[])
         fromJson: fromJson,
         fromJSON: fromJson,
         removePrefixedProps: removePrefixedProps,
-        debounce: debounce
+        debounce: debounce,
+        guid: guid
     };
 
 }]);
@@ -4615,11 +4625,11 @@ angular.module('neQuery',['neLocal','neObject'])
                        '    <small ng-if="!$first && query.logical===\'OR\' && !query.length">{{query.logical | translate}}<br></small>'+
                        '    <div ng-if="!query.length" class="visible-inline-block">'+
                        '        <div class="dropdown visible-inline-block" uib-dropdown keyboard-nav>'+
-                       '            <button ng-if="query.onlyPredefinedFields" class="btn btn-sm btn-default" uib-dropdown-toggle style="width:142px;height:30px">'+
+                       '            <button ng-if="query.onlyPredefinedFields" class="btn btn-sm btn-default" ng-disabled="disabled" uib-dropdown-toggle style="width:142px">'+
                        '                <span class="nowrap" ng-if="query.fieldName">{{query.fieldName}}</span><span class="nowrap" ng-if="!query.fieldName">{{::\'choose field\'|translate}}</span>'+
                        '            </button>'+
-                       '            <input ng-if="!query.onlyPredefinedFields" type="text" placeholder="{{::\'choose field\'|translate}}" class="input-sm" uib-dropdown-toggle ng-change="query.setFieldByName(query.fieldName);onChange()" ng-model="query.fieldName"/>'+
-                       '            <ul ng-if="query.fields.filterByName(query.fieldName, query.field.name).length" class="dropdown-menu" style="max-height:220px;overflow:auto">'+
+                       '            <input ng-if="!query.onlyPredefinedFields" type="text" ng-disabled="disabled" placeholder="{{::\'choose field\'|translate}}" class="input-sm" uib-dropdown-toggle ng-change="query.setFieldByName(query.fieldName);onChange()" ng-model="query.fieldName"/>'+
+                       '            <ul ng-if="query.fields.filterByName(query.fieldName, query.field.name).length" class="dropdown-menu" style="max-height:250px;overflow:auto">'+
                        '                <li ng-repeat="field in query.fields.filterByName(query.fieldName, query.field.name)" ng-class="{\'active\':(field.name===query.fieldName)}">'+
                        '                    <a href="" ng-click="query.setField(field);onChange()">'+
                        '			             {{field.name}}'+
@@ -4628,11 +4638,11 @@ angular.module('neQuery',['neLocal','neObject'])
                        '            </ul>'+
                        '        </div>'+
                        '        <div class="dropdown visible-inline-block" uib-dropdown keyboard-nav>'+
-                       '            <button ng-disabled="query.field.disableOperator" class="btn btn-default btn-sm" uib-dropdown-toggle style="width:120px;height:30px">'+
+                       '            <button ng-disabled="query.field.disableOperator || disabled" class="btn btn-default btn-sm" uib-dropdown-toggle style="width:120px">'+
                        '                <span class="class="nowrap"">{{query.operator | translate}}&nbsp;</span>'+
                        '            </button>'+
                        '            <ul class="dropdown-menu" style="min-width:210px;overflow:auto">'+
-                       '                <li ng-if="!query.field.disableType" class="text-center">'+
+                       '                <li ng-if="!query.field.disableType" class="text-center" style="padding-top:4px">'+
                        '                    <div class="btn-group btngroup-xs">'+
                        '                        <button class="btn btn-default btn-xs" ng-class="{\'btn-success\':(query.type.name===type)}" style="padding:2px;" uib-tooltip="{{\'qtype_\'+type | translate}}" ng-repeat="type in query.types" ng-click="query.setType(type);$event.stopPropagation();">'+
                        '                        {{\'qtype_short_\'+type | translate}}'+
@@ -4648,7 +4658,7 @@ angular.module('neQuery',['neLocal','neObject'])
                        '            </ul>'+
                        '        </div>'+
                        '        <div class="visible-inline-block" ne-query-value="query"></div>'+
-                       '        <div class="btn-group btn-group-xs">'+
+                       '        <div class="btn-group btn-group-xs" ng-if="!disabled">'+
                        '            <button class="btn btn-default" ng-click="query.next(\'AND\');onChange()">{{::\'AND\' | translate}}</button>'+
                        '            <button class="btn btn-default" ng-click="query.next(\'OR\');onChange()">{{::\'OR\' | translate}}</button>'+
                        '            <button class="btn btn-default" ng-click="query.levelDown();onChange()"><i class="fa fa-fw fa-level-down"></i></button>'+
@@ -4657,7 +4667,7 @@ angular.module('neQuery',['neLocal','neObject'])
                        '    </div>'+
                        '    <div ng-if="query.length" class="visible-inline-block" style="position:relative;">'+
                        '        <small>{{ ($first ? \' \' : query.logical) | translate}}<br></small>'+
-                       '        <div class="btn-group btn-group-xs" style="position:absolute;right:0px;top:1px">'+
+                       '        <div class="btn-group btn-group-xs" style="position:absolute;right:0px;top:1px" ng-if="!disabled">'+
                        '            <button class="btn btn-default" style="border:1px dashed #999;border-right:none;color:#999;border-bottom: 1px solid transparent;" ng-click="query.next(\'AND\')">{{::\'AND\' | translate}}</button>'+
                        '            <button class="btn btn-default" style="border:none;border-top:1px dashed #999;color:#999;border-bottom: 1px solid transparent;" ng-click="query.next(\'OR\')">{{::\'OR\' | translate}}</button>'+
                        '            <button class="btn btn-default" style="border:1px dashed #999;border-left:none;color:#999;border-bottom: 1px solid transparent;" ng-click="close();query.remove()"><i class="fa fa-minus"></i></button>'+
@@ -4675,8 +4685,9 @@ angular.module('neQuery',['neLocal','neObject'])
                        '       uib-datepicker-popup '+
                        '       is-open="query.value_opened" '+
                        '       ng-click="query.value_opened=!query.value_opened" '+
-                       '       ng-model="query.value"'+
-                       '       ng-change="onChange()"/>');
+                       '       ng-disabled="disabled" '+
+                       '       ng-model="query.value" '+
+                       '       ng-change="onChange()">');
 
     $templateCache.put('neQuery/datetime.html',
                        '<input type="text" '+
@@ -4686,19 +4697,22 @@ angular.module('neQuery',['neLocal','neObject'])
                        '       show-seconds="true" '+
                        '       is-open="query.value_opened" '+
                        '       ng-click="query.value_opened=!query.value_opened" '+
-                       '       ng-model="query.value"' +
-                       '       ng-change="onChange()"/>');
+                       '       ng-disabled="disabled" '+
+                       '       ng-model="query.value" '+
+                       '       ng-change="onChange()">');
 
     $templateCache.put('neQuery/number.html',
                        '<input type="number" '+
                        '       class="input-sm" '+
                        '       placeholder="{{(query.field.isEmptyValue(query.value) ? (query.field.placeholder||\'type value\') : \'empty value\')|translate}}" '+
+                       '       ng-disabled="disabled" '+
                        '       ng-model="query.value" '+
                        '       ng-change="onChange()" '+
-                       '       style="width:142px;"/>');
+                       '       style="width:142px;">');
 
     $templateCache.put('neQuery/list.html',
                        '<select class="input-sm" '+
+                       '        ng-disabled="disabled" '+
                        '        ng-model="query.value" '+
                        '        ng-options="(value | translate) for value in query.field.values" '+
                        '        ng-change="onChange()" '+
@@ -4707,6 +4721,7 @@ angular.module('neQuery',['neLocal','neObject'])
 
     $templateCache.put('neQuery/boolean.html',
                        '<select class="input-sm" '+
+                       '        ng-disabled="disabled" '+
                        '        ng-model="query.value" '+
                        '        ng-options="(\'qvalue_\'+value | translate) for value in [true,false]" '+
                        '        ng-change="onChange()" '+
@@ -4717,6 +4732,7 @@ angular.module('neQuery',['neLocal','neObject'])
                        '<input type="text" '+
                        '       class="input-sm" '+
                        '       placeholder="{{(query.field.isEmptyValue(query.value) ? (query.field.placeholder||\'type value\') : \'empty value\')|translate}}" '+
+                       '       ng-disabled="disabled" '+
                        '       ng-model="query.value" '+
                        '       ng-change="onChange()"/>');
 
@@ -4726,9 +4742,17 @@ angular.module('neQuery',['neLocal','neObject'])
                        '           class="input-sm" '+
                        '           placeholder="{{(query.field.isEmptyValue(query.value) ? (query.field.placeholder||\'type value\') : \'empty value\')|translate}}" '+
                        '           uib-dropdown-toggle '+
+                       '           ng-disabled="disabled" '+
                        '           ng-model="query.suggestion" '+
-                       '           ng-change="query.field.onlySuggestedValues ? query.value=null : query.value=query.suggestion;query.field.createSuggestions(query, query.suggestion);onChange()">'+
-                       '    <ul ng-if="query.suggestions.length" class="dropdown-menu" style="max-height:220px;overflow:auto">'+
+                       '           ng-click="(query.field.suggestionMinLength===0 && !query.suggestions) ? query.field.createSuggestions(query, query.suggestion) : null" '+
+                       '           ng-change="query.page=1;query.field.onlySuggestedValues ? query.value=null : query.value=query.suggestion;query.field.createSuggestions(query, query.suggestion, true);onChange()">'+
+                       '    <ul ng-if="query.suggestions.length" class="dropdown-menu" style="max-height:250px;overflow:auto">'+
+                       '        <li ng-if="query.field.pagination" class="text-center" style="padding-top:4px">'+
+                       '            <button class="btn btn-xs btn-default" ng-disabled="!query.pagination.prev" ng-click="$event.stopPropagation();query.page=(query.page||1)-1;query.field.createSuggestions(query, query.suggestion)"><i class="fa fa-fw fa-backward"></i></button>'+
+                       '            {{query.page||1}}'+
+                       '            <button class="btn btn-xs btn-default" ng-disabled="!query.pagination.next" ng-click="$event.stopPropagation();query.page=(query.page||1)+1;query.field.createSuggestions(query, query.suggestion)"><i class="fa fa-fw fa-forward"></i></button>'+
+                       '        </li>'+
+                       '        <li ng-if="query.field.pagination" class="divider"></li>'+
                        '        <li ng-repeat="value in query.suggestions" ng-class="{\'active\':(value===query.value)}">'+
                        '          <a href="" ng-click="query.value=value.key;query.suggestion=value.name;onChange()">'+
                        '		      {{value.name}}'+
@@ -4738,7 +4762,7 @@ angular.module('neQuery',['neLocal','neObject'])
                        '</div>');
 
     $templateCache.put('neQuery/disabled.html',
-                       '<input type="text" disabled="disabled" class="input-sm" ng-model="query.value"/>');
+                       '<input type="text" disabled="disabled" class="input-sm" ng-model="query.value">');
 
     $templateCache.put('neQuery/sort.html',
                        '<div class="visible-inline-block">'+
@@ -4746,11 +4770,11 @@ angular.module('neQuery',['neLocal','neObject'])
                        '    <small>{{::\'Order By\'|translate}}</small>'+
                        '    <div class="visible-inline-block">'+
                        '        <div class="dropdown visible-inline-block" uib-dropdown keyboard-nav>'+
-                       '            <button ng-if="query.onlyPredefinedFields" class="btn btn-sm btn-default" uib-dropdown-toggle style="width:142px;height:30px">'+
+                       '            <button ng-if="query.onlyPredefinedFields" ng-disabled="disabled" class="btn btn-sm btn-default" uib-dropdown-toggle style="width:142px">'+
                        '                <span class="nowrap" ng-if="sort.fieldName">{{sort.fieldName}}</span><span class="nowrap" ng-if="!sort.fieldName">{{::\'choose field\'|translate}}</span>'+
                        '            </button>'+
-                       '            <input ng-if="!query.onlyPredefinedFields" type="text" placeholder="{{::\'choose field\'|translate}}" class="input-sm" uib-dropdown-toggle ng-change="query.setSortByName(sort.fieldName, $index);onChange()" ng-model="sort.fieldName" />'+
-                       '            <ul ng-if="query.fields.filterByName(sort.fieldName, sort.name).length" class="dropdown-menu" style="max-height:220px;overflow:auto">'+
+                       '            <input ng-if="!query.onlyPredefinedFields" type="text" ng-disabled="disabled" placeholder="{{::\'choose field\'|translate}}" class="input-sm" uib-dropdown-toggle ng-change="query.setSortByName(sort.fieldName, $index);onChange()" ng-model="sort.fieldName" />'+
+                       '            <ul ng-if="query.fields.filterByName(sort.fieldName, sort.name).length" class="dropdown-menu" style="max-height:250px;overflow:auto">'+
                        '                <li ng-repeat="field in query.fields.filterByName(sort.fieldName, sort.name)" ng-class="{\'active\':(field.name===sort.fieldName)}">'+
                        '                    <a href="" ng-click="query.setSortField(field,$parent.$index);onChange()">'+
                        '        			    {{field.name}}'+
@@ -4759,16 +4783,16 @@ angular.module('neQuery',['neLocal','neObject'])
                        '            </ul>'+
                        '        </div>'+
                        '        <div class="btn-group btn-group-xs">'+
-                       '            <button class="btn btn-default" ng-click="query.toggleSortDirection($index);onChange()">'+
+                       '            <button class="btn btn-default" ng-disabled="disabled" ng-click="query.toggleSortDirection($index);onChange()">'+
                        '                <i class="fa fa-fw" ng-class="{\'fa-sort-amount-asc\':sort.direction===1,\'fa-sort-amount-desc\':sort.direction===-1}"></i>'+
                        '            </button>'+
-                       '            <button class="btn btn-default" ng-click="query.addSort($index);onChange()"><i class="fa fa-fw fa-plus"></i></button>'+
-                       '            <button class="btn btn-default" ng-click="query.removeSort($index);onChange()"><i class="fa fa-fw fa-minus"></i></button>'+
+                       '            <button class="btn btn-default" ng-disabled="disabled" ng-click="query.addSort($index);onChange()"><i class="fa fa-fw fa-plus"></i></button>'+
+                       '            <button class="btn btn-default" ng-disabled="disabled" ng-click="query.removeSort($index);onChange()"><i class="fa fa-fw fa-minus"></i></button>'+
                        '        </div>'+
                        '    </div>'+
                        '</div>'+
                        '<br ng-repeat-end>'+
-                       '<button ng-if="!query.sortBy.length" class="btn btn-default btn-sm" ng-click="query.addSort();onChange()"><i class="fa fa-fw fa-signal"></i> <span class="hidden-sm">{{::\'Order By\'|translate}}</span></button>'+
+                       '<button ng-if="!query.sortBy.length" class="btn btn-default btn-sm" ng-disabled="disabled" ng-click="query.addSort();onChange()"><i class="fa fa-fw fa-signal"></i> <span class="hidden-sm">{{::\'Order By\'|translate}}</span></button>'+
                        '</div>');
 }])
 .directive('neQueryValue',[function(){
@@ -4785,14 +4809,14 @@ angular.module('neQuery',['neLocal','neObject'])
 .directive('neQuerySearch',[function(){
     return {
         restrict:'A',
-        template: '<div class="pull-left" ne-query="query" ne-query-change="onChange()"></div>'+
+        template: '<div class="pull-left" ne-query="query" ne-query-change="onChange()" ne-query-disabled="disabled"></div>'+
                   '<div class="pull-left hidden-xs" style="width:20px">&nbsp;</div>'+
-                  '<div class="pull-left" ne-query-sort="query" ne-query-sort-change="onChange()"></div>'+
-                  '<button class="btn btn-primary btn-sm" ng-click="searchClick()" style="margin-left:2px">'+
+                  '<div class="pull-left" ne-query-sort="query" ne-query-sort-change="onChange()" ne-query-sort-disabled="disabled"></div>'+
+                  '<button ng-disabled="disabled" class="btn btn-primary btn-sm" ng-click="searchClick()" style="margin-left:2px">'+
                   '    <i class="fa fa-fw fa-search"></i>'+
                   '    <span class="hidden-sm">{{::\'Search\' | translate}}</span>'+
                   '</button>',
-        scope:{ query:'=neQuerySearch', searchClick:'&neQuerySearchClick', onQuerySearchChange:'&neQuerySearchChange', querySearchEmpty:'=neQuerySearchEmpty' },
+        scope:{ query:'=neQuerySearch', searchClick:'&neQuerySearchClick', onQuerySearchChange:'&neQuerySearchChange', querySearchEmpty:'=neQuerySearchEmpty', disabled:'=neQuerySearchDisabled' },
         link: function(scope, elm, attrs, ctrl){
             var watchEmptyState = !!attrs.neQuerySearchEmpty;
             scope.onChange = function(){
@@ -4808,7 +4832,7 @@ angular.module('neQuery',['neLocal','neObject'])
     return {
         restrict:'A',
         templateUrl: 'neQuery/query.html',
-        scope:{ query:'=neQuery', onQueryChange:'&neQueryChange', queryEmpty:'=neQueryEmpty' },
+        scope:{ query:'=neQuery', onQueryChange:'&neQueryChange', queryEmpty:'=neQueryEmpty', disabled:'=neQueryDisabled' },
         link: function(scope, elm, attrs, ctrl){
             var watchEmptyState = !!attrs.neQueryEmpty;
             scope.onChange = function(){
@@ -4824,7 +4848,7 @@ angular.module('neQuery',['neLocal','neObject'])
     return {
         restrict:'A',
         templateUrl: 'neQuery/sort.html',
-        scope:{ query:'=neQuerySort', onQuerySortChange:'&neQuerySortChange', querySortEmpty:'=neQuerySortEmpty' },
+        scope:{ query:'=neQuerySort', onQuerySortChange:'&neQuerySortChange', querySortEmpty:'=neQuerySortEmpty', disabled:'=neQuerySortDisabled' },
         link: function(scope, elm, attrs, ctrl){
             var watchEmptyState = !!attrs.neQuerySortEmpty;
             scope.onChange = function(){
@@ -5888,17 +5912,30 @@ angular.module('neQuery',['neLocal','neObject'])
                 };
                 fields[i].template = fields[i].template || templates.suggestions;
                 fields[i].createSuggestions = (function(field){
-                    var minLength = field.suggestionMinLength || field.suggestionMinSearchLength || 3;
-                    return object.debounce(function(query, searchText){
+                    field.suggestionMinLength = field.suggestionMinLength >= 0 ? field.suggestionMinLength : (field.suggestionMinSearchLength >= 0 ? field.suggestionMinSearchLength : 3);
+                    
+                    var loadSuggestionsDebounced = object.debounce(loadSuggestions, field.suggestionDebounce >= 0 ? field.suggestionDebounce : 350);
+
+                    function loadSuggestions(query, searchText){
                         searchText = searchText || '';
-                        if(searchText.length >= minLength) field.loadSuggestions(searchText, function(values){
+                        query.page = query.page || field.page || 1;
+                        query.limit = query.limit || field.limit || 10;
+                        if(searchText.length >= field.suggestionMinLength) field.loadSuggestions.call(query, searchText, function(values, pagination){
                             query.suggestions = values.map(function(value) {
                               return {
                                 key: value.key || value,
                                 name: value.name || value.key || value};
-                            });;
+                            });
+                            query.pagination = pagination;
+                            query.page = pagination.page || query.page;
+                            query.limit = pagination.limit || query.limit;
                         });
-                    }, field.suggestionDebounce >= 0 ? field.suggestionDebounce : 350);
+                    }
+                    
+                    return function(query, searchText, debounce){
+                        if(debounce) return loadSuggestionsDebounced(query, searchText);
+                        else return loadSuggestions(query, searchText);
+                    };
                 })(fields[i]);
             }
         }
@@ -6526,16 +6563,16 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
     /*
      * RESPONSE HANDLERS
      */
-                                
-    function execCbs(fncs){
+    
+    function execCbs(ctx, fncs){
         var args = [], i;
-        for(i=1;i<arguments.length;i++) args.push(arguments[i]);
+        for(i=2;i<arguments.length;i++) args.push(arguments[i]);
         for(i=0;i<fncs.length;i++){
-            if(typeof fncs[i] === 'function' && fncs[i].apply(this, args) === true) return;
+            if(typeof fncs[i] === 'function' && fncs[i].apply(ctx, args) === true) return;
         }
     }
     
-    function handleSuccess(query, opts, cmdName, successCbs){
+    function handleSuccess(httpOpts, query, opts, cmdName, successCbs){
         return function(response){
             
             var httpOpts = response.config,
@@ -6555,12 +6592,12 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
             }
             
             parsedData = parseAdditionalKeys(opts, cmdName, data, parsedData);
-            execCbs([ cmdOpts.onData, opts.onData ], parsedData, (parsedData||{}).pagination, data, status, isList, cmdName);
-            execCbs(successCbs, parsedData, (parsedData||{}).pagination, data, status);
+            execCbs(httpOpts, [ cmdOpts.onData, opts.onData ], parsedData, (parsedData||{}).pagination, data, status, isList, cmdName);
+            execCbs(httpOpts, successCbs, parsedData, (parsedData||{}).pagination, data, status);
         };
     }
     
-    function handleError(query, opts, cmdName, errorCbs){
+    function handleError(httpOpts, query, opts, cmdName, errorCbs){
         return function(response){
             var httpOpts = response.config,
                 cmdOpts = opts.commands[cmdName],
@@ -6574,7 +6611,7 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
                 errorKey = cmdOpts.errorKey || opts.errorKey,
                 parsedError = object.deepGet(data, errorKey);
             
-            execCbs(responseErrorCbs, parsedError, status, headers);
+            execCbs(httpOpts, responseErrorCbs, parsedError, status, headers);
         };
     }
     
@@ -6626,8 +6663,8 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
             xhrListeners('removeEventListener');
             if(!ignoreLoading) loading.reqEnded();
             
-            if(status >= 200 && status <= 299) handleSuccess(query, opts, cmdName, successCbs)(response);
-            else handleError(query, opts, cmdName, errorCbs)(response);
+            if(status >= 200 && status <= 299) handleSuccess(httpOpts, query, opts, cmdName, successCbs)(response);
+            else handleError(httpOpts, query, opts, cmdName, errorCbs)(response);
         }
         
         function loadListener(e){ handleResponse(e.target, 'load'); }
@@ -6635,8 +6672,8 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
         function abortListener(e){ handleResponse(e.target, 'abort'); }
         function progressListener(e) {
             if(!progressCbs) return;
-            if (e.lengthComputable) execCbs(progressCbs, Math.ceil(100 * e.loaded / e.total));
-            else execCbs(progressCbs, 50); // Unable to compute progress information since the total size is unknown
+            if (e.lengthComputable) execCbs(httpOpts, progressCbs, Math.ceil(100 * e.loaded / e.total));
+            else execCbs(httpOpts, progressCbs, 50); // Unable to compute progress information since the total size is unknown
         }
         
         function xhrListeners(elProp){
@@ -6774,16 +6811,21 @@ angular.module('neRest',['neObject','neNotifications','neLoading'])
         var queryString = queryStringBuilder.call(resource, query, cmdName);
         if(urlPath.indexOf('?') > -1 && queryString.indexOf('?') === 0) queryString = '&'+queryString.substring(1);
         
+        var requestId = object.guid();
+
         var httpOpts = {
             url: urlPath + queryString,
             method: method,
             data: applyTransformators(data, transformRequest),
-            headers: headers,
-            ignoreLoading: ignoreLoading
+            headers: typeof headers === 'function' ? headers(opts.headers, data, cmdName, method, urlPath + queryString) : headers,
+            ignoreLoading: ignoreLoading,
+            requestId: requestId
         };
-        
+
         if(method === 'post-multipart' || method === 'upload') upload.call(resource, cmdName, query, httpOpts, successCbs, errorCbs, progressCbs);
-        else $http(httpOpts).then(handleSuccess(query, opts, cmdName, successCbs), handleError(query, opts, cmdName, errorCbs));
+        else $http(httpOpts).then(handleSuccess(httpOpts, query, opts, cmdName, successCbs), handleError(httpOpts, query, opts, cmdName, errorCbs));
+        
+        return requestId;
     };
                                 
     function replacePaginationProps(queryOrData, pageKey, limitKey, sortKey, object) {
@@ -7740,7 +7782,9 @@ angular.module('neTree',['neObject'])
                 if(parent) parent.$query = query;
                 else delete query.$limit;
                 tree.disabled = true;
-                tree.getResourceMethod('find', parent)(query, function(items, pagination){
+                tree.lastFindReqId = tree.getResourceMethod('find', parent)(query, function(items, pagination){
+                    if(tree.lastFindReqId && tree.lastFindReqId !== this.requestId) return;
+
                     tree.fillItems(parent, items, pagination, loadMode);
                     if(cb) cb(items);
                     tree.disabled = false;
