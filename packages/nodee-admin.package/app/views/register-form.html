@@ -13,7 +13,7 @@
                        type="email"
                        ng-model="reg.email"
                        ng-blur="checkEmailDuplicity(reg.email)"
-                       required />
+                       required>
             </div>
             <span class="text-danger" ng-if="dupliciteEmail">*{{::'This email is used by another user, please enter different'|translate}}</span>
         </div>
@@ -26,7 +26,7 @@
                        type="password"
                        ng-model="reg.pass"
                        ng-minlength="5"
-                       required />
+                       required>
             </div>
         </div>
         <div class="form-group">
@@ -38,10 +38,10 @@
                        type="password"
                        ng-model="reg.pass2"
                        ng-minlength="5"
-                       required />
+                       required>
             </div>
         </div>
-        <button class="btn btn-lg btn-block btn-register"
+        <button class="btn btn-lg btn-block btn-register btn-intensive"
                 ng-click="register(reg.email, reg.pass)"
                 ng-disabled="!regForm.$valid || dupliciteEmail || reg.pass!==reg.pass2">
             {{::'Register'|translate}}
