@@ -2803,7 +2803,7 @@ angular.module('neDragdrop',[])
             // allows us to drop
             if (e.preventDefault) e.preventDefault();
 
-            if(!attrs.droppable || attrs.droppable && scope.$apply(attrs.droppable)) {
+            if(!attrs.droppable || (attrs.droppable && scope.$apply(attrs.droppable))) {
                 this.classList.add('dragover');
             }
             return false;
@@ -2811,7 +2811,7 @@ angular.module('neDragdrop',[])
         el.addEventListener('dragover', dragover);
         
         function dragenter(e) {
-            if(!attrs.droppable || attrs.droppable && scope.$apply(attrs.droppable)) {
+            if(!attrs.droppable || (attrs.droppable && scope.$apply(attrs.droppable))) {
                 this.classList.add('dragover');
             }
             return false;
@@ -2836,7 +2836,7 @@ angular.module('neDragdrop',[])
             //this.appendChild(item);
             // call the passed drop function
             
-            if(attrs.drop) scope.$apply(attrs.drop);
+            if(attrs.drop && (!attrs.droppable || (attrs.droppable && scope.$apply(attrs.droppable)))) scope.$apply(attrs.drop);
             
             //scope.$apply(function(scope) {
             //    if(scope.drop) scope.$eval(scope.drop);
