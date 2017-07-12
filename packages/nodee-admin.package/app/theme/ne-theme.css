@@ -8368,6 +8368,16 @@ border-bottom-right-radius: 4px;
   width: auto !important;
   margin: 10px;
 }
+.modal-dialog.modal-fixed {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+.modal-dialog.modal-fixed .modal-content {
+  height: 100%;
+}
 .modal-dialog.left {
   margin: 10px;
 }
