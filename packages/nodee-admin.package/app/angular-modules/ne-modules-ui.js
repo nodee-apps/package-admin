@@ -3444,16 +3444,13 @@ angular.module('neLoading', [])
         }, debounce, false);
       }
       else if(service.status >= 100){
-        if((now - service.lastStart) > debounce){
-            service.statusTimeout = $timeout(function(){
-              service.setStatus(0);
-              service.fireStatusListeners(0);
-            }, endDelay, false);
-        }
-        else {
-            service.status = 0;
-            service.prevStatus = 0;
-        }
+        service.status = 0;
+        service.prevStatus = 0;
+
+        service.statusTimeout = $timeout(function(){
+          service.setStatus(0);
+          service.fireStatusListeners(0);
+        }, endDelay, false);
       }
     },
     reqStarted: function(debugNotes){
