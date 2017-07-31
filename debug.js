@@ -132,7 +132,7 @@ function app() {
         var arr = process.argv;
         arr.pop();
         arr.push("debugging");
-        if(childProcessDebuggerPort) app = fork(path.join(directory, "debug.js"), arr, {execArgv: ['--debug='+childProcessDebuggerPort]});
+        if(childProcessDebuggerPort) app = fork(path.join(directory, "debug.js"), arr, {execArgv: ['--inspect='+childProcessDebuggerPort]});
         else app = fork(path.join(directory, "debug.js"), arr);
 
         app.on("message", function(msg) {
