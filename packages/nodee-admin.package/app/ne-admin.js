@@ -452,15 +452,21 @@ angular.module('neAdmin',['neDirectives',
         }
     };
 }])
-.directive('neForgotpassForm', ['neAdmin', '$location', function(admin, $location){
+.directive('neForgotpassForm', ['neAdmin', '$window', function(admin, $window){
     return {
         templateUrl:'views/forgotpass-form.html',
         link: function(scope, elm, attrs){
 
-            var changeParams = $location.search();
+            var qs = ($window.location.search || '?').slice(1);
+            var queryParams = {};
+            
+            qs.split('&').forEach(function(part){
+                var part = part.split('=');
+                queryParams[ part[0] ] = (part[1] ? decodeURIComponent(part[1].replace(/\+/g,' ')) : part[1]) || '';
+            });
 
             scope.changePass = function(newPass){
-                admin.users.changePass({ email: changeParams.email, token:changeParams.token, newPass:newPass }, function(data){
+                admin.users.changePass({ email: queryParams.email, token:queryParams.token, newPass:newPass }, function(data){
                     scope.forgotPassSuccess = true;
                 },
                 function(data){

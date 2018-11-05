@@ -103,10 +103,11 @@ var admin = module.exports = {
                     forgotPassUrl: '',
                     emailSubject: 'Password Changed',
                     emailTemplate:  '<p>Dear User,</p>\n' +
-                                    '@if(typeof token !== undefined){\n'+
-                                        '<p>You can change your password here: <a href="@forgotPassUrl%2F%23%3Femail=@email%26token=@token">change password form</a></p>\n'+
+                                    '@if(model.token){\n'+
+                                        '<p>You can change your password here: <a href="@forgotPassUrl?email=@email&token=@token">change password form</a></p>\n'+
                                         '<p><strong>If you was not requested password change, please ignore this email.</strong></p>\n'+
-                                    '} else {\n'+
+                                    '} \n'+
+                                    '@if(model.newPassword) \n'+
                                         '<p>Your password was changed to: <strong>@newPassword</strong></p>\n'+
                                         '<p><strong>We strongly recommend to change your password after login.</strong></p>\n'+
                                     '} '+
@@ -584,6 +585,7 @@ function install(){
     var _forgotpass = auth.forgotpass;
     auth.forgotpass = function(){
         var ctrl = this;
+
         admin.config.get('mailers', function(err, mailersCfg){
             if(err) return ctrl.view500(err);
             _mailersCfg = mailersCfg;
@@ -591,7 +593,7 @@ function install(){
             admin.config.get('forgotpass', function(err, forgotpassCfg){
                 if(err) return ctrl.view500(err);
                 _forgotpassCfg = forgotpassCfg;
-                auth.forgotPassUrl = forgotpassCfg.forgotPassUrl || '';
+                auth.forgotPassUrl = (forgotpassCfg.forgotPassUrl || '');
                 auth.forgotPassNoreset = forgotpassCfg.noresetPass;
                 _forgotpass.call(ctrl);
             });
