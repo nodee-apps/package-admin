@@ -13,6 +13,23 @@
             </div>
             
             <div class="form-group">
+                <label class="col-sm-3 control-label">{{::'Don\'t Reset Pass'|translate}}</label>
+                <div class="col-sm-7">
+                    <label class="checkbox checkbox-default input-sm">
+                        <input type="checkbox"  ng-model="item.config.noresetPass">
+                        <i class="checkbox-icon"></i>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">{{::'Forgot Pass Url'|translate}}</label>
+                <div class="col-sm-7">
+                    <input ng-model="item.config.forgotPassUrl" class="form-control input-sm" placeholder="e.g. your.app.com/forgotpass">
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label class="col-sm-3 control-label">{{::'Email Subject'|translate}}</label>
                 <div class="col-sm-7">
                     <input ng-model="item.config.emailSubject" class="form-control input-sm">

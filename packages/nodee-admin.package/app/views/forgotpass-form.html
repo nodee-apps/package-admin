@@ -1,0 +1,41 @@
+<form name="chpForm" class="login" accept-charset="UTF-8" novalidate>
+    <div ng-if="forgotPassSuccess">
+        <h4>{{::'Change Password Successful'|translate}}</h4>
+        {{::'You can login with new password'|translate}}
+    </div>
+    <div ng-if="forgotPassFailed">
+        <h4>{{::'Change Password Failed'|translate}}</h4>
+        {{::'Change password token or email is invalid'|translate}}
+    </div>
+    <fieldset ng-if="!forgotPassSuccess && !forgotPassFailed">
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-fw fa-lock"></i></span>
+                <input class="form-control"
+                       placeholder="{{::'new password (min. 5 letters)'|translate}}"
+                       name="password"
+                       type="password"
+                       ng-model="chp.pass"
+                       ng-minlength="5"
+                       required>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-fw fa-lock"></i></span>
+                <input class="form-control"
+                       placeholder="{{::'repeat new password (min. 5 letters)'|translate}}"
+                       name="password2"
+                       type="password"
+                       ng-model="chp.pass2"
+                       ng-minlength="5"
+                       required>
+            </div>
+        </div>
+        <button class="btn btn-lg btn-block btn-register btn-intensive"
+                ng-click="changePass(chp.pass)"
+                ng-disabled="!chpForm.$valid || chp.pass!==chp.pass2">
+            {{::'Change Password'|translate}}
+        </button>
+    </fieldset>
+</form>

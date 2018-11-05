@@ -393,11 +393,11 @@ angular.module('neAdmin',['neDirectives',
             scope.forgotPassModal = function(email){
                 modals.create({
                     id:'login.forgotPassword',
-                    title:'Generate New Password',
+                    title:'Request Password Change',
                     include:'views/forgotpass.html',
                     sendPass: function(email){
                         admin.users.forgotPass({ email:email }, function(data){
-                            notify.success('New password was sent to your email');
+                            notify.success('Password change request was sent to your email');
                             modals.get('login.forgotPassword').hide();
                         });
                     },
@@ -447,6 +447,24 @@ angular.module('neAdmin',['neDirectives',
                 }, 
                 function(data){
                     scope.registerSuccess = true;
+                });
+            };
+        }
+    };
+}])
+.directive('neForgotpassForm', ['neAdmin', '$location', function(admin, $location){
+    return {
+        templateUrl:'views/forgotpass-form.html',
+        link: function(scope, elm, attrs){
+
+            var changeParams = $location.search();
+
+            scope.changePass = function(newPass){
+                admin.users.changePass({ email: changeParams.email, token:changeParams.token, newPass:newPass }, function(data){
+                    scope.forgotPassSuccess = true;
+                },
+                function(data){
+                    scope.forgotPassFailed = true;
                 });
             };
         }

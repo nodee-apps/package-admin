@@ -98,11 +98,23 @@ var admin = module.exports = {
                 allowWriteRoles:['admin'], // only admin can write
                 array: false, // will be validated as array of Models
                 keyValue: false, // will be validated as key - Model
-                defaultValue: { 
+                defaultValue: {
+                    noresetPass: false,
+                    forgotPassUrl: '',
                     emailSubject: 'Password Changed',
-                    emailTemplate: '<p>\nDear User,\n</p>\n<p>\nYour password was changed to: <strong>@new_password</strong>\n</p>\n<p>\n<strong>We strongly recommend to change your password after login</strong>\n</p>\n<p>\nThank you\n</p>'
+                    emailTemplate:  '<p>Dear User,</p>\n' +
+                                    '@if(typeof token !== undefined){\n'+
+                                        '<p>You can change your password here: <a href="@forgotPassUrl%2F%23%3Femail=@email%26token=@token">change password form</a></p>\n'+
+                                        '<p><strong>If you was not requested password change, please ignore this email.</strong></p>\n'+
+                                    '} else {\n'+
+                                        '<p>Your password was changed to: <strong>@newPassword</strong></p>\n'+
+                                        '<p><strong>We strongly recommend to change your password after login.</strong></p>\n'+
+                                    '} '+
+                                    '<p>Thank you</p>'
                 },
                 Model: Model.define({
+                    noresetPass:{ isBoolean:true },
+                    forgotPassUrl:{ isString:true },
                     emailSubject:{ required:true, isString:true },
                     emailTemplate:{ required:true, isString:true },
                     mailer:{ isString:true }
@@ -507,6 +519,7 @@ function install(){
     framework.mapping(basePath + 'views/changepass.html', '@nodee-admin/app/views/changepass.html');
     framework.mapping(basePath + 'views/changeemail.html', '@nodee-admin/app/views/changeemail.html');
     framework.mapping(basePath + 'views/forgotpass.html', '@nodee-admin/app/views/forgotpass.html');
+    framework.mapping(basePath + 'views/forgotpass-form.html', '@nodee-admin/app/views/forgotpass-form.html');
     framework.mapping(basePath + 'views/profile.html', '@nodee-admin/app/views/profile.html');
     framework.mapping(basePath + 'views/profile-form.html', '@nodee-admin/app/views/profile-form.html');
     
@@ -559,6 +572,7 @@ function install(){
         basePath: basePath,
         loginTemplate: 'ne: @nodee-admin/views/login',
         registerTemplate: 'ne: @nodee-admin/views/register',
+        forgotPassTemplate: 'ne: @nodee-admin/views/forgotpass',
         mailer: function(){ 
             var mailerId = _forgotpassCfg.mailer;
             return mailerId ? _mailersCfg[mailerId] : undefined;
@@ -577,8 +591,21 @@ function install(){
             admin.config.get('forgotpass', function(err, forgotpassCfg){
                 if(err) return ctrl.view500(err);
                 _forgotpassCfg = forgotpassCfg;
+                auth.forgotPassUrl = forgotpassCfg.forgotPassUrl || '';
+                auth.forgotPassNoreset = forgotpassCfg.noresetPass;
                 _forgotpass.call(ctrl);
             });
+        });
+    };
+
+    auth.viewForgotPass = function(){
+        var ctrl = this;
+        
+        admin.config.get('language', function(err, langCfg){
+            if(err) return ctrl.view500(err);
+            // refresh admin app init script
+            admin.generateAppScript(ctrl.user, langCfg);
+            ctrl.view(auth.forgotPassTemplate, admin);
         });
     };
     
@@ -634,6 +661,9 @@ function install(){
     
     // generate auth routes such as "/admin/login"...
     auth.generateRoutes();
+
+    // publish forgotpass into root dir
+    framework.route('/forgotpass', auth.viewForgotPass, ['get']);
     
     // admin base route
     framework.route(basePath, index, ['authorize','!admin','!adminarea']);
