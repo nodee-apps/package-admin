@@ -667,8 +667,22 @@ function install(){
     // publish forgotpass into root dir
     framework.route('/forgotpass', auth.viewForgotPass, ['get']);
     
-    // admin base route
-    framework.route(basePath, index, ['authorize','!admin','!adminarea']);
+    // admin base route - catch all and in controller decide what to do if not allowed role (to allow apps to override this route)
+    framework.route(basePath, index, ['authorize']);
+
+    function index() {
+        var ctrl = this;
+
+        if(!ctrl.user.roles) return ctrl.view403();
+        else if(ctrl.user.roles.indexOf('admin') === -1 && ctrl.user.roles.indexOf('adminarea') === -1) return ctrl.view403();
+        
+        // generate admin app init script
+        admin.config.get('language', function(err, langCfg){
+            if(err) return ctrl.view500(err);
+            admin.generateAppScript(ctrl.user, langCfg);
+            ctrl.view('ne: @nodee-admin/views/index', admin);
+        });
+    }
     
     // allow checking if email exists when registering new user, or changing user email
     framework.route(basePath + 'users/exists', framework.rest.collectionAction('User', { method:'exists', filter: onlyEmail }), ['get']);
@@ -882,15 +896,4 @@ function install(){
 
     // add usersPlugin
     usersPlugin.install(admin);
-}
-
-function index() {
-    var ctrl = this;
-    
-    // generate admin app init script
-    admin.config.get('language', function(err, langCfg){
-        if(err) return ctrl.view500(err);
-        admin.generateAppScript(ctrl.user, langCfg);
-        ctrl.view('ne: @nodee-admin/views/index', admin);
-    });
 }
